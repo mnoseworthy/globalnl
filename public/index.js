@@ -2,7 +2,7 @@ var callback = function (config)
 {
     // FirebaseUI config.
     var uiConfig = {
-        signInSuccessUrl: 'members.html',
+        signInSuccessUrl: config.signInSuccessUrl,
         signInOptions: [
             // Leave the lines as is for the providers you want to offer your users.
             firebase.auth.GoogleAuthProvider.PROVIDER_ID,
@@ -10,7 +10,7 @@ var callback = function (config)
             firebase.auth.EmailAuthProvider.PROVIDER_ID
         ],
         // Terms of service url.
-        tosUrl: '<your-tos-url>'
+        tosUrl: config.tosUrl
     };
 
     // Initialize the FirebaseUI Widget using Firebase.
@@ -19,4 +19,4 @@ var callback = function (config)
     ui.start('#firebaseui-auth-container', uiConfig);
 };
 
-var config = new configHandler( callback, 'index' );
+new configHandler( callback, 'index' );

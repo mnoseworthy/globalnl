@@ -18,13 +18,17 @@ var __globalnl_internal_config__  = {
     "404" : {},
     "index" : {
         "firebase" : {
-            "signInSuccessUrl" : "members.html"
+            "signInSuccessUrl" : "members.html",
         }
     },
     "members" : {},
     "profile" : {},
     "registeration" : {},
-    "signup" : {}
+    "signup" : {
+        "firebase" : {
+            "signInSuccessUrl" : "registration.html"
+        }
+    }
 }
 
 
@@ -77,10 +81,12 @@ class configHandler {
         this.config = __globalnl_internal_config__["GLOBAL"];
         // If a local config is requested, copy local request
         if ( this.filename !== "default" ) {
-            this.configDrill(__globalnl_internal_config__[filename]);
+            this.initialConfig = __globalnl_internal_config__[filename];
+            this.configDrill(this.initialConfig);
         }
-        // start external config load
-        this.requestLoadConfig(this.callback);
+        //Finish by executing callback with resolved config
+        this.callback(this.config);
+        
     }
     /* configDrill
 
@@ -92,64 +98,63 @@ class configHandler {
             was stored at. Don't pass this variable, it isnt used during the first iteration.
     */
     configDrill(object, keyVector=null) {
-        console.log("attempting to drill");
-        console.log(object);
-        for (var key in object) {
-          console.log(key + ': ' + object[key]);
-          this.config[key] = object[key]
-          if (object[key] !== null && typeof object[key] === "object") {
-            // Recurse into children
-            this.configDrill( object[key], keyVector.push(key) );
-          }
+        // create local copy of keyvector to handle updates to it
+        var vector = [];
+        if ( keyVector !== null ) {
+            vector = keyVector;
         }
-    }
-    /*  method requestLoadConfig
-
-        For future extension, config may need to be loaded from resources other than
-        the variable defined in this file.
-
-        @param callback (*function) - function pointer that is passed the config object
-    */
-    requestLoadConfig(callback) 
-    {
-        /* Skeleton code for later usage
-        // initialize request
-        var request = new XMLHttpRequest();
-        // set header info
-        request.overrideMimeType("application/json");
-        // Start request to open config file, wait until event fired
-        request.open('GET', 'https://github.com/somefile.json', true);
-        // hook into ready event of request
-        request.onreadystatechange = function() {
-            if (request.readyState && request.status == "200"){
-                callback(request.responseText);
+        //Iterate over the object's keys, each time an object is encountered,
+        //this function is called again until the full object has been traversed
+        //and its data copied to the output
+        for (var key in object) { 
+            // If nested, recurse
+            if (object[key] !== null && typeof object[key] === "object") {
+                // Store key vector before recursing
+                vector.push(key);
+                this.configDrill( object[key], vector);
+            } else {
+                //Create a temp copy by value
+                var tempVector = vector.slice();
+                tempVector.push(key)
+                //Assign new value into config object
+                this.resolveKeyVector(this.config, tempVector, object[key]); 
             }
         }
-        // send null to signify that the request is done
-        request.send(null);
-        */
-        callback({});
     }
 
-    /*  method saveConfigCallback
 
-        callback executed by loadconfig to store the config variables into
-        the object, attribute this.config. Only stores or overwrights the
-        config loaded from the varable defined at the top of this file.
+    // UTIL //
+    
+    /* method resolveKeyVector
+        Accepts an array or string that represents keys in an object, and assigns the value
+        into the same place of the given object. If the higher level properties don't exist
+        they are created.
 
-        @param configObject ({}) - js object containing the loaded config.
+        @param obj ({}) - Object to modifiy//assign value into
+        @param keyVector (string or array) - String like (x.y.z) or array like ['x','y','z']
+            that is resolved into an object accessor
+        @param value - Value to assign into the object
+
+        @returns value resolved from keyvector
     */
-    saveConfigCallback(configObject)
-    {
-        if (configObject !== {} ){
-            //Iterate over configObject and this.config
-            //check if any key's match, if so overright their values
-            //add any keys that dont exist and store their values
-            console.log("Not yet implemented, pseudo code defined.")
+    resolveKeyVector(obj,keyVector, value) {
+        // Handle a string key vector
+        if (typeof keyVector == 'string')
+            return this.resolveKeyVector(obj,keyVector.split('.'), value);
+        // Handle array vector
+        else if (keyVector.length==1 && value!==undefined)
+            return obj[keyVector[0]] = value;
+        else if (keyVector.length==0)
+            return obj;
+        else {
+            // If the object doesnt already have the key, create an empty object to work with
+            if ( ! obj.hasOwnProperty(keyVector[0]) ){
+                console.log("The following object does not have ...");
+                console.log(obj);
+                console.log(keyVector[0]);
+                obj[keyVector[0]] = {};
+            }
+            return this.resolveKeyVector(obj[keyVector[0]],keyVector.slice(1), value);
         }
-        // Set loading flag
-        this.loading = false;
-        // Execute callback to finish loading process
-        this.callback(this.config);
     }
 }
