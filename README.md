@@ -1,44 +1,55 @@
-# globalnl -b config_handler
-This branch contains a simple configuration approach that will allow dev's to build more easily tweakable content while making code safer by enforcing namespace usage.
+# globalnl -b js_refactor
+This branch will contain documentation and code pertaining to refactoring the javascript code assocaited with the site. 
 
-## Global Variables
-Many of the scripts have global variables involved, and even while they've been placed in visable places, these get difficult to maintain as the codebase grows. Backing onto another similar issue explained later, this is solved by just having a top-level configuration file handle the commonly used globals.
 
-### Structure of config file, config.json, located in root dir:
+# File structure
+First lets look at how the file's are structured on the site:
 
-```json
-{
-    "GLOBAL" : {},
-    'local' : {
-        "myConfigKey" : 1337
-    }
-}
-```
+public
+|--- admin
+|   |--- console.html // .js
+|   |--- login.html // js
+|--- assets
+|   |--- libraries ...
+|   |--- Firebase
+|   |   |--- admin.js
+|   |   |--- firebase.js
+|   |   |--- members.js
+|   |   |--- profile.js
+|   |   |--- registration.js
+|   |--- datatables.css // .js
+|--- 404.html
+|--- index.html // .js
+|--- members.html // .js
+|--- profile.html // .js
+|--- registration.html // .js
+|--- signup.html // .js
 
-Each key corresponds to the name of the html/js files assocated with a page (except GLOBAL). Each value is an object that can be used to store any configuarion variables a page requires.
+The general structure of the site's files is good, however there are issues with how javascript is being stored and handled. Separating database functionality is a good idea, however abstracting from a page-by-page level is not. It should instead be abstracted to a functional level, and then js for each page can leverage that code. I.e. a class should handle general interaction with the database, and a page's code, say members.js can use that interface to safely interact with firebase.
 
-*GLOBAL* This key is used to store global configuration. If a key in GLOBAL is equal to a key in and local config object, the local value should over-ride the global. GLOBAL keys are always loaded when requesting the config.
+Also, having custom code stored along-side versioned libraries is not a good idea. The firebase folder inside assets needs to be removed and placed else-where until it is refactored. Perhaps we can create another folder for javascipt that page-code leverages, somthing like //public/src .
 
-### How to use config in code
+Finally, the datatables module needs to get put into a folder containing its version number.
 
-Include the config script in the template file, *before* running scripts leveraging it:
-```
-<script src="../config.js"></script>
-```
+# Code structure
 
-Wrap your code in a namespace, pass the namespace to the config handler:
-```javascript
-    var myNameSpace = function(config){
-        var my = 'code';
-    }
+## Front end ( Templating )
+The front end (.html) structure is good, there aren't any convoluted callbacks being ran on dom elements from inside HTML and the placements of inclusions and file loads are good.
 
-    new configHandler( myNameSpace, 'local_config_key' );
-```
+## Back end
+The core functionality in most of the javascript files has been implemented in more a pythonic mannor and needs to be refactored. While doing this, it's important to retain all outside module loading functonality as components like login and pagnation are working as intended and have no need of being rewritten or even rethought.
 
-Then in code, access the config exactly like you would any other JS object:
-```javascript
-    var myNameSpace = function(config){
-        console.log(config.firebase.pageName);
-        var pageWidth = config.pageWidth;
-    }
-```
+What needs the most focus initially is the overall code structure. Five things need to happen:
+    1. Write database interface class
+        As previously mentioned, having the database code separate is a good idea - but only on a functional level. The interface class should handle all aspects of connecting, querying, caching, cleaning up, and parsing. The class should acheve these tasks on an abstract level, no code should reference anything in html files.
+    2. Wrap all code in namespaces
+        Currently the site could potentially fall into an unknown state either by boucning around the site too fast or by a developer making an error. Namespacing prevents a lot of potential problems. This will be acheved by utilising the config loading code.
+    3. Separate DOM outputs from javascript
+        Any section of javascript that creates a new DOM element and adds it to the page, should be loading in a .html file and filling in wildcards rather than generating it in code. This will allow easier changes to dynamic elements, as well as allow front-end specific developers to not have to search through javascript to make their required changes.
+    4. Separate event callbacks from functionality
+        Currently, the javascript files implement functionality inside of the same callbacks that are triggered from front-end events. While there's nothing wrong with doing this, it's helpful to pull out that functionality, wrap it in a class and define all your events at the top level as global. The only global's in the files should be those events.
+    5. Determine what portions of code require their own class structures
+        While refactoring the code-base, lets think about which sections of the code could benefit from being torn out into a class. The members page for example will require a few sections of code to be converted into a class structure - search filters and current user data should both be a class. This will be discussed further later once we start writing new functionality into those areas.
+
+
+ 
