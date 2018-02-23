@@ -9,13 +9,15 @@ Many of the scripts have global variables involved, and even while they've been 
 ```json
 {
     "GLOBAL" : {},
-    'local' : {}
+    'local' : {
+        "myConfigKey" : 1337
+    }
 }
 ```
 
 Each key corresponds to the name of the html/js files assocated with a page (except GLOBAL). Each value is an object that can be used to store any configuarion variables a page requires.
 
-*GLOBAL* This key is used to store global configuration. If a key in GLOBAL is equal to a key in and local config object, the local value should over-ride the global.
+*GLOBAL* This key is used to store global configuration. If a key in GLOBAL is equal to a key in and local config object, the local value should over-ride the global. GLOBAL keys are always loaded when requesting the config.
 
 ### How to use config in code
 
@@ -31,4 +33,12 @@ Wrap your code in a namespace, pass the namespace to the config handler:
     }
 
     new configHandler( myNameSpace, 'local_config_key' );
+```
+
+Then in code, access the config exactly like you would any other JS object:
+```javascript
+    var myNameSpace = function(config){
+        console.log(config.firebase.pageName);
+        var pageWidth = config.pageWidth;
+    }
 ```
