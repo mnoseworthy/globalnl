@@ -1,8 +1,8 @@
-var callback = function (config) 
+var index_namespace = function (config) 
 {
     // FirebaseUI config.
     var uiConfig = {
-        signInSuccessUrl: config.signInSuccessUrl,
+        signInSuccessUrl: config.firebase.signInSuccessUrl,
         signInOptions: [
             // Leave the lines as is for the providers you want to offer your users.
             firebase.auth.GoogleAuthProvider.PROVIDER_ID,
@@ -10,7 +10,7 @@ var callback = function (config)
             firebase.auth.EmailAuthProvider.PROVIDER_ID
         ],
         // Terms of service url.
-        tosUrl: config.tosUrl
+        tosUrl: config.firebase.tosUrl
     };
 
     // Initialize the FirebaseUI Widget using Firebase.
@@ -19,4 +19,7 @@ var callback = function (config)
     ui.start('#firebaseui-auth-container', uiConfig);
 };
 
-new configHandler( callback, 'index' );
+// Initialize config handler, this does nothing more than parse the config object
+// in the config handler file and return the object required for this page to the callback,
+// where the callback is just our namespace
+new configHandler( index_namespace, 'index' );

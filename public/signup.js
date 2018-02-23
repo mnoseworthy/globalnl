@@ -1,4 +1,4 @@
-var callback = function (config) 
+var signup_namespace = function (config) 
 {
 
   // FirebaseUI config.
@@ -21,4 +21,7 @@ var callback = function (config)
 
 };
 
-var config = new configHandler( callback, 'signup' );
+// Initialize config handler, this does nothing more than parse the config object
+// in the config handler file and return the object required for this page to the callback,
+// where the callback is just our namespace
+var config = new configHandler( signup_namespace, 'signup' );
