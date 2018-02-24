@@ -61,14 +61,12 @@ function initApp() {
               //
             }
           } else {
-
             $("#first_name").val(obj["first_name"]);
             $("#last_name").val(obj["last_name"]);
             $("#email").val(obj["email"]);
             $("#linkedin_profile").val(obj["linkedin_profile"]);
             $("#industry").val(obj["industry"]);
             $("#status").val(obj["status"]);
-
           }
 
         }, function(error) {

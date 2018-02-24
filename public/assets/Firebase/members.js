@@ -82,14 +82,14 @@ function initApp() {
           console.log(error);
         });
 
-      });
+      }); // end getIdToken callback
     } else {
 
       // Not signed in
       publicVersion();
 
     }
-  }, function(error) {
+  }, function(error) {  // end onAuthStateChanged
     console.log(error);
   });
 }
@@ -105,7 +105,7 @@ function publicVersion() {
 
 // Init auth on load web page
 window.addEventListener('load', function() {
-  initApp()
+  initApp();
 });
 
 function profile() {
