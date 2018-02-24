@@ -63,7 +63,8 @@ While working through the following tasks, keep note of any code structures that
 ## Firebase files
 - [ ] /public/assets/datatables.\* need to be moved into their own folder and their referenced updated in .html
 - [ ] Move firebase code out of assets folder until it's rewritten, update referneces in .html
-- [ ] Firebase database interface design
+- [x] Firebase database interface design   
+       - [See firebase code analysis & initial database design](./src/README.md)
 - [ ] Firebase database interface implementation
 - [ ] Separate functionality from database calls in /public/assets/Firebase/\*.js files, add functionality to their respective js files under public/ where functionality leverages the interface
 
