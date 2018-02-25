@@ -1,13 +1,20 @@
 /* Config object
-    
-    This is a non-global object that is accessable only by the config handler class
-    to allow local loading of required portions of config into areas of code where they're
-    requried. Use an instance of configHandler to utilise the config. See the class declaration
-    below for more info.
+    Javascript doesn't provide the best namespacing options, so to attempt to keep the config
+    object as internal as possible we define an oddly named variable that returns it. This should
+    only be called by the configHandler class defined below.
 */
-var __globalnl_internal_config__  = {
+
+var __globalnl_internal_config__  = function() { return {
     "GLOBAL" : {
         "firebase" : {
+            "config" : {
+                apiKey: "AIzaSyBDf7OWORlKoMM6Y9ly5ftxAw6QYjY_ulw",
+                authDomain: "globalnl-database.firebaseapp.com",
+                databaseURL: "https://globalnl-database.firebaseio.com",
+                projectId: "globalnl-database",
+                storageBucket: "globalnl-database.appspot.com",
+                messagingSenderId: "331545031788"
+            },
             "tosUrl" : "<your-tos-url>" 
         }
     },
@@ -18,7 +25,7 @@ var __globalnl_internal_config__  = {
     "404" : {},
     "index" : {
         "firebase" : {
-            "signInSuccessUrl" : "members.html",
+            "signInSuccessUrl" : "test.html",
         }
     },
     "members" : {},
@@ -29,7 +36,7 @@ var __globalnl_internal_config__  = {
             "signInSuccessUrl" : "registration.html"
         }
     }
-}
+}}
 
 
 /* Class configHandler
@@ -58,6 +65,10 @@ class configHandler {
         // Store param's
         this.callback = callback;
         // trigger loading
+        // loadConfig -> loads in the global config variable
+        // configDrill -> If local version of config required, drill into the nested parameters recursively
+        // resolveKeyVector -> uses some weird JS tricks to turn a string of keys into an accessor
+        // runs callback with the requested config
         this.loadConfig(filename);
 
     }
@@ -78,10 +89,10 @@ class configHandler {
             console.log("Already loading ya fool, fix that fail loop.");
         }
         // First copy global config
-        this.config = __globalnl_internal_config__["GLOBAL"];
+        this.config = __globalnl_internal_config__()["GLOBAL"];
         // If a local config is requested, copy local request
         if ( this.filename !== "default" ) {
-            this.initialConfig = __globalnl_internal_config__[filename];
+            this.initialConfig = __globalnl_internal_config__()[filename];
             this.configDrill(this.initialConfig);
         }
         //Finish by executing callback with resolved config
@@ -149,9 +160,9 @@ class configHandler {
         else {
             // If the object doesnt already have the key, create an empty object to work with
             if ( ! obj.hasOwnProperty(keyVector[0]) ){
-                console.log("The following object does not have ...");
-                console.log(obj);
-                console.log(keyVector[0]);
+                //console.log("The following object does not have ...");
+                //console.log(obj);
+                //console.log(keyVector[0]);
                 obj[keyVector[0]] = {};
             }
             return this.resolveKeyVector(obj[keyVector[0]],keyVector.slice(1), value);

@@ -98,3 +98,115 @@ Class firebase_interface:
       - deauthenticates gracefully with the database, ensuring any required metrics have been properly written, that the connection is closed, etc.
       - clears data caches
       - Checks for object references in global namespace and removes them ?
+
+# Current implemented database interface
+The current interface provides just enough functionality to refactor the current code, which only requires initalizing the firebase application, authenticating the user, determining user type and making some simple calls. Instead of writing a read interface, for now the firebase object can be accessed directly through the interface. Perhaps this will never be written as firebase handles read/write a lot better than I expected. The only benefit would come when we start implementing filters for the search function.
+
+## Usage
+To use the interface, follow a similar code structure to what is below:
+
+### HTML
+Include the required modules before loading your code using the interface, we also include the config here just to demonstrate how that should hook into the code flow as well
+```html
+    ...
+    <script src="https://www.gstatic.com/firebasejs/4.6.2/firebase.js"></script>
+    <script src="src/firebaseInterface.js"></script>
+    ...
+    <script src="myPage.js"></script>
+```
+
+### JS
+Use the interface to initalize firebase and authenticate your user to determine their user type and access the database on their behalf:
+```javascript
+    //myPage.js
+    // Config handler callback
+    var myPage_namespace = function (config) 
+    {
+        // firebaseInterface callback
+        var done = function( fbi ) {
+            // Validate success
+            if ( ! fbi ) 
+            {
+                console.log("An error has occured while initializing the firebase interface");
+                return false;
+            }
+            // Use interface
+            console.log("You are a "+fbi.userType);
+            console.log("Here's your immediate info "+fbi.userObject);
+            console.log("Your email is"+fbi.userObject.email);
+        }
+        // Running the initializer returns the database interface object to the callback
+        // or False if an error occured.
+        new firebase_interface(config.firebase.config, done);
+    };
+    // Initialize config handler, this does nothing more than parse the config object
+    // in the config handler file and return the object required for this page to the callback,
+    // where the callback is just our namespace
+    var config = new configHandler( myPage_namespace, 'myPage' );
+```
+
+# Dynamic object handling
+File structure:
+```
+    Src  
+    |--- elements  
+    |   |--- profile_output.html 
+    |   |--- member_row.html
+    |--- elementHandler.js  
+```
+
+dynamic elements were previously concattonated strings in javascript, these should now be stored in the /src/elements folder. These .html files would contain the exact html that should be output to the page, except where values need to be loaded specific markup would have to be used.
+
+## elementHandler class
+Whenever the programmer wants to load an object dymanically into a page, they would create an instance of this class and tell it which element they want, what parameters to pass to it and where to inject it in the page.
+
+The class would load the appropriate .html file from /src/elements/*.html, parse it for argument fields, ensure user has passed enough arguments, build a string that contains the requested HTML and return it to the programmer through their callback.
+
+## Usage Example
+## HTML
+Lets say we have myElement.html stored in /public/src/elements/mySubPage:
+```html
+    <div class="{[0](myClassName)}">
+        <a href="{(1)[myLinkArgumentName]}"  onClick="myFunction( {[2](someArgNameForThisFunction)} )" />
+    </div>
+```
+
+Our html page where we want this element loaded **must include** **elementHandler** and **jQuery** *before* the script invoking it:
+```html
+    <script src="jQuery"></script>
+    <script src="src/elementHandler.js"></script>
+    <script src="myPage.js"></script>
+```
+## Javascript
+
+```javascript
+    // myPage.js code
+    var callback = function ( resolvedDOM )
+    {
+        if ( ! resolvedDOM )
+        {
+            console.log("An error occured during loading//parsing");
+        }else{
+            //Use your loaded element !
+            $("#someID").append(resolvedDOM);
+        }
+    }
+    // path to the element file
+    var path = "elements/mySubPage/myElement.html";
+    // argument array or object. Use array to match arguments to the int index's in the file, or an object to match to the string indexs in the file
+    var args = ["cssClass", "https://mylink.gov", 1337];
+    var args = {
+        myClassName : "cssClass",
+        myLinkArgumentName : "https://mylink.gov",
+        someArgNameForThisFunciton : 1337
+    };
+    // Call the constructor, this will handle all loading/parsing and then releave data when complete
+    // after executing the callback with the requesting dom string
+    new elementHandler(path, args, callback);
+```
+
+# Future Improvements
+Areas that could benefit from further effort
+
+## User authentication & data handling
+It may be worthwhile to build a class sturcutre for users to control their authentication level's and what they can // cannot do around the site. This couldn also be leveraged to build cookies for users and store their data between & during sessions.

@@ -61,14 +61,22 @@ What needs the most focus initially is the *overall code structure*. Five things
 While working through the following tasks, keep note of any code structures that may require their own classes.
 
 ## Firebase files
-- [ ] /public/assets/datatables.\* need to be moved into their own folder and their referenced updated in .html
-- [ ] Move firebase code out of assets folder until it's rewritten, update referneces in .html
+- [x] /public/assets/datatables.\* need to be moved into their own folder and their referenced updated in .html
+       - So it looks like the datatables modules were actullay already in assets and the required files pulled out, so I just put them back into the root node of the datatables import. References updated in all html files as well. 
+       - Had to copy Bootstrap into the database directory, as it was looking locally for a copy of it. Doing this also ensures that an appropriate version is held for the module.
+- [x] Move firebase code out of assets folder until it's rewritten, update referneces in .html
+       - This is unneccesary, the contained code will just be included in the page javascript once the refactor is complete
 - [x] Firebase database interface design   
-       - [See firebase code analysis & initial database design](./src/README.md)
-- [ ] Firebase database interface implementation
+       - [See firebase code analysis & initial interface design](./src/README.md)
+       - [See google doc for information regarding the structure of the actual database](https://docs.google.com/document/d/1Tg4T9-1ErcGsSCNYeGSxDrTY7LcAs2vwrOQYrmR1BA8/edit#)  
+- [x] Firebase database interface implementation  
+       - While not all functionality is implemented, enough is there to allow the refactor and still allow full access to firebase if the programmer requires any unimplemented functionality
 - [ ] Separate functionality from database calls in /public/assets/Firebase/\*.js files, add functionality to their respective js files under public/ where functionality leverages the interface
 
 ## Page Javascript
+- [x] To enable the tasks below, implement a method of dynamically loading html from a file and filling in arguments  
+       - [See design and usage documentation](./src/README.md)  
+       - Class written to load .html files, parse them for argument fields like {[int](string)} and fill in values and return the html string  
 - [ ] Wrap all code in namespaces, i.e. setup all files like branch config_handler describes
 - [ ] Find all places in code where dom elements are created dynamically
 - [ ] Create a directory of .html files named after the elements they contain, where elements are dynamically created DOM's from the previous task
