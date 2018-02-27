@@ -16,12 +16,14 @@ class firebase_interface
     {
         // Define class properties
         this.userObject = {};  // Object returned when authenticating with database
-        // Moderator, Member, Anonymous
+        // Moderator, Member, Unregistered Member, Anonymous
         this.userType   = "";  // User type determined from userObject
         this.rootRef    = null;  // root directory of the database
         // Store params
         this.callback       = callback;
         this.firebaseConfig = firebaseConfig;
+        // Data cache accessable through methods
+        this.cache = {};
 
         // Ensure that firebase has been previously loaded
         if ( ! $('script[src$="/firebase.js"') ) {
@@ -85,9 +87,51 @@ class firebase_interface
                         _this.userType = "Member";
                         _this.callback(_this);
                         resolved = true;
+                    }).then( function(){
+                        if ( ! resolved ) {
+                            resolved = true;
+                            _this.userType = "Unregistered Member";
+                            _this.callback(_this);
+                        }
                     });
+
                 }
+
             }catch(e){} // i.e. pass
         }
+
+        /* writeCache
+            A simple function to store data in a object accessable to this class, first
+            step to writing cookies down the road.
+
+            @param key (string) - key to store data at in cache
+            @param data (any) - value to store in the cache
+        */
+        writeCache(key, data)
+        {
+            this.cache.key = data;
+        }
+        /* readCache
+            A simple function for retreving data stored in the cache object
+            @param key
+        */
+        readCache(key)
+        {
+            return this.cache.key;
+        }
+    }
+
+    /* getSnapshot
+        Simple read function that returns a snapshot from the given path, no 
+        need to pass rootRef. 
+
+        @param path (string) - path to the data you want a snapshot of in firebase
+        @param callback (function pointer) - function to pass result to
+    */
+    getSnapshot(path, callback)
+    {
+        this.rootRef.child(path).once('value', function(snapshot){
+            callback(snapshot.val());
+        });
     }
 } // end class definition

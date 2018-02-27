@@ -2,7 +2,7 @@
 var TABLET_WIDTH = 768;
 var COMPUTER_WIDTH = 1024;
 
-var rootRef = firebase.database().ref();
+//var rootRef = firebase.database().ref();
 var obj;
 var search_obj = {};
 var first_string = '';

@@ -25,10 +25,13 @@ var __globalnl_internal_config__  = function() { return {
     "404" : {},
     "index" : {
         "firebase" : {
-            "signInSuccessUrl" : "test.html",
+            "signInSuccessUrl" : "members.html",
         }
     },
-    "members" : {},
+    "members" : {
+        max_pages : 5,
+        members_per_page : 10
+    },
     "profile" : {},
     "registeration" : {},
     "signup" : {

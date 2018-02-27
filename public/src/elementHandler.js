@@ -76,7 +76,8 @@ class elementHandler
             var intIndex = this.matchedArgs[i].match(/\[\d\]/g);
             intIndex = parseInt( intIndex[0].replace("[","").replace("]","") );
             // Store results in required format
-            this.parsedArgs[intIndex] = {
+            this.parsedArgs[i] = {
+                intIndex : intIndex,
                 stringIndex : strIndex,
                 insertPos : i
             };
@@ -87,14 +88,33 @@ class elementHandler
 
     /* validateArgs
     */
+// TO DO # args in may not = # args out if the same arg is used multiple times
     validateArgs()
     {
-        // Check that length of this.resolvedArgs == length of this.args
-        if ( ! this.parsedArgs.length == this.args.length ){
-            console.log("Number of args passed does not the number of args found in the element file");
-            this.callback(false);
-            return false;
+        // If args is an array, check that all int index's in the loaded args have matches in
+        // the input args
+        if ( this.args.constructor === Array )
+        {
+            for ( var i = 0; i < this.parsedArgs.length; i++ )
+            {
+                // for this argument, iterate over all input args and check for a index match
+                var resolved = false;
+                for (var j = 0; j < this.args.length; j++)
+                {
+                    if ( this.parsedArgs.intIndex == j ){
+                        resolved = true;
+                    }
+                }
+                // if not found, fail loading
+                if ( ! resovled ) {
+                    console.log("The element template looks for index "+this.parsedArgs.intIndex+" but it does not exist in the given args.");
+                    this.callback(false);
+                    return false;
+                }
+
+            }
         }
+
         // If passed args aren't an ordered array, check that all the
         // argument strings have pairs in resolvedArgs
         if ( ! this.args.constructor === Array && this.args.constructor === Object )
@@ -129,10 +149,10 @@ class elementHandler
         // args are either an ordered array matching to intIndex
         if ( this.args.constructor === Array )
         {
-            // Simply map i:i values
-            for (var i =0; i < this.args.length; i++)
+            // Iterate over the arguments and fill in the required values from args
+            for ( var i = 0; i < this.resolvedArgs.length; i ++)
             {
-                this.resolvedArgs[i].value = this.args[i];
+                this.resolvedArgs.value = this.args[this.resolvedArgs.intIndex];
             }
 
         // or an object where the keys match strIndex
