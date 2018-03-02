@@ -90,6 +90,8 @@ class firebase_interface
                     _this.userType = "Moderator";
                     if ( !_this.finishedLoading ) {
                         _this.finishedLoading = true;
+
+                        console.log(snapshot.val());
                         _this.callback(_this);        
                     }      
                 });

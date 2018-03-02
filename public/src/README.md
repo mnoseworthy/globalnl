@@ -205,6 +205,107 @@ Our html page where we want this element loaded **must include** **elementHandle
     new elementHandler(path, args, callback);
 ```
 
+# Skeleton for new pages leveraging new code
+The following code snippet can be used to create a new page that leverages the config loader, firebase interface and element handler. The element handler section is just for an example, don't include that in your page !
+```html
+<!-- my_page.html -->
+<html>
+    <head>...</head>
+    <body>
+        ...
+        <!-- modules required for our classes -->
+        <script type="text/javascript" src="/assets/DataTables-1.10.16/datatables.min.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/4.6.2/firebase.js"></script>
+        <!-- Site source, handlers and interfaces first, then the page code -->
+        <script type="text/javascript" src="src/config.js"></script>
+        <script type="text/javascript" src="src/firebaseInterface.js"></script>
+        <script type="text/javascript" src="src/elementHandler.js"></script>
+        <script type="text/javascript" src="my_page.js"></script>
+    </body>
+</html>
+```
+```javascript
+    /* my_page.js */
+
+    // Start execution when page is done loading
+    $(document).ready(function(){
+        initApp();
+    });
+    // Code entry point, started when page is finished loading
+    function initApp()
+    {
+        // Initialize config handler, this does nothing more than parse the config object
+        // in the config handler file and return the object required for this page to the callback,
+        // where the callback is just our namespace below
+        new configHandler( my_page_namespace, 'my_page' );
+    }
+    // This is where we implement the main logic for our page, and we pass this function to
+    // the configHandler constructor as it's callback - i.e. it's started once config is finished loading
+    var my_page_namespace = function (config) 
+    {
+        // This is passed to the firebase interface as it's callback, and won't be executed until
+        // the interface has connected to the database and figured out the user type
+        var firebaseLoaded = function( fbi ) {
+            // Validate success
+            if ( ! fbi ) 
+            {
+                console.log("An error has occured while initializing the firebase interface");
+                return false;
+            }
+
+            // Switch based on user type, this is where we redirect different types
+            // of users to other pages if they don't belong here or whatever
+            switch ( fbi.userType ) 
+            {
+                case "Moderator":
+                    break;
+                case "Member":
+                    break;
+                case "Unregistered Member":
+                    // Member never filled out registration form
+                    break;
+                case "Anonymous":
+                    break;
+                default:
+                    console.log("User type undefined? How did we get here ...");
+                    return false;
+            }
+            // Implement whatever you want here using the firebase interface and config
+            // feel free to add whatever global data you need into the config file (static)
+
+            /* Example element handler usage */
+            // Callback for element handler to inject the element
+            var callback = function ( resolvedDOM )
+            {
+                if ( ! resolvedDOM )
+                {
+                    console.log("An error occured during loading//parsing");
+                }else{
+                    //Use your loaded element !
+                    $("#someID").append(resolvedDOM);
+                }
+            }
+            // path to the element file
+            var path = "elements/mySubPage/myElement.html";
+            // argument array or object. Use array to match arguments to the int index's in the file, or an object to match to the string indexs in the file
+            var args = ["cssClass", "https://mylink.gov", 1337];
+            var args = {
+                myClassName : "cssClass",
+                myLinkArgumentName : "https://mylink.gov",
+                someArgNameForThisFunciton : 1337
+            };
+            // Call the constructor, this will handle all loading/parsing and then releave data when complete
+            // after executing the callback with the requesting dom string
+            new elementHandler(path, args, callback);
+        } // end firebase callback
+        
+        // Running the initializer returns the database interface object to the callback
+        // or False if an error occured.
+        // We pass the firebase interface the firebase section of our loaded config
+        new firebase_interface(config.firebase.config, firebaseLoaded);
+    }; // end namespace
+```
+
 # Future Improvements
 Areas that could benefit from further effort
 

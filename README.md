@@ -71,14 +71,34 @@ While working through the following tasks, keep note of any code structures that
        - [See google doc for information regarding the structure of the actual database](https://docs.google.com/document/d/1Tg4T9-1ErcGsSCNYeGSxDrTY7LcAs2vwrOQYrmR1BA8/edit#)  
 - [x] Firebase database interface implementation  
        - While not all functionality is implemented, enough is there to allow the refactor and still allow full access to firebase if the programmer requires any unimplemented functionality
-- [ ] Separate functionality from database calls in /public/assets/Firebase/\*.js files, add functionality to their respective js files under public/ where functionality leverages the interface
+- [x] Separate functionality from database calls in /public/assets/Firebase/\*.js files, add functionality to their respective js files under public/ where functionality leverages the interface
 
 ## Page Javascript
 - [x] To enable the tasks below, implement a method of dynamically loading html from a file and filling in arguments  
        - [See design and usage documentation](./src/README.md)  
        - Class written to load .html files, parse them for argument fields like {[int](string)} and fill in values and return the html string  
-- [ ] Wrap all code in namespaces, i.e. setup all files like branch config_handler describes
-- [ ] Find all places in code where dom elements are created dynamically
-- [ ] Create a directory of .html files named after the elements they contain, where elements are dynamically created DOM's from the previous task
-- [ ] Read through .html, find all events that are fired. Read through all js, find all events that are being hooked into.
-- [ ] From task above, separate any functionality that is triggered into the namespace, define event hooks at top out of namespace
+- [x] Wrap all code in namespaces, i.e. setup all files like branch config_handler describes
+- [x] Find all places in code where dom elements are created dynamically
+- [x] Create a directory of .html files named after the elements they contain, where elements are dynamically created DOM's from the previous task
+- [x] Read through .html, find all events that are fired. Read through all js, find all events that are being hooked into.
+- [x] From task above, separate any functionality that is triggered into the namespace, define event hooks at top out of namespace
+
+# Future work
+Place to write required future work while refactoring code
+## Overall
+- [ ] Separate repeated code that gets used on every page into a page module or something similar to that
+       - logout callback
+       - user information at top of screen
+       - formatting functions for things like location strings
+- [ ] If time allows make some fancy loading overlay. We don't have an actual backend and all data is being loaded and parsed in the browser so this can possibly slow things down on low-end pc's. We don't want user's thinking the page has died or something.
+- [ ] Implement Linkeded API to query more data about the user
+- [ ] Use meta data about user to fill in data, e.g. geo location
+## member page
+- [ ] Implement search filters
+- [ ] Reformat as per design doc
+## profile page
+- [ ] Redo front-end as per design doc
+- [ ] Batch modified data from the front-end, validate selections, write to database, reload
+- [ ] Add data inputs for interests, comments and privacy
+- [ ] Add auto-complete fields to DOM elements, as per warnings in console
+
