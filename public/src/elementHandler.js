@@ -160,17 +160,17 @@ class elementHandler
         {
             // match the keys of the args, to the strIndex in the parsedArgs
             var argKeys = Object.keys(this.args);
-            // then store the respective value
-            for ( var j = 0; j < argKeys.length; j++ )
+            // Find value for each resolvedArg inside input arg by matching string
+            for (var i = 0; i < this.resolvedArgs.length; i++)
             {
-                for ( var i = 0; i < this.resolvedArgs.length; i++ )
+                for ( var j = 0; j < argKeys.length; j++)
                 {
-                    if ( String(argKeys[j]) == this.resolvedArgs[i].stringIndex){
+                    if ( String(argKeys[j]) == String(this.resolvedArgs[i].stringIndex) )
+                    {
                         this.resolvedArgs[i].value = this.args[argKeys[j]];
-                        break;
                     }
                 }
-            } 
+            }
         }
 
         // resolvedArgs now contains all the required values for building the output DOM

@@ -16,6 +16,7 @@ class firebase_interface
     {
         // Define class properties
         this.userObject = {};  // Object returned when authenticating with database
+        this.finishedLoading = false  // flag to ensure callback isn't executed twice & to signal when loading is finished (even if failed)
         // Moderator, Member, Unregistered Member, Anonymous
         this.userType   = "";  // User type determined from userObject
         this.rootRef    = null;  // root directory of the database
@@ -29,8 +30,11 @@ class firebase_interface
         if ( ! $('script[src$="/firebase.js"') ) {
             // checks for all script tags ending in /firebase.js
             // i.e. if true, no script has attempted to load firebase
-            this.callback(false);
-            return false
+            if( ! this.finishedLoading ) {
+                this.finishedLoading = true;
+                this.callback(false);
+                return false
+            }
         }
         // Initialize application by passing config to firebase
         // https://firebase.google.com/docs/reference/js/firebase#.initializeApp
@@ -57,7 +61,11 @@ class firebase_interface
                 _this.parseUserType();
             } else {
                 _this.userType = "Anonymous";
-                _this.callback(this);
+                if ( ! _this.finishedLoading ) {
+                    _this.finishedLoading = true;
+                    _this.callback(this);
+                    return true            
+                }
             }
         }); // end onAuthStateChanged callback
     } // end authenticateUser
@@ -80,18 +88,27 @@ class firebase_interface
                 this.rootRef.child("moderators").once('value', function(snapshot) {
                     resolved = true;
                     _this.userType = "Moderator";
-                    _this.callback(_this);              
+                    if ( !_this.finishedLoading ) {
+                        _this.finishedLoading = true;
+                        _this.callback(_this);        
+                    }      
                 });
                 if ( ! resolved ) {
                     this.rootRef.child("private/members/"+this.userObject.uid).once('value', function(snapshot) {
                         _this.userType = "Member";
-                        _this.callback(_this);
+                        if ( ! _this.finishedLoading ) {
+                            _this.finishedLoading = true;
+                            _this.callback(_this);
+                        }
                         resolved = true;
                     }).then( function(){
                         if ( ! resolved ) {
                             resolved = true;
                             _this.userType = "Unregistered Member";
-                            _this.callback(_this);
+                            if( ! _this.finishedLoading ){
+                                _this.finishedLoading = true;
+                                _this.callback(_this);
+                            }
                         }
                     });
 
@@ -99,26 +116,26 @@ class firebase_interface
 
             }catch(e){} // i.e. pass
         }
+    } //  end parse user type
 
-        /* writeCache
-            A simple function to store data in a object accessable to this class, first
-            step to writing cookies down the road.
+    /* writeCache
+        A simple function to store data in a object accessable to this class, first
+        step to writing cookies down the road.
 
-            @param key (string) - key to store data at in cache
-            @param data (any) - value to store in the cache
-        */
-        writeCache(key, data)
-        {
-            this.cache.key = data;
-        }
-        /* readCache
-            A simple function for retreving data stored in the cache object
-            @param key
-        */
-        readCache(key)
-        {
-            return this.cache.key;
-        }
+        @param key (string) - key to store data at in cache
+        @param data (any) - value to store in the cache
+    */
+    writeCache(key, data)
+    {
+        this.cache[key] = data;
+    }
+    /* readCache
+        A simple function for retreving data stored in the cache object
+        @param key
+    */
+    readCache(key)
+    {
+        return this.cache[key];
     }
 
     /* getSnapshot
