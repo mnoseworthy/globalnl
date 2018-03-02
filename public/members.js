@@ -1,7 +1,7 @@
 /********************
 * Interface reference
 ********************/
-// Will hold a refernece to the created firebase reference, giving access to
+// Will hold a reference to the created firebase reference, giving access to
 // the interface in our callback functions below.
 var _firebase_interface;
 
@@ -60,7 +60,7 @@ function toggleInfoWindow(key) {
 
 // set info window
 function setInfoWindowData(uid) {
-    // Read member object from firebase cache ( Saved as members were loaded to page)
+    // Read member object from firebase cache (Saved as members were loaded to page)
     var memberObject = _firebase_interface.readCache("member_references")[uid];
     // Set data fields in html
     $("#member_name").html(memberObject.first_name+' '+memberObject.last_name);
