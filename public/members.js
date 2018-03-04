@@ -8,8 +8,6 @@ var _firebase_interface;
 /*****************************************************  
 * Register event callbacks & implement element callbacks
 ******************************************************/
-// Our only global variable, allowing access to the firebase interface after it's
-// created in our namespace below
 // Init auth on load web page event
 $(document).ready(function(){
     initApp();
@@ -133,6 +131,7 @@ var members_namespace = function (config)
         _firebase_interface = fbi;
         
         // Switch based on user type
+        console.log(fbi.userType);
         switch ( fbi.userType ) 
         {
             case "Moderator":
@@ -170,7 +169,7 @@ var members_namespace = function (config)
                 break;
             case "Unregistered Member":
                 // Member never filled out registration form
-                if (confirm("Account not fully registered, continue to registration form? If not you access will be limited.")) {
+                if (confirm("Account not fully registered, continue to registration form? If not your access will be limited.")) {
                     window.location.href = "registration.html";
                 } else {
                     // Load public members table

@@ -15,7 +15,7 @@
 
 <div class="container">
 
-<form class="well form-horizontal" onsubmit="return fieldsEntered();" id="register_form">
+<form class="well form-horizontal" id="register_form">
 <fieldset>
 
 <!-- Form Name -->
@@ -28,7 +28,7 @@
 <div class="col-md-5 inputGroupContainer">
 <div class="input-group">
 <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
-<input name="first_name" id="first_name" placeholder="First Name" class="form-control"  type="text" required>
+<input name="first_name" id="first_name" placeholder="First Name" class="form-control"  type="text" autocomplete="given-name" required>
   </div>
 </div>
 </div>
@@ -40,7 +40,7 @@
   <div class="col-md-5 inputGroupContainer">
   <div class="input-group">
 <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
-<input name="last_name" id="last_name" placeholder="Last Name" class="form-control"  type="text" required>
+<input name="last_name" id="last_name" placeholder="Last Name" class="form-control"  type="text" autocomplete="family-name" required>
   </div>
 </div>
 </div>
@@ -52,7 +52,7 @@
   <div class="col-md-5 inputGroupContainer">
   <div class="input-group">
 <span class="input-group-addon"><i class="glyphicon glyphicon-envelope"></i></span>
-<input name="email" id="email" value="" class="form-control" type="text">
+<input name="email" id="email" value="" class="form-control" type="text" autocomplete="email">
   </div>
 </div>
 </div>
@@ -64,7 +64,7 @@
 <div class="col-md-5 inputGroupContainer">
 <div class="input-group">
 <span class="input-group-addon"><i class="glyphicon glyphicon-globe"></i></span>
-<input id="autocomplete_current" name="cl" placeholder="Where ya at" class="form-control" type="text" required>
+<input id="autocomplete_current" name="cl" placeholder="Where ya at" class="form-control" type="text" autocomplete="country-name" required>
   </div>
 </div>
 </div>
@@ -76,7 +76,7 @@
 <div class="col-md-5 inputGroupContainer">
 <div class="input-group">
 <span class="input-group-addon"><i class="glyphicon glyphicon-home"></i></span>
-<input id="autocomplete_hometown" name="ht" placeholder="Where ya from or where are ya NL roots" class="form-control"  type="text" required>
+<input id="autocomplete_hometown" name="ht" placeholder="Where ya from or where are ya NL roots" class="form-control" autocomplete="country-name" type="text" required>
   </div>
 </div>
 </div>
@@ -88,7 +88,7 @@
 <div class="col-md-5 inputGroupContainer">
 <div class="input-group">
 <span class="input-group-addon"><i class="fa fa-linkedin"></i></span>
-<input name="linkedin_profile" id="linkedin_profile" placeholder='https://www.linkedin.com/in/johndoe/' class="form-control"  type="text" required>
+<input name="linkedin_profile" id="linkedin_profile" placeholder='https://www.linkedin.com/in/johndoe/' class="form-control"  type="text" autocomplete="url" required>
   </div>
 </div>
 </div>
@@ -131,7 +131,7 @@
 <label class="col-md-4 control-label" ></label>
   <div class="col-md-5 inputGroupContainer">
   <div class="input-group">
-<input name="industry_other" id="industry_other_box" class="form-control"  type="text">
+<input name="industry_other" id="industry_other_box" class="form-control" autocomplete="organizationz-title" type="text">
   </div>
 </div>
 </div>
@@ -155,7 +155,7 @@
   <div class="col-md-5 inputGroupContainer">
   <div class="input-group">
 <span class="input-group-addon"><i class="glyphicon glyphicon-education"></i></span>
-<input name="school" id="school_box" placeholder="Memorial University of Newfoundland" class="form-control" type="text">
+<input name="school" id="school_box" placeholder="Memorial University of Newfoundland" class="form-control" autocomplete="organization" type="text">
   </div>
 </div>
 </div>
@@ -180,7 +180,7 @@
 </div>
 </div>
 
-<div class="form-group">
+<div class="form-group" id="interest_select">
   <label class="col-md-4 control-label" >Interests</label>
   <div class="col-md-5 inputGroupContainer">
     <div class="checkbox">
@@ -242,12 +242,11 @@
 <!-- Include Javascript Libraries -->
 <script type="text/javascript" src="assets/DataTables-1.10.16/datatables.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/4.6.2/firebase.js"></script>
-<script src="/assets/Firebase/firebase.js"></script>
-<script src="/assets/Firebase/registration.js"></script>
-
-<!-- Javascript Code -->
+<!-- Site Code -->
+<script src="src/config.js"></script>
+<script src="src/firebaseInterface.js"></script>
 <script src='registration.js'></script>
-
+<!-- auto complete from google maps must be called after registration.js -->
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB1eOBITvxAHRcodvjmw4_fWQxQB_iKPKQ&libraries=places&callback=initAutocomplete"
         async defer></script>
 

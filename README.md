@@ -101,4 +101,9 @@ Place to write required future work while refactoring code
 - [ ] Batch modified data from the front-end, validate selections, write to database, reload
 - [ ] Add data inputs for interests, comments and privacy
 - [ ] Add auto-complete fields to DOM elements, as per warnings in console
+## Registration Page
+- [ ] Add form validation
+       - Regex for each field
+       - For location enforce that the user used google api
+       - For linked in, make a http request to the page to verifiy it exists and is on linkedin's domain
 

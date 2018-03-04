@@ -38,7 +38,9 @@ class firebase_interface
         }
         // Initialize application by passing config to firebase
         // https://firebase.google.com/docs/reference/js/firebase#.initializeApp
-        this.defaultApp = firebase.initializeApp(firebaseConfig);
+        if ( firebase.app.apps === undefined ){
+            this.defaultApp = firebase.initializeApp(firebaseConfig);
+        } 
         // Store database reference
         this.database = firebase.database();
         // Define root directory of firebase
@@ -85,24 +87,27 @@ class firebase_interface
             // type is by making query attempts and checking weather or not they
             // fail...
             try{
-                this.rootRef.child("moderators").once('value', function(snapshot) {
-                    resolved = true;
-                    _this.userType = "Moderator";
-                    if ( !_this.finishedLoading ) {
-                        _this.finishedLoading = true;
-
-                        console.log(snapshot.val());
-                        _this.callback(_this);        
-                    }      
+                this.rootRef.child("moderators"+this.userObject.uid).once('value', function(snapshot) {
+                    if(snapshot.val() !== null){
+                        resolved = true;
+                        _this.userType = "Moderator";
+                        if ( !_this.finishedLoading ) {
+                            _this.finishedLoading = true;
+                            //console.log(snapshot.val());
+                            _this.callback(_this);        
+                        }
+                    } 
                 });
                 if ( ! resolved ) {
                     this.rootRef.child("private/members/"+this.userObject.uid).once('value', function(snapshot) {
-                        _this.userType = "Member";
-                        if ( ! _this.finishedLoading ) {
-                            _this.finishedLoading = true;
-                            _this.callback(_this);
-                        }
-                        resolved = true;
+                        if(snapshot.val() !== null){
+                            _this.userType = "Member";
+                            if ( ! _this.finishedLoading ) {
+                                _this.finishedLoading = true;
+                                _this.callback(_this);
+                            }
+                            resolved = true;
+                            }
                     }).then( function(){
                         if ( ! resolved ) {
                             resolved = true;
@@ -152,5 +157,17 @@ class firebase_interface
         this.rootRef.child(path).once('value', function(snapshot){
             callback(snapshot.val());
         });
+    }
+
+    /* write
+        Simple write function
+
+        @param path (string) - database path to write the object to
+        @param object ({}) - json object to write to database
+        @param callback (function pointer) - function to execute with status
+    */
+    write(path, object, callback)
+    {
+        this.rootRef.child(path).set(object, function(error){ callback(error);});
     }
 } // end class definition
