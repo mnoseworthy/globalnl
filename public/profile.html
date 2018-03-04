@@ -7,14 +7,12 @@
 
   <title>Global NL - Profile</title>
 
-  <link rel="stylesheet" type="text/css" href="/assets/datatables.min.css"/>
+  <link rel="stylesheet" type="text/css" href="/assets/DataTables-1.10.16/datatables.min.css"/>
   <link rel="stylesheet" type="text/css" href="/assets/Pagination/simplePagination.css"/>
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <script src="https://use.fontawesome.com/b58b304000.js"></script>
 
 </head>
-
-<script src="https://platform.linkedin.com/in.js" type="text/javascript"></script>
 
 <body>
 
@@ -329,63 +327,16 @@
     </div>
   </div>
 
-<script type="text/javascript" src="/assets/datatables.min.js"></script>
+<script type="text/javascript" src="/assets/DataTables-1.10.16/datatables.min.js"></script>
+<script src="https://platform.linkedin.com/in.js" type="text/javascript"></script>
 <script type="text/javascript" src="/assets/Pagination/jquery.twbsPagination.min.js"></script>
 <script type="text/javascript" src="/assets/Pagination/jquery.simplePagination.js"></script>
-<script src="/assets/Bootcards-1.1.2/js/bootcards.js"></script>
+<script src="/assets/bootcards-1.1.2/js/bootcards.js"></script>
 <script src="https://www.gstatic.com/firebasejs/4.6.2/firebase.js"></script>
-<script src="/assets/Firebase/firebase.js"></script>
-<script src="/assets/Firebase/profile.js"></script>
-
-<script type="text/javascript">
-
-var TABLET_WIDTH = 768;
-var COMPUTER_WIDTH = 1024;
-
-var rootRef = firebase.database().ref();
-var obj;
-
-window.onload = function(event) {
-  checkWindowWidth();
-  $("#user_controls_mobile").hide();
-};
-
-$(document).ready( function () {
-
-
-});
-
-function checkWindowWidth() {
-  if ($(window).width() < COMPUTER_WIDTH) {
-    $("#list").show();
-    if ($(window).width() < TABLET_WIDTH) {
-      $("#contactCard").hide();
-    }
-    $("<link/>", {
-       rel: "stylesheet",
-       type: "text/css",
-       href: "https://cdnjs.cloudflare.com/ajax/libs/bootcards/1.1.2/css/bootcards-android.min.css"
-    }).appendTo("head");
-  } else {
-    $("#list").show();
-    $("#contactCard").show();
-    $("<link/>", {
-       rel: "stylesheet",
-       type: "text/css",
-       href: "https://cdnjs.cloudflare.com/ajax/libs/bootcards/1.1.2/css/bootcards-desktop.min.css"
-    }).appendTo("head");
-  }
-}
-
-bootcards.init( {
-  offCanvasBackdrop : true,
-  offCanvasHideOnMainClick : true,
-  enableTabletPortraitMode : true,
-  disableRubberBanding : true,
-  disableBreakoutSelector : 'a.no-break-out'
-});
-
-</script>
+<script src="src/config.js" type="text/javascript"></script>\
+<script src="src/elementHandler.js" type="text/javascript"></script>
+<script src="src/firebaseInterface.js" type="text/javascript"></script>
+<script src="profile.js"></script>
 
 </body>
 </html>

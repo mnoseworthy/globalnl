@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Global NL - Registration</title>
 
-<link rel="stylesheet" type="text/css" href="assets/datatables.min.css"/>
+<link rel="stylesheet" type="text/css" href="assets/DataTables-1.10.16/datatables.min.css"/>
 <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 <script src="https://use.fontawesome.com/b58b304000.js"></script>
 
@@ -15,7 +15,7 @@
 
 <div class="container">
 
-<form class="well form-horizontal" onsubmit="return fieldsEntered();" id="register_form">
+<form class="well form-horizontal" id="register_form">
 <fieldset>
 
 <!-- Form Name -->
@@ -28,7 +28,7 @@
 <div class="col-md-5 inputGroupContainer">
 <div class="input-group">
 <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
-<input name="first_name" id="first_name" placeholder="First Name" class="form-control"  type="text" required>
+<input name="first_name" id="first_name" placeholder="First Name" class="form-control"  type="text" autocomplete="given-name" required>
   </div>
 </div>
 </div>
@@ -40,7 +40,7 @@
   <div class="col-md-5 inputGroupContainer">
   <div class="input-group">
 <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
-<input name="last_name" id="last_name" placeholder="Last Name" class="form-control"  type="text" required>
+<input name="last_name" id="last_name" placeholder="Last Name" class="form-control"  type="text" autocomplete="family-name" required>
   </div>
 </div>
 </div>
@@ -52,7 +52,7 @@
   <div class="col-md-5 inputGroupContainer">
   <div class="input-group">
 <span class="input-group-addon"><i class="glyphicon glyphicon-envelope"></i></span>
-<input name="email" id="email" value="" class="form-control" type="text">
+<input name="email" id="email" value="" class="form-control" type="text" autocomplete="email">
   </div>
 </div>
 </div>
@@ -64,7 +64,7 @@
 <div class="col-md-5 inputGroupContainer">
 <div class="input-group">
 <span class="input-group-addon"><i class="glyphicon glyphicon-globe"></i></span>
-<input id="autocomplete_current" name="cl" placeholder="Where ya at" class="form-control" type="text" required>
+<input id="autocomplete_current" name="cl" placeholder="Where ya at" class="form-control" type="text" autocomplete="country-name" required>
   </div>
 </div>
 </div>
@@ -76,7 +76,7 @@
 <div class="col-md-5 inputGroupContainer">
 <div class="input-group">
 <span class="input-group-addon"><i class="glyphicon glyphicon-home"></i></span>
-<input id="autocomplete_hometown" name="ht" placeholder="Where ya from or where are ya NL roots" class="form-control"  type="text" required>
+<input id="autocomplete_hometown" name="ht" placeholder="Where ya from or where are ya NL roots" class="form-control" autocomplete="country-name" type="text" required>
   </div>
 </div>
 </div>
@@ -88,7 +88,7 @@
 <div class="col-md-5 inputGroupContainer">
 <div class="input-group">
 <span class="input-group-addon"><i class="fa fa-linkedin"></i></span>
-<input name="linkedin_profile" id="linkedin_profile" placeholder='https://www.linkedin.com/in/johndoe/' class="form-control"  type="text" required>
+<input name="linkedin_profile" id="linkedin_profile" placeholder='https://www.linkedin.com/in/johndoe/' class="form-control"  type="text" autocomplete="url" required>
   </div>
 </div>
 </div>
@@ -131,7 +131,7 @@
 <label class="col-md-4 control-label" ></label>
   <div class="col-md-5 inputGroupContainer">
   <div class="input-group">
-<input name="industry_other" id="industry_other_box" class="form-control"  type="text">
+<input name="industry_other" id="industry_other_box" class="form-control" autocomplete="organizationz-title" type="text">
   </div>
 </div>
 </div>
@@ -155,7 +155,7 @@
   <div class="col-md-5 inputGroupContainer">
   <div class="input-group">
 <span class="input-group-addon"><i class="glyphicon glyphicon-education"></i></span>
-<input name="school" id="school_box" placeholder="Memorial University of Newfoundland" class="form-control" type="text">
+<input name="school" id="school_box" placeholder="Memorial University of Newfoundland" class="form-control" autocomplete="organization" type="text">
   </div>
 </div>
 </div>
@@ -180,7 +180,7 @@
 </div>
 </div>
 
-<div class="form-group">
+<div class="form-group" id="interest_select">
   <label class="col-md-4 control-label" >Interests</label>
   <div class="col-md-5 inputGroupContainer">
     <div class="checkbox">
@@ -240,279 +240,13 @@
 <!-- /.container -->
 
 <!-- Include Javascript Libraries -->
-<script type="text/javascript" src="assets/datatables.min.js"></script>
+<script type="text/javascript" src="assets/DataTables-1.10.16/datatables.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/4.6.2/firebase.js"></script>
-<script src="/assets/Firebase/firebase.js"></script>
-<script src="/assets/Firebase/registration.js"></script>
-
-<!-- Javascript Code -->
-<script>
-
-// Member JSON Object
-var member = {
-  first_name:"John",
-  last_name:"Doe",
-  interests : {
-    connect:false,
-    organize:false,
-    learn:false,
-    mentor:false,
-    support:false
-  },
-  current_address: {
-    lat:500,
-    lng:500
-  },
-  hometown_address: {
-    lat:500,
-    lng:500
-  },
-  approved:"No"
-};
-
-// Javascript to run once page is fully loaded
-$(document).ready(function() {
-
-  // Bias autocomplete_current with current location
-  //geolocate();
-
-  // Prevent the enter key from submitting the form when uncomplete
-  $(window).keydown(function(event){
-      if(event.keyCode == 13) {
-        event.preventDefault();
-        return false;
-      }
-    });
-
-  $('#status').on('change',function(){
-      if( $(this).val()==="Student"){
-        $("#school").show();
-        $("#program").show();
-        $("#grad_year").show();
-      }
-      else {
-        $("#school").hide();
-        $("#program").hide();
-        $("#grad_year").hide();
-      }
-  });
-
-  $('#industry').on('change',function(){
-      if( $(this).val()==="Other"){
-        $("#industry_other").show();
-      }
-      else {
-        $("#industry_other").hide();
-      }
-  });
-
-});
-
-function changeStatus(){
-  if ($( "#status" ).val() == "Student") {
-    document.getElementById("school_box").required = true;
-    document.getElementById("program_box").required = true;
-    document.getElementById("grad_year_box").required = true;
-  }
-  else {
-    document.getElementById("school_box").required = false;
-    document.getElementById("program_box").required = false;
-    document.getElementById("grad_year_box").required = false;
-  }
-}
-
-function changeSector() {
-  if ($( "#industry" ).val() == "Other") {
-    document.getElementById("industry_other_box").required = true;
-  }
-  else {
-    document.getElementById("industry_other_box").required = false;
-  }
-}
-
-function fieldsEntered() {
-  register();
-  return false;
-}
-
-function register() {
-
-  var errors = false;
-  $('#submit_handle').click();
-
-  if (member["current_address"]["lat"] == 500) {
-    alert("Error getting current address, please do not use auto fill form and enter address in manually using Google Places Autocomplete.");
-    errors = true;
-  }
-
-  if (member["hometown_address"]["lat"] == 500) {
-    alert("Error getting hometown address, please do not use auto fill form and enter address in manually using Google Places Autocomplete.");
-    errors = true;
-  }
-
-  member["first_name"] = $( "#first_name" ).val();
-  member["last_name"] = $( "#last_name" ).val();
-  member["email"] = $( "#email" ).val();
-
-  member["linkedin_profile"] = $( "#linkedin_profile" ).val().toLowerCase();
-  if ($( "#linkedin_profile" ).val().includes("linkedin.com/in/")) {
-    // good
-  } else {
-    alert("Error: Invalid LinkedIn Profile Entered. Please make sure your LinkedIn Profile cotains \"linkedin.com/in/\"");
-    errors = true;
-  }
-
-  if ($( "industry" ).val() == "Other") {
-    member["industry"] = $( "#industry_other_box" ).val();
-  }
-  else {
-    member["industry"] = $( "#industry" ).val();
-  }
-
-  member["status"] = $( "#status" ).val();
-  if ($( "#status" ).val() == "Student") {
-    member["school"] = $( "#school_box" ).val();
-    member["program"] = $( "#program_box" ).val();
-    member["grad_year"] = parseInt($( "#grad_year_box" ).val());
-  }
-  else {
-    delete member["school"];
-    delete member["program"];
-    delete member["grad_year"];
-  }
-
-  if ($( "#connect" ).is(':checked')) {
-    member["interests"]["connect"] = true;
-  }
-  if ($( "#organize" ).is(':checked')) {
-    member["interests"]["organize"] = true;
-  }
-  if ($( "#learn" ).is(':checked')) {
-    member["interests"]["learn"] = true;
-  }
-  if ($( "#mentor" ).is(':checked')) {
-    member["interests"]["mentor"] = true;
-  }
-  if ($( "#support" ).is(':checked')) {
-    member["interests"]["support"] = true;
-  }
-
-  member["comments"] = $( "#comments" ).val();
-  member["ambassador"] = "No";
-  member["privacy"] = $('input[name=privacy]:checked').val();
-
-  //console.log(member);
-
-  // Need to add better validation
-  Object.keys(member).forEach(function(key) {
-    if(key != "approved" && key != "comments" && key != "linkedin_profile") {
-      if (member[key] == undefined || member[key] == "") {
-        //console.log(key + " Error.");
-        errors = true;
-      }
-    }
-  });
-
-  if ($( "#autocomplete_current" ).val() == "" || $( "#autocomplete_hometown" ).val() == "") {
-    //console.log("Address Error.");
-    errors = true;
-  }
-
-  // Good to submit
-  if (errors == false) {
-
-    member["date_created"] = Date.now();
-
-    rootRef.child('private/members/' + uid).set(member, function(error) {
-      if(error == null) {
-        alert('Registration Successful!');
-        window.location.href = "https://www.globalnl.com";
-      } else {
-        alert(error);
-        //window.location.href = "index.html";
-      }
-    });
-
-  }
-
-  return false;
-
-}
-
-var placeSearch, autocomplete;
-var componentForm = {
-  street_number: 'long_name',
-  route: 'long_name',
-  locality: 'long_name',
-  administrative_area_level_1: 'long_name',
-  country: 'long_name',
-  postal_code: 'long_name'
-};
-
-function initAutocomplete() {
-  autocomplete_current = new google.maps.places.Autocomplete(
-      /** @type {!HTMLInputElement} */(document.getElementById('autocomplete_current')),
-      {types: ['geocode']});
-  autocomplete_hometown = new google.maps.places.Autocomplete(
-      /** @type {!HTMLInputElement} */(document.getElementById('autocomplete_hometown')),
-      {types: ['geocode']});
-
-  autocomplete_current.addListener('place_changed', currentAddress);
-  autocomplete_hometown.addListener('place_changed', hometownAddress);
-}
-
-function currentAddress() {
-  var place = autocomplete_current.getPlace();
-
-  for (var i = 0; i < place.address_components.length; i++) {
-    var addressType = place.address_components[i].types[0];
-    if (componentForm[addressType]) {
-      var val = place.address_components[i][componentForm[addressType]];
-      member["current_address"][addressType] = val;
-    }
-  }
-
-  member["current_address"]["lat"] = place.geometry.location.lat();
-  member["current_address"]["lng"] = place.geometry.location.lng();
-
-}
-
-function hometownAddress() {
-  var place = autocomplete_hometown.getPlace();
-
-  for (var i = 0; i < place.address_components.length; i++) {
-    var addressType = place.address_components[i].types[0];
-    if (componentForm[addressType]) {
-      var val = place.address_components[i][componentForm[addressType]];
-      member["hometown_address"][addressType] = val;
-    }
-  }
-
-  member["hometown_address"]["lat"] = place.geometry.location.lat();
-  member["hometown_address"]["lng"] = place.geometry.location.lng();
-
-}
-
-// Bias the autocomplete_current object to the user's geographical location,
-// as supplied by the browser's 'navigator.geolocation' object.
-function geolocate() {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(function(position) {
-      var geolocation = {
-        lat: position.coords.latitude,
-        lng: position.coords.longitude
-      };
-      var circle = new google.maps.Circle({
-        center: geolocation,
-        radius: position.coords.accuracy
-      });
-      autocomplete_current.setBounds(circle.getBounds());
-    });
-  }
-}
-
-</script>
-
+<!-- Site Code -->
+<script src="src/config.js"></script>
+<script src="src/firebaseInterface.js"></script>
+<script src='registration.js'></script>
+<!-- auto complete from google maps must be called after registration.js -->
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB1eOBITvxAHRcodvjmw4_fWQxQB_iKPKQ&libraries=places&callback=initAutocomplete"
         async defer></script>
 

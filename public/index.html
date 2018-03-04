@@ -5,38 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Global NL - Members Login</title>
 
-    <link rel="stylesheet" type="text/css" href="assets/datatables.min.css"/>
+    <link rel="stylesheet" type="text/css" href="assets/DataTables-1.10.16/datatables.min.css"/>
 
   </head>
 
-<script type="text/javascript" src="assets/datatables.min.js"></script>
+<script type="text/javascript" src="assets/DataTables-1.10.16/datatables.min.js"></script>
 
 <!-- Init Firebase -->
 <script src="https://www.gstatic.com/firebasejs/4.6.2/firebase.js"></script>
-<script src="/assets/Firebase/firebase.js"></script>
 <script src="https://use.fontawesome.com/b58b304000.js"></script>
 
 <script src="https://cdn.firebase.com/libs/firebaseui/2.5.1/firebaseui.js"></script>
 <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/2.5.1/firebaseui.css" />
-<script type="text/javascript">
-  // FirebaseUI config.
-  var uiConfig = {
-    signInSuccessUrl: 'members.html',
-    signInOptions: [
-      // Leave the lines as is for the providers you want to offer your users.
-      firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-      //firebase.auth.FacebookAuthProvider.PROVIDER_ID,
-      firebase.auth.EmailAuthProvider.PROVIDER_ID
-    ],
-    // Terms of service url.
-    tosUrl: '<your-tos-url>'
-  };
 
-  // Initialize the FirebaseUI Widget using Firebase.
-  var ui = new firebaseui.auth.AuthUI(firebase.auth());
-  // The start method will wait until the DOM is loaded.
-  ui.start('#firebaseui-auth-container', uiConfig);
-</script>
 
 <div></div>
 <body>
@@ -50,5 +31,10 @@
     </div>
   </div>
 </body>
+
+
+<script type="text/javascript" src="src/config.js"></script>
+<script type="text/javascript" src="src/firebaseInterface.js"></script>
+<script type="text/javascript" src="index.js"> </script>
 
 </html>
