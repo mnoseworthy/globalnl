@@ -6,6 +6,11 @@ import json
 
 # Open that dank database
 with open("/home/matthew/Downloads/globalnl-database-export.json") as f:
+
+    ####################################################################
+    #   Setup
+    ####################################################################
+
     # Read json
     db = json.loads( f.read().replace('\n', '') )
     # Extract the separate tables
@@ -18,6 +23,10 @@ with open("/home/matthew/Downloads/globalnl-database-export.json") as f:
     private_members = private['members']
     public_members = public['members']
     shared_members = shared['members']
+
+    ####################################################################
+    #   Private UID's as keys in Public//Shared
+    ####################################################################
 
     # Are the private UID's reflected in the rest of the user keys?
     private_uid_in_public = True
@@ -32,6 +41,10 @@ with open("/home/matthew/Downloads/globalnl-database-export.json") as f:
             print("{} from private table is missing from the shared table".format(private_uid))
             private_uid_in_public = False
 
+    ####################################################################
+    #   Key's shared between public & shared
+    ####################################################################
+    
     # Are all the UID's in the public set also in the shared set
     public_uid_in_shared = True
     for public_uid, public_data in public_members.items():

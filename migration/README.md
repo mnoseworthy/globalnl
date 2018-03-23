@@ -148,3 +148,14 @@ Data is referenced by it's location in the database, just like the realtime data
  - Collapse public/private/shared and *potentially* moderator
  - Each user will have all the possible required fields with actual data types, as firestore supports real low-level C data types.
  - We can now query for things like, `get all users with privacy == public` instead of having a public table of UID's to pull down and refernece
+
+
+## Test results
+To test my theory's of the structure from inspection, I exported the database as json and ran it through some python:
+
+
+## Design questions for figuring out data structure
+
+Wanted Queries:
+ - 
+
