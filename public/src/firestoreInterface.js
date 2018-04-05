@@ -178,12 +178,24 @@ class memberDocument
     // then trigger the required functions to fill in given fields
     constructor(memberData={})
     {
-        // Define the default member object fields,
-        // this is just a copy of the structure shown
-        // on the online interface
-
         // Data in members collection
-        this.publicData = {
+        this.publicData = {}
+        // Data in private_data collection
+        this.privateData = {}
+
+        // Parse given data
+        this.parseInput(memberData, this.cleanData);
+
+    }
+
+    /*  Static definition of our data primitives so we can 
+    *   ensure they're never modified. These are nothing
+    *   more than a copy of the data structure defined in
+    *   the online interface of firestore
+    * */ 
+   static get publicDataPrimitive()
+   {
+        return {
             ambassador : false,
             current_address : {
                 administrative_area_level_1 : null,  
@@ -209,8 +221,10 @@ class memberDocument
             school:null,
             status:null
         }
-        // Data in private_data collection
-        this.privateData = {
+   }
+   static get privateDataPrimitive()
+   {
+        return {
             approved : false,
             email : null,
             interests : {
@@ -222,12 +236,7 @@ class memberDocument
             },
             shared: false
         }
-
-        // Parse given data
-        this.parseInput(memberData, this.cleanData);
-
-    }
-
+   }
     /*  parseInput
     *       
     *   Reads fields given from input data and matches them against the
@@ -235,6 +244,8 @@ class memberDocument
     * */
    parseInput(memberData, callback) 
    {
+        // Create a copy of our data primitives to work with
+        this.publicData = this
         // get data length and check if there was any data at all
         var len = Object.entries(memberData).length;
         if(len <= 0)
