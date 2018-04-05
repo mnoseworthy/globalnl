@@ -228,14 +228,22 @@ To summarize:
 
 ## Design questions for figuring out data structure
 
-How to determine a user's access level?
+### Backwards required data retrieval
+ - On init, what type of user is this? ( Moderator, Member, Unregistered )
+ - Has this user been approved yet?
+ - Grab publicly viewable members
+ - Grab members who've stated they'll allow their profiles to be shared
+ - Get specific member's dataset who've logged in
+ - Write member data to database given user ID from google login
+
+### How to determine a user's access level?
  - The old database structure provides four access levels:
         - Admin
         - Private
         - Public
         - Shared
 
-How to restrict access to data based on user's access level?
+### How to restrict access to data based on user's access level?
  - Could potentially control this client-side by reading a user's role from the database, but of course from a security perspective this is insanely weak.
  - Could segment Public/Private data into separate documents, as firestore cannot resrict access to specific fields but only entire documents. The problem is querying through private/public data combined becomes a little more difficult and updating through those fields also becomes a little more difficult
          - Can either use Batch updates to atomically update both documents at once 
@@ -244,24 +252,23 @@ How to restrict access to data based on user's access level?
  - Restirct access to a user's private data to only their own UID or an admin ? **I forget if private data can be accessable to other private users ?**
 
 
-Wanted Queries:
+### Wanted Queries:
  - Get all members with field = x
  - Get all shared//public//private members pagnated
 
 
 
 ## Possible data structures
-
-### First Idea
 Major Changes:
  - Remove public_uid 
- - Collection of members where document name == uid of member
- - Each document has a subdocument called private_data containing private data
  - Instead of public_uid we add a field stating weather or not they want their profile public/priavte/shared
  - Collection with admin UID's
+
+### First Idea
+ - Members collection where each member gets two documents, one for public data the other for private
+
 **collection**:members
     **document**:<member uid>
-        member_type (Text String)  == 
         ambassador      (Boolean)
         current_address (Map | document)
         date_created (Datetime)
@@ -274,11 +281,45 @@ Major Changes:
         program ( Text String )
         school ( Text String)
         status ( Text String )
-        **document**:private_data
-            privacy ( Text String ) " Public | Private | Shared "
-            interests (Map | document)
-            approved ( Boolean )
-            email ( Text String )
+    **document**:<member uid> + private_data
+        privacy ( Text String ) " Public | Private | Shared "
+        interests (Map | document)
+        approved ( Boolean )
+        email ( Text String )
+**collection** : administrators
+    **document**:admin_accounts
+        uids (Text String Array)
+*or*
+**collection** : administrators
+    **document**:<member uid>
+        some junk data maybe?
+
+### Second Iteration
+- One collection for public member data documents where ID=UID
+       - This document would contain references to their private document in another collection
+- Collection with private data documents
+- Collection with UID's of moderator UID's
+
+**collection**:public_data
+    **document**:<member uid>
+        ambassador      (Boolean)
+        current_address (Map | document)
+        date_created (Datetime)
+        first_name (Text String)
+        grad_year (Int)
+        hometown_address (Map | document)
+        industry (Text String)
+        last_name (Text String)
+        linkedin_profile ( Text String )
+        program ( Text String )
+        school ( Text String)
+        status ( Text String )
+**collection**private_data
+    **document**:<member uid>
+        privacy ( Text String ) " Public | Private | Shared "
+        interests (Map | document)
+        approved ( Boolean )
+        email ( Text String )
 **collection** : administrators
     **document**:admin_accounts
         uids (Text String Array)

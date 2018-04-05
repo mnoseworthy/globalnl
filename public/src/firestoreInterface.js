@@ -176,7 +176,7 @@ class memberDocument
 {
     // Constructor will be used start with a default object,
     // then trigger the required functions to fill in given fields
-    constructor(memberData)
+    constructor(memberData={})
     {
         // Define the default member object fields,
         // this is just a copy of the structure shown
@@ -223,5 +223,159 @@ class memberDocument
             shared: false
         }
 
+        // Parse given data
+        this.parseInput(memberData, this.cleanData);
+
     }
-}
+
+    /*  parseInput
+    *       
+    *   Reads fields given from input data and matches them against the
+    *   data fields defined in the constructor.
+    * */
+   parseInput(memberData, callback) 
+   {
+        // get data length and check if there was any data at all
+        var len = Object.entries(memberData).length;
+        if(len <= 0)
+        {
+            console.log("No data given");
+            callback(this, this.testPrint);
+        }
+        // Iterate over key/value pairs of input object
+        
+        var index = 0;
+        for ( const [key, value] of Object.entries(memberData) ) {
+            // check for matche in public or private data
+            if ( key in this.publicData )
+            {
+                // if value is an object, iterate through its values
+                if ( this.publicData[key] !== null && typeof this.publicData[key] === "object" )
+                {
+                    for ( const [nested_key, nested_value] of Object.entries(value) )
+                    {
+                        // check if nested key's are present in the defined nested object
+                        if( nested_key in this.publicData[key] )
+                        {
+                            // store value if match
+                            this.publicData[key][nested_key] = nested_value;
+                        }else{
+                            // If no match, report that data given is not defined
+                            console.log(key+"."+nested_key+" is not defined in the prototype object");
+                        }
+                    }
+                }else{
+                    this.publicData[key] = value;
+                }
+            }
+            // check for match in private data
+            if ( key in this.privateData )
+            {
+                // if value is an object, iterate through its values
+                if ( this.privateData[key] !== null && typeof this.privateData[key] === "object" )
+                {
+                    for ( const [nested_key, nested_value] of Object.entries(value) )
+                    {
+                        // check if nested key's are present in the defined nested object
+                        if( nested_key in this.privateData[key] )
+                        {
+                            // store value if match
+                            this.privateData[key][nested_key] = nested_value;
+                        }else{
+                            // If no match, report that data given is not defined
+                            console.log(key+"."+nested_key+" is not defined in the prototype object");
+                        }
+                    }
+                // if not objcet, assign value
+                }else{
+                    this.privateData[key] = value;
+                }
+            }
+            // Update index & check if we've iterated completely
+            index ++;
+            if(index >= len)
+            {
+                callback(this, this.testPrint);
+            }
+        }
+   }
+
+    /* cleanData
+    *
+    *    Iterates over the data object to remove fields that wern't given
+    *   or are in an invalid format. Note that the format parsing here is
+    *   not an end-all-be-all and should be paired with data processing 
+    *   when the data is initially inputted into the page.
+    * 
+    *   Execute this before prepairing to write the object to firestore.
+    * */
+    cleanData(_this, callback)
+    {
+        /*
+        *  Iterate over key/value pairs of publicData
+        * */ 
+        for ( const [key, value] of Object.entries(_this.publicData) ) {
+            // Check for null entries, which should be removed
+            if( value === null )
+            {
+                console.log(key+" not defined");
+                delete _this.publicData[key];
+            }
+            // If the current value is an object, iterate over it
+            if ( value !== null && typeof value === "object" )
+            {
+                for ( const [nested_key, nested_value] of Object.entries(value) )
+                {
+                    // check for null entries and remove them
+                    if ( nested_value === null )
+                    {
+                        console.log(key+"."+nested_key+" not defined");
+                        delete _this.publicData[key][nested_key];
+                    }
+                }
+            }
+        }
+        /*
+        *  Iterate over key/value pairs of privateData
+        * */ 
+        var len = Object.entries(_this.privateData).length;
+        var index = 0;
+        for ( const [key, value] of Object.entries(_this.privateData) ) {
+            // Check for null entries, which should be removed
+            if( value === null )
+            {
+                console.log(key+" not defined");
+                delete _this.privateData[key];
+            }
+            // If the current value is an object, iterate over it
+            if ( value !== null && typeof value === "object" )
+            {
+                for ( const [nested_key, nested_value] of Object.entries(value) )
+                {
+                    // check for null entries and remove them
+                    if ( nested_value === null )
+                    {
+                        console.log(key+"."+nested_key+" not defined");
+                        delete _this.privateData[key][nested_key];
+                    }
+                }
+            }
+            // Update index & check if we've iterated completely
+            index ++;
+            if(index >= len)
+            {
+                callback(_this);
+            }
+        }
+    }
+
+  /*    Test printout
+  *
+  * */
+ testPrint(_this){
+     console.log("test print");
+     console.log(_this.privateData);
+     console.log(_this.publicData);
+ }
+
+}// End class 
