@@ -19,7 +19,7 @@ class firebase_interface
         this.finishedLoading = false  // flag to ensure callback isn't executed twice & to signal when loading is finished (even if failed)
         // Moderator, Member, Unregistered Member, Anonymous
         this.userType   = "";  // User type determined from userObject
-        this.rootRef    = null;  // root directory of the database
+
         // Store params
         this.callback       = callback;
         this.firebaseConfig = firebaseConfig;
@@ -43,8 +43,7 @@ class firebase_interface
         } 
         // Store database reference
         this.database = firebase.firestore();
-        // Define root directory of firebase
-        //this.rootRef = this.database.ref();
+
         // Authenticate with current user's credentials, which will execute the callback
         // with the users type to end initialization
         this.authenticateUser();
@@ -73,6 +72,9 @@ class firebase_interface
     } // end authenticateUser
 
     /* parseUserType
+    *
+    *   Determines the user's authentication level by querying the database for various
+    * pieces of data.
     */
     parseUserType()
     {
@@ -96,9 +98,10 @@ class firebase_interface
                     var modRef = this.database.collection("moderators").where("UID", "==", _this.userObject.uid);
                     modRef.get().then(function(doc){
                         if(doc.exists){
-                            _this.userType = "Member";
+                            _this.userType = "Moderator";
                         }
                     }).catch(function(error){
+                        console.log(error);
                         console.log("Error reading from moderators list");
                     });
                     
@@ -162,3 +165,63 @@ class firebase_interface
         this.rootRef.child(path).set(object, function(error){ callback(error);});
     }
 } // end class definition
+
+
+// Will likely remove this or put this somewhere else eventually, 
+// but for now the table primitives will be placed here so we can
+// hopefully abstract writes to the database instead of re-writting
+// it in every page that requires a write operation. This would be
+// the regististration page or the edit profile page thus far
+class memberDocument
+{
+    // Constructor will be used start with a default object,
+    // then trigger the required functions to fill in given fields
+    constructor(memberData)
+    {
+        // Define the default member object fields,
+        // this is just a copy of the structure shown
+        // on the online interface
+
+        // Data in members collection
+        this.publicData = {
+            ambassador : false,
+            current_address : {
+                administrative_area_level_1 : null,  
+                country: null,  
+                lat: null,  
+                lng: null,
+                locality: null
+            },
+            date_created : -1,
+            first_name : null,
+            grad_year: null,  
+            hometown_address : {
+                administrative_area_level_1 : null,  
+                country: null,  
+                lat: null,  
+                lng: null,
+                locality: null
+            },
+            industry: null,
+            last_name:null,
+            linkedin_profile:null,
+            program:null,
+            school:null,
+            status:null
+        }
+        // Data in private_data collection
+        this.privateData = {
+            approved : false,
+            email : null,
+            interests : {
+                connect: false,
+                learn: false,
+                mentor: false,
+                organize: false,
+                support: false
+            },
+            shared: false
+        }
+
+    }
+}
