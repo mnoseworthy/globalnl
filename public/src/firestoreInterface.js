@@ -58,6 +58,7 @@ class firebase_interface
         // Trigger authentication and capture the return
         firebase.auth().onAuthStateChanged( function( user ) {
             if ( user ) {
+                console.log("Attempting to read user type");
                 _this.userObject = user;
                 _this.parseUserType();
             } else {
@@ -86,6 +87,8 @@ class firebase_interface
         // & confirm that they're a registered user
         if( this.userType !== "Anonymous" )
         {
+            // We know that the user is at least authenticated
+            this.userType = "Unregistered Member"
             // Write reference to user's private data object
             var privateRef = this.database.collection("private_data").doc(_this.userObject.uid);
             // Attempt to query their private data
@@ -118,6 +121,42 @@ class firebase_interface
             });
         }
     } //  end parse user type
+
+    /*  writeMemberDocument
+    *
+    *   Write member document to firestore given an object of the memberDocument
+    *   class defined below. Note that ALL DATA PARSING // CLEANING must be done
+    *   in the memberDocument class, this function DIRECTLY WRITES the data to the
+    *   db
+    * */
+    writeMemberDocument(memberDoc, publicData=false, privateData=false){
+        if ( publicData ) 
+        {
+            // Write user's public data. Set merge == true to enable this funciton
+            // to be used to both modify and create member data
+            this.database.collection("members").doc(this.userObject.uid).set(
+                memberDoc.publicData, 
+                { merge: true }
+            ).then(function(){
+                console.log("Wrote public data to db");
+            }).catch(function(error){
+                console.log(error);
+            })
+        }
+        if ( privateData )
+        {
+            //Write private data
+            this.database.collection("private_data").doc(this.userObject.uid).set(
+                memberDoc.privateData, 
+                { merge: true }
+            ).then(function(){
+                console.log("Wrote private data to db");
+            }).catch(function(error){
+                console.log(error);
+            })
+        }
+    }
+
 
     /* writeCache
         A simple function to store data in a object accessable to this class, first
@@ -179,9 +218,9 @@ class memberDocument
     constructor(memberData={})
     {
         // Data in members collection
-        this.publicData = {}
+        this.publicData = this.publicDataPrimitive;
         // Data in private_data collection
-        this.privateData = {}
+        this.privateData = this.privateDataPrimitive;
 
         // Parse given data
         this.parseInput(memberData, this.cleanData);
@@ -193,7 +232,7 @@ class memberDocument
     *   more than a copy of the data structure defined in
     *   the online interface of firestore
     * */ 
-   static get publicDataPrimitive()
+   get publicDataPrimitive()
    {
         return {
             ambassador : false,
@@ -222,7 +261,7 @@ class memberDocument
             status:null
         }
    }
-   static get privateDataPrimitive()
+   get privateDataPrimitive()
    {
         return {
             approved : false,
@@ -244,8 +283,7 @@ class memberDocument
     * */
    parseInput(memberData, callback) 
    {
-        // Create a copy of our data primitives to work with
-        this.publicData = this
+       console.log(memberData);
         // get data length and check if there was any data at all
         var len = Object.entries(memberData).length;
         if(len <= 0)
@@ -258,8 +296,16 @@ class memberDocument
         var index = 0;
         for ( const [key, value] of Object.entries(memberData) ) {
             // check for matche in public or private data
-            if ( key in this.publicData )
+            if ( key in this.publicDataPrimitive )
             {
+                // Check if this key was previously removed from object by clean
+                if (! key in this.publicData)
+                {
+                    // If it was deleted, reset it as null, which will force an it's new
+                    // value to be placed into it a few lines down
+                    console.log("Re-adding "+key);
+                    this.publicData[key] = null;
+                }
                 // if value is an object, iterate through its values
                 if ( this.publicData[key] !== null && typeof this.publicData[key] === "object" )
                 {
@@ -269,6 +315,7 @@ class memberDocument
                         if( nested_key in this.publicData[key] )
                         {
                             // store value if match
+                            console.log("Adding nested: "+nested_key+" = "+nested_value+" to Public data");
                             this.publicData[key][nested_key] = nested_value;
                         }else{
                             // If no match, report that data given is not defined
@@ -276,12 +323,21 @@ class memberDocument
                         }
                     }
                 }else{
+                    console.log("Adding "+key+" = "+value+" to Public data");
                     this.publicData[key] = value;
                 }
             }
             // check for match in private data
-            if ( key in this.privateData )
+            if ( key in this.privateDataPrimitive )
             {
+                // Check if this key was previously removed from object by clean
+                if (! key in this.privateData)
+                {
+                    // If it was deleted, reset it as null, which will force an it's new
+                    // value to be placed into it a few lines down
+                    console.log("Re-adding "+key+" to private data")
+                    this.privateData[key] = null;
+                }
                 // if value is an object, iterate through its values
                 if ( this.privateData[key] !== null && typeof this.privateData[key] === "object" )
                 {
@@ -291,6 +347,7 @@ class memberDocument
                         if( nested_key in this.privateData[key] )
                         {
                             // store value if match
+                            console.log("Adding nested: "+nested_key+" = "+nested_value+" to Private data");
                             this.privateData[key][nested_key] = nested_value;
                         }else{
                             // If no match, report that data given is not defined
@@ -299,6 +356,7 @@ class memberDocument
                     }
                 // if not objcet, assign value
                 }else{
+                    console.log("Adding "+key+" = "+value+" to Private data");
                     this.privateData[key] = value;
                 }
             }
@@ -308,8 +366,8 @@ class memberDocument
             {
                 callback(this, this.testPrint);
             }
-        }
-   }
+        } // End looping over given data 
+   } // End parseInput
 
     /* cleanData
     *
@@ -378,7 +436,19 @@ class memberDocument
                 callback(_this);
             }
         }
-    }
+    } // End clean data
+
+    /*  modifyDocument
+    *   
+    *   Given an object, checks for keys defined in the data primitives, and writes
+    *   values to the current memberDocument object if defined.
+    * */
+    modifyDocument(memberData)
+    {
+        // Send data back into parsing function
+        this.parseInput(memberData, this.cleanData);
+    } 
+   
 
   /*    Test printout
   *
