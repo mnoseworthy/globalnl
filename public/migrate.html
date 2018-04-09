@@ -1,0 +1,36 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Global NL - Members</title>
+  <!-- css and fonts and all that fun stuff -->
+  <link rel="stylesheet" type="text/css" href="/assets/DataTables-1.10.16/datatables.min.css"/>
+  <link rel="stylesheet" type="text/css" href="/assets/Pagination/simplePagination.css"/>
+
+
+</head>
+
+<body>
+
+  <script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+
+
+  <!-- include firestore now 
+  <script src="https://www.gstatic.com/firebasejs/4.12.0/firebase.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/4.12.0/firebase-firestore.js"></script>-->
+
+  <!-- Site source, handlers and interfaces first, then the page code -->
+  <script type="text/javascript" src="src/config.js"></script>
+  <script type="text/javascript" src="src/firestoreInterface.js"></script>
+  <script type="text/javascript" src="src/elementHandler.js"></script>
+  <script type="text/javascript" src="migration/globalnl-database-export.js"></script>
+  <script type="text/javascript" src="migration/migrate.js"></script>
+
+</body>
+</html>
