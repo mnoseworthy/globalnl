@@ -95,19 +95,8 @@ class firebase_interface
             privateRef.get().then(function(doc){
                 // Does the user have a private data field?
                 if (doc.exists) {
-                    // We know that this user is at least a registered member
+                    // user is at least a member
                     _this.userType = "Member";
-                    // Finally, check if they're a moderator or not
-                    var modRef = this.database.collection("moderators").where("UID", "==", _this.userObject.uid);
-                    modRef.get().then(function(doc){
-                        if(doc.exists){
-                            _this.userType = "Moderator";
-                        }
-                    }).catch(function(error){
-                        console.log(error);
-                        console.log("Error reading from moderators list");
-                    });
-                    
                 } else {
                     // User must not be registered yet, or was
                     // improperly added to the database
@@ -117,7 +106,23 @@ class firebase_interface
                 console.log(error);
                 console.log("Error grabbing this user's data.");
             }).finally(function(){
-                _this.callback(_this);
+                if(_this.userType === "Member")
+                {
+                    // Finally, check if they're a moderator or not
+                    var modRef = _this.database.collection("moderators").doc(_this.userObject.uid);
+                    modRef.get().then(function(doc){
+                        if(doc.exists){
+                            console.log("Is Moderator")
+                            _this.userType = "Moderator";
+                        }
+                    }).catch(function(error){
+                        
+                        console.log(error);
+                        console.log("Error reading from moderators list");
+                    }).finally(function(){
+                        _this.callback(_this);
+                    });
+                }
             });
         }
     } //  end parse user type
@@ -129,12 +134,21 @@ class firebase_interface
     *   in the memberDocument class, this function DIRECTLY WRITES the data to the
     *   db
     * */
-    writeMemberDocument(memberDoc, publicData=false, privateData=false){
+    writeMemberDocument(memberDoc, publicData=false, privateData=false, docUID=false){
+
+        // Allow a moderator to write to a different UID document, this isn't just protected
+        // from here, there is also a database rule to prevent this
+        var UID = this.userObject.uid;
+        if( this.userType === "Moderator" && docUID != false){
+            UID = docUID;
+        }
+
+
         if ( publicData ) 
         {
             // Write user's public data. Set merge == true to enable this funciton
             // to be used to both modify and create member data
-            this.database.collection("members").doc(this.userObject.uid).set(
+            this.database.collection("members").doc(UID).set(
                 memberDoc.publicData, 
                 { merge: true }
             ).then(function(){
@@ -146,7 +160,7 @@ class firebase_interface
         if ( privateData )
         {
             //Write private data
-            this.database.collection("private_data").doc(this.userObject.uid).set(
+            this.database.collection("private_data").doc(UID).set(
                 memberDoc.privateData, 
                 { merge: true }
             ).then(function(){
@@ -215,7 +229,7 @@ class memberDocument
 {
     // Constructor will be used start with a default object,
     // then trigger the required functions to fill in given fields
-    constructor(memberData={})
+    constructor(memberData={}, UID=false)
     {
         // Data in members collection
         this.publicData = this.publicDataPrimitive;
@@ -227,6 +241,9 @@ class memberDocument
         // When a validation check fails, this array is used to store the failure
         // in reference to the failed data key
         this.invalidLog = []
+
+        // Optionally attempt to associate this data with a certain UID
+        this.UID = UID;
 
         // Parse given data
         this.parseInput(memberData, this.cleanData);

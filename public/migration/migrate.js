@@ -2,6 +2,29 @@
 *   File to stage the migration process
 */
 
+/********************
+* Interface reference
+********************/
+// Will hold a reference to the created firebase reference, giving access to
+// the interface in our callback functions below.
+var _firebase_interface;
+
+/*****************************************************  
+* Register event callbacks & implement element callbacks
+******************************************************/
+// Init auth on load web page event
+$(document).ready(function(){
+    initApp();
+});
+// Callback executed on page load
+function initApp()
+{
+    // Initialize config handler, this does nothing more than parse the config object
+    // in the config handler file and return the object required for this page to the callback,
+    // where the callback is just our namespace
+    new configHandler( migrate_namespace, 'members' );
+    return true;
+}
 
 function processData(callback) {
     /*
@@ -69,9 +92,9 @@ function processData(callback) {
                 }
                 
             }
-            // Create a memberDoc object
-            var memberDoc = new memberDocument(memberData);
-           
+            // Create a memberDoc object, associate the key with this data
+            var memberDoc = new memberDocument(memberData, key);
+        
             // If memberDoc contained field errors, report the error & append to list of error documents
             if( memberDoc.invalidLog.length >0 ){
                 errorDocuments.push(memberDoc);  // 3
@@ -162,14 +185,20 @@ function handleMemberDocs(memberDocuments, errorDocuments, rejectedDocments)
                 memberDocuments.push(element);
                 resolvedErrorIndex.push(index)        
             }
-                   
+                
         });
 
     });
     // Removed resolved errors
+    var i = 0;
     resolvedErrorIndex.forEach( function(index){
-    
+        i++;
         errorDocuments = errorDocuments.splice(index,1);
+        // if all errors are resolved, start writeout
+        if(i >= resolvedErrorIndex.length)
+        {
+            writeDocuments(memberDocuments);
+        }
     });
 
     // Report resulting data
@@ -179,7 +208,54 @@ function handleMemberDocs(memberDocuments, errorDocuments, rejectedDocments)
     console.log(errorDocuments);
     console.log(rejectedDocments.length+" members were rejected");
     console.log(rejectedDocments);
+
+       
 }
 
-// Trigger call stack here for now
-processData(handleMemberDocs);
+function writeDocuments(memberDocuments) 
+{
+    var numWritten = 0;
+    memberDocuments.forEach( function(doc){
+        // Increment index
+        numWritten ++;
+        // Write if we're under our max test condition
+        if(numWritten < -1) {
+            console.log("Attempting to write");
+            _firebase_interface.writeMemberDocument(doc, true, true, doc.UID);
+        }
+    })
+}
+
+var migrate_namespace = function(config){
+    var firebaseLoaded = function( fbi ) {
+        // Validate success
+        if ( ! fbi ) 
+        {
+            console.log("An error has occured while initializing the firebase interface");
+            return false;
+        }
+
+        // Store reference globally for access by callbacks
+        _firebase_interface = fbi;
+        
+        // Switch based on user type
+        console.log(fbi.userType);
+        switch ( fbi.userType ) 
+        {
+            case "Moderator":
+                processData(handleMemberDocs);
+            case "Member":
+            case "Unregistered Member":
+            case "Anonymous":
+                break;
+
+            default:
+                console.log("User type undefined? How did we get here ...");
+                return false;
+        }
+    }
+    // Running the initializer returns the database interface object to the callback
+    // or False if an error occured.
+    new firebase_interface(config.firebase.config, firebaseLoaded);
+
+} //  end migration namespace
