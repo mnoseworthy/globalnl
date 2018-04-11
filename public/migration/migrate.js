@@ -81,9 +81,10 @@ function processData(callback) {
                 numWithShared ++;
                 memberData = Object.assign(sharedData[UID], value);
             }
-            // Iterate values in memberData and look for yes/no strings that should become booleans
+            // Modify data to fit new typings
             for ( const [field_key, field_value] of Object.entries(memberData) )
             {
+                // look for yes/no strings that should become booleans
                 if( field_value === "Yes" || field_value === "yes"){
                     memberData[field_key] = true;
                 }
@@ -214,15 +215,26 @@ function handleMemberDocs(memberDocuments, errorDocuments, rejectedDocments)
 
 function writeDocuments(memberDocuments) 
 {
-    var numWritten = 0;
-    memberDocuments.forEach( function(doc){
-        // Increment index
-        numWritten ++;
+    var numNonShared = 0;
+    var numShared = 0;
+    memberDocuments.forEach( function(doc){        
         // Write if we're under our max test condition
-        if(numWritten < -1) {
-            console.log("Attempting to write");
-            _firebase_interface.writeMemberDocument(doc, true, true, doc.UID);
+        if( doc.publicData.privacy === "public"){      
+            if(numShared < 2) {
+                numShared ++;
+                console.log("Attempting to write shared member");
+                _firebase_interface.writeMemberDocument(doc, true, true, doc.UID);
+                return;
+            }
+        }else{
+            if(numNonShared < 2) {
+                numNonShared ++;
+                console.log("Attempting to write non-shared member");
+                _firebase_interface.writeMemberDocument(doc, true, true, doc.UID);
+                return;
+            }
         }
+
     })
 }
 

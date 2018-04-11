@@ -152,19 +152,22 @@ var members_namespace = function (config)
 
                 // Check for approval status
                 if( fbi.userObject.approved == "Yes" ){
-                    // load members who've agreed to be viewable
-                    fbi.getSnapshot("shared/members", function(members){
-                        loadMembers(members, config, fbi);
-                        $("#login_note").hide();
-                        document.getElementById("dir_version").innerHTML = "Membership Directory";
-                    })
+                    // load members
+                    fbi.database.collection("members").where("privacy", "==", "members")
+                        .get().then( function(members){
+                            loadMembers(members, config, fbi);
+                            $("#login_note").hide();
+                            document.getElementById("dir_version").innerHTML = "Membership Directory";
+                        });
                 // if not approved...
                 }else{
                     alert("Your account hasn't been approved yet by a moderator, you only have public access");
                     // Load public members table
-                    fbi.getSnapshot("public/members", function(members){
-                        loadMembers(members, config, fbi);
-                    });
+                    // load members who've agreed to be viewable
+                    fbi.database.collection("members").where("privacy", "==", "public")
+                        .get().then( function(members){
+                            loadMembers(members, config, fbi);
+                        });
                 }
                 break;
             case "Unregistered Member":
@@ -173,14 +176,16 @@ var members_namespace = function (config)
                     window.location.href = "registration.html";
                 } else {
                     // Load public members table
-                    fbi.getSnapshot("public/members", function(members) {
-                        loadMembers(members, config, fbi);
-                    });
+                    fbi.database.collection("members").where("privacy", "==", "public")
+                        .get().then( function(members){
+                            loadMembers(members, config, fbi);
+                        });
                 }
                 break;
             case "Anonymous":
                 console.log("Can an anonymous viewer get here?");
-                fbi.getSnapshot("public/members", function(members) {
+                fbi.database.collection("members").where("privacy", "==", "public")
+                .get().then( function(members){
                     loadMembers(members, config, fbi);
                 });
                 break;
@@ -222,6 +227,16 @@ var members_namespace = function (config)
 */
 function loadMembers(snapshotValue, config, fbi)
 {
+    // For backcompatability with the rest of this functionality, I'm just
+    // going to convert the firestore query result into json that has the
+    // same format as the old json that would have been returned from firebase
+    var backCompat = {};
+    snapshotValue.forEach(function(doc) {
+        // doc.data() is never undefined for query doc snapshots
+        backCompat[doc.id] = doc.data();
+    });
+    snapshotValue = backCompat;
+
     // Cache a copy of snapshotValue (slice creates a copy) as we'll be modifiying it below
     // and we'll want this data again when loading is complete in callbacks
     fbi.writeCache("member_references", snapshotValue);
@@ -276,6 +291,7 @@ function loadMembers(snapshotValue, config, fbi)
             var uid = member_uids[i]
             // Get member data from snapshot
             var member = snapshotValue[uid];
+            console.log(member);
             
             // Build argument's for memberElement
             var args = {

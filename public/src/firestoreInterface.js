@@ -97,10 +97,6 @@ class firebase_interface
                 if (doc.exists) {
                     // user is at least a member
                     _this.userType = "Member";
-                } else {
-                    // User must not be registered yet, or was
-                    // improperly added to the database
-                    _this.userType = "Unregistered Member";
                 }
             }).catch(function(error){
                 console.log(error);
@@ -122,6 +118,8 @@ class firebase_interface
                     }).finally(function(){
                         _this.callback(_this);
                     });
+                }else{
+                    _this.callback(_this);
                 }
             });
         }
@@ -193,8 +191,8 @@ class firebase_interface
     }
 
     /* getSnapshot
-        Simple read function that returns a snapshot from the given path, no 
-        need to pass rootRef. 
+        Quick way to provide legacy support to pages still using firebase calls, while
+        still actually pulling from firebase 
 
         @param path (string) - path to the data you want a snapshot of in firebase
         @param callback (function pointer) - function to pass result to
@@ -281,7 +279,8 @@ class memberDocument
             linkedin_profile:null,
             program:null,
             school:null,
-            status:null
+            status:null,
+            privacy: false
         }
    }
    get privateDataPrimitive()
@@ -295,8 +294,7 @@ class memberDocument
                 mentor: false,
                 organize: false,
                 support: false
-            },
-            shared: false
+            }
         }
    }
     /*  parseInput
@@ -552,7 +550,7 @@ class memberDocumentValidation
             mentor                      : this.isBool      ,
             organize                    : this.isBool      ,
             support                     : this.isBool      ,
-            shared                      : this.isBool
+            privacy                     : this.isPrivacy
         }
     }
 
@@ -691,9 +689,14 @@ class memberDocumentValidation
         // Taken from https://www.w3resource.com/javascript/form/email-validation.php
         if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(field))
         {
-          return (true)
+          return true;
         }
-          alert("You have entered an invalid email address!")
-          return (false)
+          return false;
+    }
+    // Returns true if the value is one of our privacy settings
+    isPrivacy(field) {
+        if(field === "members" || field === "public")
+            return true;
+        return false;
     }
 }
