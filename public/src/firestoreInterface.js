@@ -187,7 +187,9 @@ class firebase_interface
     */
     readCache(key)
     {
-        return this.cache[key];
+        if( this.cache.hasOwnProperty(key) )
+            return this.cache[key];
+        return false;
     }
 
     /* getSnapshot
@@ -227,7 +229,7 @@ class memberDocument
 {
     // Constructor will be used start with a default object,
     // then trigger the required functions to fill in given fields
-    constructor(memberData={}, UID=false)
+    constructor(memberData={}, UID=false, callback=false)
     {
         // Data in members collection
         this.publicData = this.publicDataPrimitive;
@@ -243,6 +245,13 @@ class memberDocument
         // Optionally attempt to associate this data with a certain UID
         this.UID = UID;
 
+        // If a completion callback was given, store it
+        console.log(callback);
+        if ( callback !== false){
+            this.callback = callback;
+        }else{
+            this.callback = this.testPrint();
+        }
         // Parse given data
         this.parseInput(memberData, this.cleanData);
 
@@ -294,7 +303,8 @@ class memberDocument
                 mentor: false,
                 organize: false,
                 support: false
-            }
+            },
+            comments : null
         }
    }
     /*  parseInput
@@ -385,7 +395,7 @@ class memberDocument
             index ++;
             if(index >= len)
             {
-                callback(this, this.testPrint);
+                callback(this, this.callback);
             }
         } // End looping over given data 
    } // End parseInput
@@ -550,7 +560,8 @@ class memberDocumentValidation
             mentor                      : this.isBool      ,
             organize                    : this.isBool      ,
             support                     : this.isBool      ,
-            privacy                     : this.isPrivacy
+            privacy                     : this.isPrivacy   ,
+            comments                    : this.isText      
         }
     }
 
@@ -698,5 +709,9 @@ class memberDocumentValidation
         if(field === "members" || field === "public")
             return true;
         return false;
+    }
+    // Returns true if the values are proper text format
+    isText(field){
+        return true;
     }
 }
