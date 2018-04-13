@@ -89,44 +89,64 @@ function initAutocomplete() {
   };
 
   // define event callbacks for each element, these fire when the fields
-  // are auto filled by google api and then the location data is stored in our member object
-  autocomplete_current.addListener('place_changed', function(){
-    // Get new member object from firebase cache
-    var member = _firebase_interface.readCache("new_member");
-    // Get place object from google api
-    var place = autocomplete_current.getPlace();
-    // iterate over object and look for the keys in locationData
-    for (var i = 0; i < place.address_components.length; i++) {
-      var addressType = place.address_components[i].types[0];
-      if (locationData[addressType]) {
-        member["current_address"][addressType] = place.address_components[i]["long_name"];;
+    // are auto filled by google api and then the location data is stored in our member object
+    autocomplete_current.addListener('place_changed', function(){
+      try{
+          // Get location data from cache
+          var location = {};
+          if(_firebase_interface.readCache("location"))
+              location = _firebase_interface.readCache("location");
+          // Get place object from google api
+          var place = autocomplete_current.getPlace();
+          if(place){
+              // iterate over object and look for the keys in locationData
+              location["current_address"] = {};
+              for (var i = 0; i < place.address_components.length; i++) {
+                  var addressType = place.address_components[i].types[0];
+                  if (locationData.hasOwnProperty(addressType)) {
+                      location["current_address"][addressType] = place.address_components[i]["long_name"];;
+                  }
+              }
+              // Store geometry into new member object as well
+              location["current_address"]["lat"] = place.geometry.location.lat();
+              location["current_address"]["lng"] = place.geometry.location.lng();
+              // Write our modified object back to the firebase cache
+              _firebase_interface.writeCache("location", location);
+          }
+      }catch(err){
+          console.log(err);
       }
-    }
-    // Store geometry into new member object as well
-    member["current_address"]["lat"] = place.geometry.location.lat();
-    member["current_address"]["lng"] = place.geometry.location.lng();
-    // Write our modified object back to the firebase cache
-    _firebase_interface.writeCache("new_member", member);
   });
+
   // Second autocomplete callback, the repeated code kills me but im currently lazy
   // TODO: tear out the repeated code into a function above
   autocomplete_hometown.addListener('place_changed', function() {
-    // Get new member object from firebase cache
-    var member = _firebase_interface.readCache("new_member");
-    // Get place object from google api
-    var place = autocomplete_current.getPlace();
-    // iterate over object and look for the keys in locationData
-    for (var i = 0; i < place.address_components.length; i++) {
-      var addressType = place.address_components[i].types[0];
-      if (locationData[addressType]) {
-        member["hometown_address"][addressType] = place.address_components[i]["long_name"];;
+      try{
+          // Get location data from cache
+          var location = {};
+          if(_firebase_interface.readCache("location"))
+              location = _firebase_interface.readCache("location");
+          // Get place object from google api
+          var place = autocomplete_hometown.getPlace();
+          if(place){
+              // iterate over object and look for the keys in locationData
+              location["hometown_address"] = {};
+
+              for (var i = 0; i < place.address_components.length; i++) {
+              var addressType = place.address_components[i].types[0];
+                  if (locationData.hasOwnProperty(addressType) ){
+                      location["hometown_address"][addressType] = place.address_components[i]["long_name"];;
+                  }
+              }
+              // Store geometry into new member object as well
+              location["hometown_address"]["lat"] = place.geometry.location.lat();
+              location["hometown_address"]["lng"] = place.geometry.location.lng();
+              // Write our modified object back to the firebase cache
+              _firebase_interface.writeCache("location",location);
+          }
+      }catch(err){
+          console.log(err);
       }
-    }
-    // Store geometry into new member object as well
-    member["hometown_address"]["lat"] = place.geometry.location.lat();
-    member["hometown_address"]["lng"] = place.geometry.location.lng();
-    // Write our modified object back to the firebase cache
-    _firebase_interface.writeCache("new_member", member);
   });
 }
 
@@ -175,11 +195,8 @@ var registration_namespace = function (config)
               break;
           default:
               console.log("User type undefined? How did we get here ...");
-              return false;
+              break;
       }
-      // store a default member object in the fbi cache so it can be
-      // written to by callbacks
-      fbi.writeCache("new_member", config.default_member);
 
       /*******
        *   Callbacks that require data from config or firebase
@@ -192,6 +209,7 @@ var registration_namespace = function (config)
         e.preventDefault();
         // Run register function to store data into firebase
         register();
+        return false;
       })
 
 
@@ -212,27 +230,9 @@ var registration_namespace = function (config)
 */
 function register() 
 {
-  // load new_member object from firebase cache
-  var member = _firebase_interface.readCache("new_member")
-
-  /*  callback to Write object to database, executed when parsing is complete
-  */
-  function write(){
-    _firebase_interface.write("private/members/" + _firebase_interface.userObject.uid,
-      member, function(error){
-        if ( error == null )
-        {
-          //alert("Registration success");
-          window.location.href = "index.html";
-        }else{
-          // To Do: write validation function and inform user on what they've done wrong ?
-          alert("Error");
-        }
-    });
-  }
-
   /* Store known fields into member objcet
   */
+  var member = {};
   // Direct unconditional reads
   member.first_name = $( "#first_name" ).val();
   member.last_name = $( "#last_name" ).val();
@@ -244,34 +244,54 @@ function register()
   member.date_created = Date.now();
   // Conditional reads
   if ($( "industry" ).val() == "Other") {
-    member.industry = $( "#industry_other_box" ).val();
+      member.industry = $( "#industry_other_box" ).val();
   }
   else {
-    member.industry = $( "#industry" ).val();
+      member.industry = $( "#industry" ).val();
   }
   if (member.status == "Student") {
-    member["school"] = $( "#school_box" ).val();
-    member["program"] = $( "#program_box" ).val();
-    member["grad_year"] = parseInt($( "#grad_year_box" ).val());
+      member["school"] = $( "#school_box" ).val();
+      member["program"] = $( "#program_box" ).val();
+      member["grad_year"] = parseInt($( "#grad_year_box" ).val());
   }
-  // Iterative reads
-  $("#interest_select input[type='checkbox']").each(function() {
-    // iterate over default member interests
-    interests = Object.keys(member.interests)
-    for ( var i = 0; i<interests.length; i++)
+  member["interests"] = {
+      "connect" : document.getElementById('connect').checked,
+      "organize" : document.getElementById('organize').checked,
+      "learn" : document.getElementById('learn').checked,
+      "mentor" : document.getElementById('mentor').checked,
+      "support" : document.getElementById('support').checked
+  }
+  // Read data from cache
+  var location_data = _firebase_interface.readCache("location");
+
+  // Check if location data was given
+  if( location_data ){
+    // checkif hometown address was given
+    if(location_data.hasOwnProperty("hometown_address"))
     {
-      // If the current checkbox isn't checked, skip iteration
-      if ( $(this).is(":checked") )
-        break;
-      // If the box is checked, and it matches our current default interest, store the value
-      if( $(this).id == interests[i] )
-      {
-          member.interests[interests[i]] = true;
-      }
+        member["hometown_address"] = location_data["hometown_address"];
     }
+    // checkif current address was given
+    if(location_data.hasOwnProperty("current_address"))
+    {
+        member["current_address"] = location_data["current_address"];
+    }
+  }
+
+
+  // Make a new memberDocument
+  var doc = new memberDocument(member, _firebase_interface.userObject.uid, function(memberDoc){
+      // Check for errors in given fields
+      if(memberDoc.invalidLog.length > 0)
+      {
+          var report = ""
+          memberDoc.invalidLog.forEach( function(error){
+              report = report + error + "\n";
+          });
+          alert(report);
+      }else{
+          _firebase_interface.writeMemberDocument(memberDoc, true, true);
+          alert("Profile updated, refresh to see changes");
+      }    
   });
-
-  // not the best place to put this callback but it should work for now..
-  write();
-
 } // end register function

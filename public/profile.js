@@ -188,9 +188,6 @@ $("#profile_form").submit(  function(event){
     userData["status"] = $("#status").val();
     userData["comments"] = $("#comments").val();
 
-    if( $("") )
-    userData["privacy"]
-
     /* Store known fields into member objcet
     */
    member = {}
