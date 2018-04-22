@@ -4,6 +4,7 @@
 // Will hold a reference to the created firebase reference, giving access to
 // the interface in our callback functions below.
 var _firebase_interface;
+var _config;
 
 /*****************************************************  
 * Register event callbacks & implement element callbacks
@@ -78,7 +79,30 @@ function setInfoWindowData(uid) {
 }
 // Filter members ()
 function filterMembers(input_id) {
-    console.log("Implement");
+    // Current UI states "search for Name, location or industry"
+
+    // Load member references from cache
+    if(input_id === "member_search")
+    {
+        // get search string
+        searchFor = $("#member_search").val()
+        member_data = _firebase_interface.readCache("member_data");
+        
+        // Sort by closest match to input
+        member_data.sort( function(a, b){
+            var aName = a.last_name 
+            var bName = b.last_name
+            x = levDist(searchFor , aName);
+            y = levDist(searchFor , bName );
+            //console.log("searchFor="+searchFor+" aName="+aName+" bName="+bName+" x="+x+" y="+y);
+            if(x < y)
+                return -1;
+            else
+                return 1; 
+        } )
+    }
+    loadMembers(member_data, _config, _firebase_interface, true);
+
 }
 // Clear search filters
 function unfilterMembers(input_id) {
@@ -129,6 +153,7 @@ var members_namespace = function (config)
 
         // Store reference globally for access by callbacks
         _firebase_interface = fbi;
+        _config = config;
         
         // Switch based on user type
         console.log(fbi.userType);
@@ -153,7 +178,7 @@ var members_namespace = function (config)
                 // Check for approval status
                 if( fbi.userObject.approved == "Yes" ){
                     // load members
-                    fbi.database.collection("members").where("privacy", "==", "members")
+                    fbi.database.collection("members").orderBy("last_name").where("privacy", "==", "members")
                         .get().then( function(members){
                             loadMembers(members, config, fbi);
                             $("#login_note").hide();
@@ -164,7 +189,7 @@ var members_namespace = function (config)
                     alert("Your account hasn't been approved yet by a moderator, you only have public access");
                     // Load public members table
                     // load members who've agreed to be viewable
-                    fbi.database.collection("members").where("privacy", "==", "public")
+                    fbi.database.collection("members").orderBy("last_name").where("privacy", "==", "public")
                         .get().then( function(members){
                             loadMembers(members, config, fbi);
                         });
@@ -176,7 +201,7 @@ var members_namespace = function (config)
                     window.location.href = "registration.html";
                 } else {
                     // Load public members table
-                    fbi.database.collection("members").where("privacy", "==", "public")
+                    fbi.database.collection("members").orderBy("last_name").where("privacy", "==", "public")
                         .get().then( function(members){
                             loadMembers(members, config, fbi);
                         });
@@ -184,7 +209,7 @@ var members_namespace = function (config)
                 break;
             case "Anonymous":
                 console.log("Can an anonymous viewer get here?");
-                fbi.database.collection("members").where("privacy", "==", "public")
+                fbi.database.collection("members").orderBy("last_name").where("privacy", "==", "public")
                 .get().then( function(members){
                     loadMembers(members, config, fbi);
                 });
@@ -225,21 +250,42 @@ var members_namespace = function (config)
 
     @returns None
 */
-function loadMembers(snapshotValue, config, fbi)
+function loadMembers(snapshotValue, config, fbi, reload=false)
 {
     // For backcompatability with the rest of this functionality, I'm just
     // going to convert the firestore query result into json that has the
     // same format as the old json that would have been returned from firebase
     var backCompat = {};
-    snapshotValue.forEach(function(doc) {
-        // doc.data() is never undefined for query doc snapshots
-        backCompat[doc.id] = doc.data();
-    });
-    snapshotValue = backCompat;
+    var dataIndex = []
+    if(!reload) 
+    {
+        snapshotValue.forEach(function(doc) {
+            // doc.data() is never undefined for query doc snapshots
+            data = doc.data();
+            backCompat[doc.id] = doc.data();
+            data["docID"] = doc.id;
+            dataIndex.push(data);
+        });
+        snapshotValue = backCompat;
+        _firebase_interface.writeCache("member_data", dataIndex);
 
-    // Cache a copy of snapshotValue (slice creates a copy) as we'll be modifiying it below
-    // and we'll want this data again when loading is complete in callbacks
-    fbi.writeCache("member_references", snapshotValue);
+        // Cache a copy of snapshotValue (slice creates a copy) as we'll be modifiying it below
+        // and we'll want this data again when loading is complete in callbacks
+        fbi.writeCache("member_references", snapshotValue);
+    }else{
+        console.log("Iterating over reload")
+        snapshotValue.forEach(function(data){
+            console.log(data.docID);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+            backCompat[data.docID] = data;
+        })
+        // Remove old elements
+        doms = _firebase_interface.readCache("member_dom_references");
+        doms.forEach(function(dom){
+            var obj = jQuery(dom);
+            obj.remove();
+        })
+        snapshotValue = backCompat;
+    }
 
     /* loadMembersEntry
         Entry point for load members control flow
@@ -291,7 +337,7 @@ function loadMembers(snapshotValue, config, fbi)
             var uid = member_uids[i]
             // Get member data from snapshot
             var member = snapshotValue[uid];
-            console.log(member);
+            //console.log(member);
             
             // Build argument's for memberElement
             var args = {
@@ -390,3 +436,56 @@ function getLocationString(locationObject)
 }
 
 
+/*
+    https://stackoverflow.com/questions/11919065/sort-an-array-by-the-levenshtein-distance-with-best-performance-in-javascript
+*/
+var levDist = function(s, t) {
+    var d = []; //2d matrix
+
+    // Step 1
+    var n = s.length;
+    var m = t.length;
+
+    if (n == 0) return m;
+    if (m == 0) return n;
+
+    //Create an array of arrays in javascript (a descending loop is quicker)
+    for (var i = n; i >= 0; i--) d[i] = [];
+
+    // Step 2
+    for (var i = n; i >= 0; i--) d[i][0] = i;
+    for (var j = m; j >= 0; j--) d[0][j] = j;
+
+    // Step 3
+    for (var i = 1; i <= n; i++) {
+        var s_i = s.charAt(i - 1);
+
+        // Step 4
+        for (var j = 1; j <= m; j++) {
+
+            //Check the jagged ld total so far
+            if (i == j && d[i][j] > 4) return n;
+
+            var t_j = t.charAt(j - 1);
+            var cost = (s_i == t_j) ? 0 : 1; // Step 5
+
+            //Calculate the minimum
+            var mi = d[i - 1][j] + 1;
+            var b = d[i][j - 1] + 1;
+            var c = d[i - 1][j - 1] + cost;
+
+            if (b < mi) mi = b;
+            if (c < mi) mi = c;
+
+            d[i][j] = mi; // Step 6
+
+            //Damerau transposition
+            if (i > 1 && j > 1 && s_i == t.charAt(j - 2) && s.charAt(i - 2) == t_j) {
+                d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + cost);
+            }
+        }
+    }
+
+    // Step 7
+    return d[n][m];
+}
