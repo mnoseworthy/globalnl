@@ -250,7 +250,7 @@ class memberDocument
         if ( callback !== false){
             this.callback = callback;
         }else{
-            this.callback = this.testPrint();
+            this.callback = this.testPrint;
         }
         // Parse given data
         this.parseInput(memberData, this.cleanData);

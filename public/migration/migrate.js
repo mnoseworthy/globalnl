@@ -220,14 +220,14 @@ function writeDocuments(memberDocuments)
     memberDocuments.forEach( function(doc){        
         // Write if we're under our max test condition
         if( doc.publicData.privacy === "public"){      
-            if(numShared < 2) {
+            if(numShared < 0) {
                 numShared ++;
                 console.log("Attempting to write shared member");
                 _firebase_interface.writeMemberDocument(doc, true, true, doc.UID);
                 return;
             }
         }else{
-            if(numNonShared < 2) {
+            if(numNonShared < 0) {
                 numNonShared ++;
                 console.log("Attempting to write non-shared member");
                 _firebase_interface.writeMemberDocument(doc, true, true, doc.UID);
