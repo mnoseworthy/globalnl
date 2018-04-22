@@ -8,7 +8,7 @@
 // Will hold a reference to the created firebase reference, giving access to
 // the interface in our callback functions below.
 var _firebase_interface;
-
+var maxWrite = 0;
 /*****************************************************  
 * Register event callbacks & implement element callbacks
 ******************************************************/
@@ -220,14 +220,14 @@ function writeDocuments(memberDocuments)
     memberDocuments.forEach( function(doc){        
         // Write if we're under our max test condition
         if( doc.publicData.privacy === "public"){      
-            if(numShared < 0) {
+            if(numShared < maxWrite) {
                 numShared ++;
                 console.log("Attempting to write shared member");
                 _firebase_interface.writeMemberDocument(doc, true, true, doc.UID);
                 return;
             }
         }else{
-            if(numNonShared < 0) {
+            if(numNonShared < maxWrite) {
                 numNonShared ++;
                 console.log("Attempting to write non-shared member");
                 _firebase_interface.writeMemberDocument(doc, true, true, doc.UID);
