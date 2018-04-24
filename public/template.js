@@ -18,9 +18,25 @@ function initApp()
   // Initialize config handler, this does nothing more than parse the config object
   // in the config handler file and return the object required for this page to the callback,
   // where the callback is just our namespace below
-  new configHandler( index_namespace, 'index' );
+  new configHandler( template_namespace, 'template' );
+  // Dont know why this is a thing, but leaving it here for now
+  $("#user_controls_mobile").hide();
 }
 
+// profile load callback
+function profile() {
+  console.log("Nav profile.html");
+  window.location.href = "profile.html";
+}
+// Logout callback
+function logout() {
+  firebase.auth().signOut().then(function() {
+      console.log('Signed Out');
+      window.location.href = "index.html";
+  }, function(error) {
+      console.error('Sign Out Error', error);
+  });
+}
 
 
 /***************************************************  
@@ -35,7 +51,7 @@ function initApp()
 
 // This is where we implement the main logic for our page, and we pass this function to
 // the configHandler constructor as it's callback - i.e. it's started once config is finished loading
-var index_namespace = function (config)
+var memberMap_namespace = function (config)
 {
   // This is passed to the firebase interface as it's callback, and won't be executed until
   // the interface has connected to the database and figured out the user type
@@ -50,23 +66,27 @@ var index_namespace = function (config)
       // Store reference globally for access by callbacks
        _firebase_interface = fbi;
 
-              // FirebaseUI config.
-              var uiConfig = {
-                signInSuccessUrl: config.firebase.signInSuccessUrl,
-                signInOptions: [
-                    // Leave the lines as is for the providers you want to offer your users.
-                    firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-                    //firebase.auth.FacebookAuthProvider.PROVIDER_ID,
-                    firebase.auth.EmailAuthProvider.PROVIDER_ID
-                ],
-                // Terms of service url.
-                tosUrl: config.firebase.tosUrl
-            };
-    
-            // Initialize the FirebaseUI Widget using Firebase.
-            var ui = new firebaseui.auth.AuthUI(firebase.auth());
-            // The start method will wait until the DOM is loaded.
-            ui.start('#firebaseui-auth-container', uiConfig);
+      // Switch based on user type, this is where we redirect different types
+      // of users to other pages if they don't belong here or whatever
+      switch ( fbi.userType ) 
+      {
+        case "Moderator":
+        case "Member":
+            console.log("Handle Moderators and members");
+            break;
+        case "Unregistered Member":
+            // Member never filled out registration form
+            window.location.href = "registration.html";
+            break;
+        case "Anonymous":
+            console.log("Can an anonymous viewer get here?");
+            window.location.href = "signup.html";
+            break;
+        default:
+            console.log("User type undefined? How did we get here ...");
+            window.location.href = "signup.html";
+            return false;
+      }
   } // end firebase callback
   
   // Running the initializer returns the database interface object to the callback

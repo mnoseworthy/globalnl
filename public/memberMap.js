@@ -47,14 +47,18 @@ function initMap() {
     });
 
     google.maps.event.addListener(_map, 'idle', function(ev){
-        var bounds = _map.getBounds();
-        var ne = bounds.getNorthEast(); // LatLng of the north-east corner
-        var sw = bounds.getSouthWest(); // LatLng of the south-west corder
-        var neCorner = {"lat" : ne.lat(), "lng" : ne.lng()};
-        var swCorner = {"lat" : sw.lat(), "lng" : sw.lng()};
-        if(_firebase_interface)
-            loadMembersOnMap(neCorner,swCorner);
+        parseCords();
     });
+}
+
+function parseCords(){
+    var bounds = _map.getBounds();
+    var ne = bounds.getNorthEast(); // LatLng of the north-east corner
+    var sw = bounds.getSouthWest(); // LatLng of the south-west corder
+    var neCorner = {"lat" : ne.lat(), "lng" : ne.lng()};
+    var swCorner = {"lat" : sw.lat(), "lng" : sw.lng()};
+    if(_firebase_interface)
+        loadMembersOnMap(neCorner,swCorner);
 }
 
 
@@ -113,7 +117,7 @@ var memberMap_namespace = function (config)
       {
         case "Moderator":
         case "Member":
-            console.log("load map");
+            parseCords();
             break;
         case "Unregistered Member":
             // Member never filled out registration form
