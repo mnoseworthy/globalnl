@@ -1,24 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Global NL - Members</title>
   <meta charset="utf-8">
-  <!--<meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1">-->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Global NL - Members</title>
   <!-- css and fonts and all that fun stuff -->
-  <!--<link rel="stylesheet" type="text/css" href="/assets/DataTables-1.10.16/datatables.min.css"/>
-  <link rel="stylesheet" type="text/css" href="/assets/Pagination/simplePagination.css"/>-->
+  <link rel="stylesheet" type="text/css" href="/assets/DataTables-1.10.16/datatables.min.css"/>
+  <link rel="stylesheet" type="text/css" href="/assets/Pagination/simplePagination.css"/>
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-  <link rel="stylesheet" type="text/css" href="members.css"/>
-
-  <!--Bootstrap Links-->
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
   <script src="https://use.fontawesome.com/b58b304000.js"></script>
+
 </head>
 
 <body>
-  <!-- fixed top navbar
+  <!-- fixed top navbar -->
   <div class="navbar navbar-default navbar-fixed-top" role="navigation">
     <div class="container">
       <div class="navbar-header">
@@ -34,41 +30,40 @@
         <span>Back</span>
       </button>
       <!-- menu button to show/ hide the off canvas menu -->
-      <!--<button type="button" class="btn btn-default btn-menu pull-left" data-toggle="offcanvas">
+      <button type="button" class="btn btn-default btn-menu pull-left" data-toggle="offcanvas">
         <i class="fa fa-lg fa-bars"></i><span>Menu</span>
-      </button>- ->
+      </button>
 
-      <a class="navbar-brand" title="Global NL Members (Beta)" href="/members.html">Global NL</a>
+      <a class="navbar-brand" title="Global NL Members (Beta)" href="/members.html">Global NL Members (Beta)</a>
 
-      <!--navbar menu options: shown on desktop only - ->
+      <!--navbar menu options: shown on desktop only -->
       <div class="navbar-collapse collapse">
         <ul class="nav navbar-nav">
-          <!--<li class="active">
+          <li class="active">
             <a href="#">
               <i class="fa fa-font"></i> Members Directory
             </a>
-          </li>-->
-          <!--<li>
+          </li>
+          <li>
+            <a class="navbar-brand" href="/memberMap.html" data-toggle="tooltip" title="Members Map" >
+              <i class="fa fa-globe"></i> Members Map
+            </a>
+          </li>
+          <li>
             <a class="btn disabled" href="#" data-toggle="tooltip" title="Coming Soon!">
               <i class="fa fa-graduation-cap"></i> Student Jop Map
             </a>
-          </li>- ->
+          </li>
         </ul>
         <ul id="login_name" class="nav navbar-nav navbar-right">
-          <li><a class="" href="/memberMap.html" data-toggle="tooltip" title="Members Map"><i class="fa fa-globe"></i> Members Map</a>
-          </li>
           <li><a href="index.html"><span class="glyphicon glyphicon-user"></span> Login</a></li>
           <li><a href="https://www.globalnl.com/"><i class="fa fa-home"></i> GlobalNL.com</a></li>
-
         </ul>
       </div>
     </div>
   </div>
 
--->
-
-<!--
-  <!-- slide in off canvas menu (mobile only) - ->
+  <!-- slide in off canvas menu (mobile only) -->
   <nav class="navmenu offcanvas offcanvas-left">
     <ul class="nav">
       <li class="active">
@@ -95,7 +90,7 @@
         <a href="index.html"><span class="glyphicon glyphicon-user"></span> Login</a>
       </li>
 
-      <!--option with submenu- ->
+      <!--option with submenu-->
       <li class="collapse litop4 pull-left">
         <div id="user_controls_mobile" class="collapse in">
           <ul class="nav navmenu-nav">
@@ -111,13 +106,13 @@
 
     </ul>
 
-  </nav><nav>
+  </nav><!--nav-->
 
   <div class="container bootcards-container push-right">
 
     <div class="row">
 
-      <!-- left list column - ->
+      <!-- left list column -->
       <div class="col-sm-5 bootcards-list" id="list" data-title="Members">
         <div class="panel panel-default">
           <div class="panel-body">
@@ -154,27 +149,27 @@
               <br>
 
             </div>
-          </div><!--panel body- ->
+          </div><!--panel body-->
 
           <div class="list-group">
 
-            <!-- memebrs list - ->
+            <!-- memebrs list -->
             <div class="members-list"  id="members-list">
 
             </div>
 
-          </div><!--list-group- ->
+          </div><!--list-group-->
 
           <div class="panel-footer">
             <div class="text-center">
               <ul id="pagination" class="pagination"></ul>
             </div>
           </div>
-        </div><!--panel- ->
+        </div><!--panel-->
 
         </div><!--list-->
 
-        <!--list details column- ->
+        <!--list details column-->
         <div class="col-sm-7 bootcards-cards" id="contactCard">
 
             <div class="panel panel-default">
@@ -227,102 +222,7 @@
     </div>
   </div>
 
--------------------------------------------------------------------------------------------------------->
-
-
-<div class="search-box">
-  <input type="text" placeholder="Search Members..." class="search-box-input">
-</div>
-
-
-<div class='row'>
-  <div class='col-lg-4'>
-    <div class='row'>
-      <div class='col-lg-6'>
-        <img id='headshot'src="http://berlindenys.com/wp-content/uploads/2015/05/headshot-placeholder.gif">
-      </div>
-      <div class='col-lg-6'>
-        <h2 class=''>Name</h1>
-        <p class=''>Position, Company<p>
-        <p class=''>Location<p>
-        <button class="btn" type="submit"><img id='icon' src='https://tse3.mm.bing.net/th?id=OIP.RUL2_Fofw4FtaDJjFseiewHaHa&pid=Api'></button>
-      </div>
-    </div>
-  </div>
-
-  <div class='col-lg-4'>
-    <div class='row'>
-      <div class='col-lg-6'>
-        <img id='headshot'src="http://berlindenys.com/wp-content/uploads/2015/05/headshot-placeholder.gif">
-      </div>
-      <div class='col-lg-6'>
-        <h2 class=''>Name</h1>
-        <p class=''>Position, Company<p>
-        <p class=''>Location<p>
-        <button class="btn" type="submit"><img id='icon' src='https://tse3.mm.bing.net/th?id=OIP.RUL2_Fofw4FtaDJjFseiewHaHa&pid=Api'></button>
-      </div>
-    </div>
-  </div>
-
-  <div class='col-lg-4'>
-    <div class='row'>
-      <div class='col-lg-6'>
-        <img id='headshot'src="http://berlindenys.com/wp-content/uploads/2015/05/headshot-placeholder.gif">
-      </div>
-      <div class='col-lg-6'>
-        <h2 class=''>Name</h1>
-        <p class=''>Position, Company<p>
-        <p class=''>Location<p>
-        <button class="btn" type="submit"><img id='icon' src='https://tse3.mm.bing.net/th?id=OIP.RUL2_Fofw4FtaDJjFseiewHaHa&pid=Api'></button>
-      </div>
-    </div>
-  </div>
-
-  <div class='col-lg-4'>
-    <div class='row'>
-      <div class='col-lg-6'>
-        <img id='headshot'src="http://berlindenys.com/wp-content/uploads/2015/05/headshot-placeholder.gif">
-      </div>
-      <div class='col-lg-6'>
-        <h2 class=''>Name</h1>
-        <p class=''>Position, Company<p>
-        <p class=''>Location<p>
-        <button class="btn" type="submit"><img id='icon' src='https://tse3.mm.bing.net/th?id=OIP.RUL2_Fofw4FtaDJjFseiewHaHa&pid=Api'></button>
-      </div>
-    </div>
-  </div>
-
-  <div class='col-lg-4'>
-    <div class='row'>
-      <div class='col-lg-6'>
-        <img id='headshot'src="http://berlindenys.com/wp-content/uploads/2015/05/headshot-placeholder.gif">
-      </div>
-      <div class='col-lg-6'>
-        <h2 class=''>Name</h1>
-        <p class=''>Position, Company<p>
-        <p class=''>Location<p>
-        <button class="btn" type="submit"><img id='icon' src='https://tse3.mm.bing.net/th?id=OIP.RUL2_Fofw4FtaDJjFseiewHaHa&pid=Api'></button>
-      </div>
-    </div>
-  </div>
-
-  <div class='col-lg-4'>
-    <div class='row'>
-      <div class='col-lg-6'>
-        <img id='headshot'src="http://berlindenys.com/wp-content/uploads/2015/05/headshot-placeholder.gif">
-      </div>
-      <div class='col-lg-6'>
-        <h2 class=''>Name</h1>
-        <p class=''>Position, Company<p>
-        <p class=''>Location<p>
-        <button class="btn" type="submit"><img id='icon' src='https://tse3.mm.bing.net/th?id=OIP.RUL2_Fofw4FtaDJjFseiewHaHa&pid=Api'></button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!--
-  <!-- fixed tabbed footer - ->
+  <!-- fixed tabbed footer -->
   <div class="navbar navbar-default navbar-fixed-bottom">
 
     <div class="container">
@@ -333,32 +233,28 @@
 
     </div>
 
-  </div><!--footer- ->
--->
-
-<!--
-  <!-- imported scripts, order is important of course
-  <script type="text/javascript" src="/assets/DataTables-1.10.16/datatables.min.js"></script>- ->
+  </div><!--footer-->
+  
+  <!-- imported scripts, order is important of course 
+  <script type="text/javascript" src="/assets/DataTables-1.10.16/datatables.min.js"></script>-->
   <script
   src="https://code.jquery.com/jquery-3.3.1.min.js"
   integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
   crossorigin="anonymous"></script>
   <script src="https://platform.linkedin.com/in.js" type="text/javascript"></script>
-  <!-- Will replace with query windows soon - ->
+  <!-- Will replace with query windows soon -->
   <script type="text/javascript" src="/assets/Pagination/jquery.twbsPagination.min.js"></script>
   <script type="text/javascript" src="/assets/Pagination/jquery.simplePagination.js"></script>
   <script src="/assets/bootcards-1.1.2/js/bootcards.js"></script>
-  <!-- include firestore now - ->
+  <!-- include firestore now -->
   <script src="https://www.gstatic.com/firebasejs/4.12.0/firebase.js"></script>
   <script src="https://www.gstatic.com/firebasejs/4.12.0/firebase-firestore.js"></script>
 
-  <!-- Site source, handlers and interfaces first, then the page code - ->
+  <!-- Site source, handlers and interfaces first, then the page code -->
   <script type="text/javascript" src="src/config.js"></script>
   <script type="text/javascript" src="src/firestoreInterface.js"></script>
   <script type="text/javascript" src="src/elementHandler.js"></script>
   <script type="text/javascript" src="members.js"></script>
-
--->
 
 </body>
 </html>
