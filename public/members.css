@@ -1,0 +1,47 @@
+.top{
+  background: #DCDCDC;
+}
+
+#header{
+  text-align: left;
+  font-weight: bold;
+  font-size: 135%;
+  padding: 2%;
+}
+
+.search-box {
+    font-size: 20px;
+}
+
+.search-box-input {
+    border: 0.1em solid #000000;
+    border-radius: 0.5em;
+    padding: 0.2em 0.5em;
+    width: 50%;
+    height: 3em;
+}
+
+
+.row{
+  text-align: center;
+}
+
+.col-lg-4{
+  border-color: grey;
+  border-style: solid;
+  border-width: 0.5px 0.5px 0.5px 0.5px;
+}
+
+#headshot{
+  position: relative;
+  padding-top: 7.5%;
+}
+
+#icon{
+  width: 100%;
+}
+
+.btn{
+  background: white;
+  width: 40%;
+}
