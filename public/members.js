@@ -107,6 +107,7 @@ function filterMembers(input_id) {
     loadMembers(member_data, _config, _firebase_interface, true);
 
 }
+
 // Clear search filters
 function unfilterMembers(input_id) {
     console.log("Implement");
@@ -115,31 +116,8 @@ function unfilterMembers(input_id) {
 /***************************************************  
 * Preform any required global module initialization
 ****************************************************/
-/* Initialize bootcards
-*/
-bootcards.init( {
-    offCanvasBackdrop : true,
-    offCanvasHideOnMainClick : true,
-    enableTabletPortraitMode : true,
-    disableRubberBanding : true,
-    disableBreakoutSelector : 'a.no-break-out'
-});
-/* Check for mobile vs desktawp ( Remove me soon plz )
-*/
-if (! window.matchMedia("(min-width:900px)").matches) {
-    // Super classy css link insert ( I know its hard to read It just doesn't deserve a bunch of lines)
-    // As this whole block of checking screen width should be removed eventually
-    (function() { var po = document.createElement('link'); po.type = 'text/css'; po.href = 'https://cdnjs.cloudflare.com/ajax/libs/bootcards/1.1.2/css/bootcards-android.min.css'; var s = document.getElementsByTagName('link')[0]; s.parentNode.insertBefore(po, s); })();    
-    // Not sure what this stuff does, but Daryl had it here before and I'm blindly trusting it's usefulless
-    //$("#list").show();
-    $("#contactCard").hide();
-}else{
-    // Super classy css link insert once again for mobile
-    (function() { var po = document.createElement('link'); po.type = 'text/css'; po.href = 'https://cdnjs.cloudflare.com/ajax/libs/bootcards/1.1.2/css/bootcards-desktop.min.css'; var s = document.getElementsByTagName('link')[0]; s.parentNode.insertBefore(po, s); })();    
-    // Not sure what this stuff does, but Daryl had it here before and I'm blindly trusting it's usefulless
-    //$("#list").hide();
-    $("#contactCard").show();
-}
+
+
 
 /********************************
 * Main namespace and control flow
@@ -294,7 +272,7 @@ function loadMembers(snapshotValue, config, fbi, reload=false)
         Entry point for load members control flow
         @param callback (pointer) - next function to run in control flow.     
     */
-    function loadMembersEntry(callback)
+    function loadMembersEntry(callback=null)
     {
         // list of UID's returned in the member snapshot
         var member_uids = Object.keys(snapshotValue);
@@ -319,15 +297,10 @@ function loadMembers(snapshotValue, config, fbi, reload=false)
                 $( memObj ).hide();
             // store refernece to object
             member_dom_references.push( memObj );
-            // If first element, trigger update to info window
-            if ( isFirst ){
-                // set flag
-                isFirst = false;
-                setInfoWindowData(member_uids[0]);      
-            }
+
             // If all uid's have been parsed, execute callback
             if ( member_dom_references.length == member_uids.length ){
-                callback(member_dom_references, finalizeLoading);
+                //callback(member_dom_references, finalizeLoading);
                 // add dom references to data cache in firebase interface
                 fbi.writeCache("member_dom_references", member_dom_references);
             }
@@ -347,79 +320,16 @@ function loadMembers(snapshotValue, config, fbi, reload=false)
                 public_uid : uid,
                 firstName : member.first_name,
                 lastName : member.last_name,
-                currentAddress : getLocationString(member.current_address)
+                currentAddress : getLocationString(member.current_address),
+                linkedin_profile : member.linkedin_profile
             }
             // Build element and inject
             new elementHandler("src/elements/members/member.html", args, injectMemberElement);
         }
     } // end loadMembersEntry
 
-    /* buildPagnationObject
-        @param member_dom_refernces (Array[]) - list of member dom referneces created
-        @param callback (Function pointer) - next function in control flow 
-    */
-    function buildPagnationObject(member_dom_references, callback)
-    {
-        // Convert member_dom_references array into an object of page numbers
-        // mapped to the members that are to be displayed on the page
-        var pageNum = 0;
-        var pages_of_members = [null];
-        for ( var i = 0; i < member_dom_references.length; i++  )
-        {
-            // if i is a multiple of the number of members per page, start a new page
-            if ( i % config.members_per_page === 0 ){
-                pageNum ++;
-                pages_of_members[pageNum] = [];
-            }
-            // Append object to page
-            pages_of_members[pageNum].push( member_dom_references[i][0] );
-        }
-        callback(pages_of_members, member_dom_references.length);
-    } // end buildPagnationObject
-
-    /* finaliseLoading
-        @param pages_of_members (Object) - member DOM referneces nested under page numbers
-        @param numMembers - total number of DOM's created, i.e. the number of members loaded
-    */
-    function finalizeLoading(pages_of_members, numMembers)
-    {
-        // Load pagnation
-        $('#pagination').twbsPagination('destroy');
-        var currentPage = 1;
-        $('#pagination').twbsPagination({
-            totalPages: pages_of_members.length,
-            visiblePages: config.max_pages,
-            prev: 'Prev',
-            first: "First",
-            last: "Last",
-            onPageClick: function (event, page) {
-                // get current page/*
-                // iterate over current page references and hide them
-                for (var i = 0; i < pages_of_members[currentPage].length; i ++)
-                {
-                    $( pages_of_members[currentPage][i] ).hide();
-                }
-                // Iterate over next page and reveal them
-                for (var i = 0; i < pages_of_members[page].length; i++)
-                {
-                    $( pages_of_members[page][i] ).show();
-                }
-                // Update current page
-                currentPage = page;
-            }
-        });
-
-        // Populate some elements with info about the loading we just did
-        //setInfoWindowData(objArray[0]["public_uid"]);
-
-        document.getElementById("count").innerHTML = "Membership Count: " + numMembers;
-        // create the navigation based on the page metrics
-        //makePageNav(total_pages, page_members, objArray);
-        return true;
-    } // end finalizeLoading
-
     // trigger control flow with entry point and callback to next task in queue
-    loadMembersEntry(buildPagnationObject);
+    loadMembersEntry();//buildPagnationObject
 
 } // end loadMembers
 
@@ -427,12 +337,10 @@ function loadMembers(snapshotValue, config, fbi, reload=false)
 */
 function genNavbar()
 {
-    console.log("Attempting to generate navbar");
     // This callback is given to the elementHandler constructor, it must do something with
     // the resolved element string
     var injectNav = function ( resolvedDOM )
     {
-        console.log(resolvedDOM);
         if ( ! resolvedDOM )
         {
             console.log("An error occured while loading the navbar");

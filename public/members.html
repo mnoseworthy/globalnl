@@ -7,131 +7,30 @@
   <title>Global NL - Members</title>
   <!-- css and fonts and all that fun stuff -->
   <link rel="stylesheet" type="text/css" href="/assets/DataTables-1.10.16/datatables.min.css"/>
-  <link rel="stylesheet" type="text/css" href="/assets/Pagination/simplePagination.css"/>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
+  <link rel="stylesheet" href="members.css"/>
   <script src="https://use.fontawesome.com/b58b304000.js"></script>
 
 </head>
 
 <body>
   <!-- navbar div that is loaded dynamically -->
-  <div id="navbar" ></div>
+  <div id="navbar"></div>
 
+  <div class="container directory-container">
 
-  <div class="container bootcards-container push-right">
-
-    <div class="row">
-
-      <!-- left list column -->
-      <div class="col-sm-5 bootcards-list" id="list" data-title="Members">
-        <div class="panel panel-default">
-          <div class="panel-body">
-            <div class="search-form">
-
-              <div class="row">
-                <div class="form-group">
-                  <div class="text-center">
-                    <div class="col-xs-12"><b><h3 id="dir_version">Public Membership Directory</h3></b></div>
-                    <div class="col-xs-12"><small id="login_note">Login to a Verified Account to Access the Full Membership Directory</small></div>
-                    <div class="col-xs-12"><small id="count">Membership Count: </small><hr size="5"></div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="form-group">
-                <input type="text" onKeyDown='if(event.keyCode==13) filterMembers("member_search");' id="member_search" class="form-control" placeholder="Search by last name">
-                <i class="fa fa-search"></i>
-                <br>
-              </div>
-
-              <div class="form-group">
-                <button type="button" class="btn btn-success form-control" onclick='filterMembers("member_search");'>
-                  <span class="fa fa-search"></span> Search
-                </button>
-                <br></br>
-              </div>
-
-              <div class="form-group">
-                <button type="button" class="btn btn-primary form-control" onclick='unfilterMembers("member_search");'>
-                  <span class="glyphicon glyphicon-refresh"></span> Refresh
-                </button>
-              </div>
-              <br>
-
-            </div>
-          </div><!--panel body-->
-
-          <div class="list-group">
-
-            <!-- memebrs list -->
-            <div class="members-list"  id="members-list">
-
-            </div>
-
-          </div><!--list-group-->
-
-          <div class="panel-footer">
-            <div class="text-center">
-              <ul id="pagination" class="pagination"></ul>
-            </div>
-          </div>
-        </div><!--panel-->
-
-        </div><!--list-->
-
-        <!--list details column-->
-        <div class="col-sm-7 bootcards-cards" id="contactCard">
-
-            <div class="panel panel-default">
-              <div class="panel-heading clearfix">
-                <h3 class="panel-title pull-left">Member Details</h3>
-                <a class="btn btn-default pull-right hidden-sm hidden-md hidden-lg hidden-xl" onclick='toggleInfoWindow("null");' href="#">
-                  <i class="fa fa-arrow-left"></i>
-                  Return
-                </a>
-              </div>
-              <div class="list-group">
-                <div class="list-group-item">
-                  <label>Name</label>
-                  <h4 id="member_name" class="list-group-item-heading"></h4>
-                </div>
-
-                <div class="list-group-item">
-                  <label>Current Location</label>
-                  <h4 id="member_current_location" class="list-group-item-heading"></h4>
-                </div>
-
-                <div class="list-group-item">
-                  <label>Hometown / NL Roots</label>
-                  <h4 id="member_hometown" class="list-group-item-heading"></h4>
-                </div>
-
-                <div class="list-group-item">
-                  <label>Industry</label>
-                  <h4 id="member_industry" class="list-group-item-heading"></h4>
-                </div>
-
-                <div class="list-group-item">
-                  <label>LinkedIn Profile</label>
-                  <div align="center" id="linkedin_profile"></div>
-                </div>
-
-                <div class="list-group-item">
-                  <label>Ambassador</label>
-                  <h4 id="member_ambassador" class="list-group-item-heading"></h4>
-                </div>
-
-              </div>
-
-              <div class="panel-footer">
-                <small class="pull-left">Global NL</small>
-              </div>
-
-        </div>
-      </div>
+  
+    <div class="search-box">
+      <input type="text" placeholder="Search by last name..." class="search-box-input" onKeyDown='if(event.keyCode==13) filterMembers("member_search");' id="member_search">
     </div>
+    
+
+
+    <div class='row members-list card-group'></div>
+
   </div>
 
+  
   <!-- fixed tabbed footer -->
   <div class="navbar navbar-default navbar-fixed-bottom">
 
@@ -153,8 +52,7 @@
   crossorigin="anonymous"></script>
   <script src="https://platform.linkedin.com/in.js" type="text/javascript"></script>
   <!-- Will replace with query windows soon -->
-  <script type="text/javascript" src="/assets/Pagination/jquery.twbsPagination.min.js"></script>
-  <script type="text/javascript" src="/assets/Pagination/jquery.simplePagination.js"></script>
+
   <script src="/assets/bootcards-1.1.2/js/bootcards.js"></script>
   <!-- include firestore now -->
   <script src="https://www.gstatic.com/firebasejs/4.12.0/firebase.js"></script>
