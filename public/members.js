@@ -16,6 +16,9 @@ $(document).ready(function(){
 // Callback executed on page load
 function initApp()
 {
+    // Generate navbar
+    genNavbar();
+
     // Initialize config handler, this does nothing more than parse the config object
     // in the config handler file and return the object required for this page to the callback,
     // where the callback is just our namespace
@@ -420,6 +423,36 @@ function loadMembers(snapshotValue, config, fbi, reload=false)
 
 } // end loadMembers
 
+/* Utilises the elementHandler class to generate the top-fixed navbar on the page
+*/
+function genNavbar()
+{
+    console.log("Attempting to generate navbar");
+    // This callback is given to the elementHandler constructor, it must do something with
+    // the resolved element string
+    var injectNav = function ( resolvedDOM )
+    {
+        console.log(resolvedDOM);
+        if ( ! resolvedDOM )
+        {
+            console.log("An error occured while loading the navbar");
+        }else{
+            //Use your loaded element !
+            $("#navbar").append(resolvedDOM);
+        }
+    }
+
+    // define path to the element file
+    var path = "src/elements/navbar/navbar.html";
+
+    // No arguments for navbar currently
+    var args = [];
+    // Call the constructor, this will handle all loading/parsing and then releave data when complete
+    // after executing the callback with the requesting dom string
+    new elementHandler(path, args, injectNav);
+}
+
+
 /* Build location string
     Concatonate the data in the location value from a member object
     into a formatted string
@@ -434,7 +467,6 @@ function getLocationString(locationObject)
     // Filter array for unwanted data, then join with ', ' to create a comma separated string from data
     return location.filter(e => e !== "" && e !== undefined).join(", "); 
 }
-
 
 /*
     https://stackoverflow.com/questions/11919065/sort-an-array-by-the-levenshtein-distance-with-best-performance-in-javascript

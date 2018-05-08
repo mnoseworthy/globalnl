@@ -45,10 +45,14 @@ class elementHandler
     */
     jqueryLoad(elementPath)
     {
-        var _this = this;
-        $.get(elementPath, function(data) {
-            _this.parseHtmlForFields(data);
-        });
+        try{
+            var _this = this;
+            $.get(elementPath, function(data) {
+                _this.parseHtmlForFields(data);
+            });
+        }catch(err){
+            console.log(err);
+        }
     } // end jqueryLoad
 
     /* parseHtmlForFields
@@ -63,27 +67,34 @@ class elementHandler
         this.matchedArgs = loadedElement.match(this.argFieldRegex);
         // Split string to get contents on either side of all matches
         this.splitElement = loadedElement.split(this.argFieldRegex);
-
-        // make an array where the key's are equal to the match's resolved key (int)
-        // and the values are an object containing the resolved string and the index
-        // in split element to insert the argument at
-        for(var i = 0; i < this.matchedArgs.length; i++)
-        {   
-            // Matches {string}, then removes the brackets
-            var strIndex = this.matchedArgs[i].match( /\(\w+\)/g );
-            strIndex = strIndex[0].replace("(", "").replace(")","");
-            // Matches [int], then removes the brackets, converts to int
-            var intIndex = this.matchedArgs[i].match(/\[\d\]/g);
-            intIndex = parseInt( intIndex[0].replace("[","").replace("]","") );
-            // Store results in required format
-            this.parsedArgs[i] = {
-                intIndex : intIndex,
-                stringIndex : strIndex,
-                insertPos : i
-            };
+        // If null was returned from match attempt, the element has no arguments to fill in
+        if ( this.matchedArgs !== null)
+        { 
+            // make an array where the key's are equal to the match's resolved key (int)
+            // and the values are an object containing the resolved string and the index
+            // in split element to insert the argument at
+            for(var i = 0; i < this.matchedArgs.length; i++)
+            {   
+                // Matches {string}, then removes the brackets
+                var strIndex = this.matchedArgs[i].match( /\(\w+\)/g );
+                strIndex = strIndex[0].replace("(", "").replace(")","");
+                // Matches [int], then removes the brackets, converts to int
+                var intIndex = this.matchedArgs[i].match(/\[\d\]/g);
+                intIndex = parseInt( intIndex[0].replace("[","").replace("]","") );
+                // Store results in required format
+                this.parsedArgs[i] = {
+                    intIndex : intIndex,
+                    stringIndex : strIndex,
+                    insertPos : i
+                };
+            }
+            // Continue control flow by calling validate args
+            this.validateArgs();
+        }else{
+            // No arguments in element, just output it !
+            this.callback(loadedElement);
+            return true;
         }
-        // Continue control flow by calling validate args
-        this.validateArgs();
     }// end parseHtmlForFields
 
     /* validateArgs

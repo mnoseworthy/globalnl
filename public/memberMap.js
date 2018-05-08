@@ -144,3 +144,32 @@ var memberMap_namespace = function (config)
 /*****************************************************
 * Utility Functions, only referenced in this file
 *****************************************************/
+
+/* Utilises the elementHandler class to generate the top-fixed navbar on the page
+*/
+function genNavbar()
+{
+    console.log("Attempting to generate navbar");
+    // This callback is given to the elementHandler constructor, it must do something with
+    // the resolved element string
+    var injectNav = function ( resolvedDOM )
+    {
+        console.log(resolvedDOM);
+        if ( ! resolvedDOM )
+        {
+            console.log("An error occured while loading the navbar");
+        }else{
+            //Use your loaded element !
+            $("#navbar").append(resolvedDOM);
+        }
+    }
+
+    // define path to the element file
+    var path = "src/elements/navbar/navbar.html";
+
+    // No arguments for navbar currently
+    var args = [];
+    // Call the constructor, this will handle all loading/parsing and then releave data when complete
+    // after executing the callback with the requesting dom string
+    new elementHandler(path, args, injectNav);
+}

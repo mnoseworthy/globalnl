@@ -15,12 +15,14 @@ $(document).ready(function(){
 // Code entry point, started when page is finished loading
 function initApp()
 {
-  // Initialize config handler, this does nothing more than parse the config object
-  // in the config handler file and return the object required for this page to the callback,
-  // where the callback is just our namespace below
-  new configHandler( profile_namespace, 'profile' );
-  // Dont know why this is a thing, but leaving it here for now
-  $("#user_controls_mobile").hide();
+    // Generate navbar
+    genNavbar();
+    // Initialize config handler, this does nothing more than parse the config object
+    // in the config handler file and return the object required for this page to the callback,
+    // where the callback is just our namespace below
+    new configHandler( profile_namespace, 'profile' );
+    // Dont know why this is a thing, but leaving it here for now
+    $("#user_controls_mobile").hide();
 }
 // Prevent the enter key from submitting the form when uncomplete
 $(window).keydown(function(event){
@@ -392,6 +394,35 @@ var profile_namespace = function (config)
   new firebase_interface(config.firebase.config, firebaseLoaded);
 }; // end namespace
 
+
+/* Utilises the elementHandler class to generate the top-fixed navbar on the page
+*/
+function genNavbar()
+{
+    console.log("Attempting to generate navbar");
+    // This callback is given to the elementHandler constructor, it must do something with
+    // the resolved element string
+    var injectNav = function ( resolvedDOM )
+    {
+        console.log(resolvedDOM);
+        if ( ! resolvedDOM )
+        {
+            console.log("An error occured while loading the navbar");
+        }else{
+            //Use your loaded element !
+            $("#navbar").append(resolvedDOM);
+        }
+    }
+
+    // define path to the element file
+    var path = "src/elements/navbar/navbar.html";
+
+    // No arguments for navbar currently
+    var args = [];
+    // Call the constructor, this will handle all loading/parsing and then releave data when complete
+    // after executing the callback with the requesting dom string
+    new elementHandler(path, args, injectNav);
+}
 
 /*****************************************************
 * Utility Functions, only referenced in this file
