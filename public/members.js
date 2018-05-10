@@ -40,46 +40,7 @@ function logout() {
     });
 }
 
-// toggle info window callback, this will be removed along with the profile pannel we think
-function toggleInfoWindow(key) {
-    if (! window.matchMedia("(min-width:900px)").matches) {
-        if ($("#contactCard").is(":visible")) {
-            $("#list").show();
-            $("#contactCard").hide();
-        } else {
-            $("#contactCard").show();
-            $("#list").hide();
-        }
-    } else {
-        if ( $("#contactCard").is(":hidden") ) {
-            $("#contactCard").show();
-        }
-    }
-    if(key != "null") {
-      setInfoWindowData(key);
-    }
-}
 
-// set info window
-function setInfoWindowData(uid) {
-    // Read member object from firebase cache (Saved as members were loaded to page)
-    var memberObject = _firebase_interface.readCache("member_references")[uid];
-    // Set data fields in html
-    $("#member_name").html(memberObject.first_name+' '+memberObject.last_name);
-    $("#member_industry").html(memberObject.industry);
-    $("#member_current_location").html(getLocationString(memberObject.current_address));
-    $("#member_hometown").html(getLocationString(memberObject.hometown_address));
-    $("#member_ambassador").html(memberObject.ambassador);
-    // TODO This seems pretty rough and should be removed eventually
-    if ($(window).width() <= 400) {
-        // If mobile, add link to profile
-        document.getElementById('linkedin_profile').innerHTML = '<a href="' + memberObject["linkedin_profile"] + '">' + memberObject["linkedin_profile"] + '<\/a>';
-    } else {
-        // If desktop, load the profile in-line or something?
-        document.getElementById('linkedin_profile').innerHTML = '<script type="IN/MemberProfile" data-id="' + memberObject["linkedin_profile"] + '" data-format="inline" data-related="false"><\/script>';
-        IN.parse(document.getElementById("linkedin_profile"));
-    }
-}
 // Filter members ()
 function filterMembers(input_id) {
     // Current UI states "search for Name, location or industry"
@@ -151,9 +112,8 @@ var members_namespace = function (config)
                 // Load user information for mobile
                 injectElement = function(domString) {
                     $("#user_controls_mobile").show();
-                    document.getElementById('login_name_mobile').innerHTML = domString;
                 }
-                args = { displayName:fbi.userObject.displayName };
+                args = { displayName : fbi.userObject.displayName };
                 new elementHandler("src/elements/login_name_mobile.html", args, injectElement);
 
                 // Check for approval status
@@ -162,8 +122,6 @@ var members_namespace = function (config)
                     fbi.database.collection("members").orderBy("last_name").where("privacy", "==", "members")
                         .get().then( function(members){
                             loadMembers(members, config, fbi);
-                            $("#login_note").hide();
-                            document.getElementById("dir_version").innerHTML = "Membership Directory";
                         });
                 // if not approved...
                 }else{

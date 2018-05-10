@@ -10,6 +10,26 @@
   <link rel="stylesheet" type="text/css" href="/assets/Pagination/simplePagination.css"/>
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <script src="https://use.fontawesome.com/b58b304000.js"></script>
+  <style>
+      .test{
+        padding-top: 100px;
+      }
+      .hidden{
+        visibility: hidden;
+      } 
+      .li-profile-card
+      .industry,
+      .li-profile-card
+      .locality
+       {
+        visibility: hidden;
+      }
+      .li-profile-card
+      .member-photo
+      .photo {
+        visibility : visible;
+      }
+  </style>
 </head>
 
 <body>
@@ -17,10 +37,14 @@
   <div id="navbar"></div>
 
 
-  <!-- PAGE CONTENT GOES HERE 
-
-    
-   -->
+  <!-- PAGE CONTENT GOES HERE  -->
+  <div class="test">
+    <script src="//platform.linkedin.com/in.js" type="text/javascript"></script>
+    <div class=""> 
+      <script type="IN/MemberProfile" data-id="https://www.linkedin.com/in/matthew-noseworthy-218167106" data-format="inline" data-related="false"></script>
+    </div>
+  </div>
+   
 
 
   <!-- fixed tabbed footer -->
@@ -52,7 +76,7 @@
   <script type="text/javascript" src="src/firestoreInterface.js"></script>
   <script type="text/javascript" src="src/elementHandler.js"></script>
   <!-- Javascript specific to this page  -->
-  <script type="text/javascript" src="template.js"></script>    
+  <script type="text/javascript" src="linkedin_api_test.js"></script>    
 
 </body>
 </html>

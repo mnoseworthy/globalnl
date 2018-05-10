@@ -16,6 +16,13 @@ var __globalnl_internal_config__  = function() { return {
                 messagingSenderId: "331545031788"
             },
             "tosUrl" : "<your-tos-url>" 
+        },
+        "linkedin" : {
+            api_key : "r5zW4F5VoUQrZOdk",
+            onLoad : "",
+            authorize : true,
+            lang : "en_US"
+
         }
     },
     "admin" : {
