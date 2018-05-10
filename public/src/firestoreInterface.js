@@ -58,7 +58,7 @@ class firebase_interface
         // Trigger authentication and capture the return
         firebase.auth().onAuthStateChanged( function( user ) {
             if ( user ) {
-                console.log("Attempting to read user type");
+                //console.log("Attempting to read user type");
                 _this.userObject = user;
                 _this.parseUserType();
             } else {
@@ -79,7 +79,7 @@ class firebase_interface
     */
     parseUserType()
     {
-        console.log(this.userObject.uid);
+        //console.log(this.userObject.uid);
         // flags & object reference
         var resolved = false;
         var _this = this;
@@ -104,8 +104,8 @@ class firebase_interface
                             _this.userType = "Moderator";
                         }
                     }).catch(function(error){
-                        console.log(error);
-                        console.log("Error reading from moderators list");
+                        //console.log(error);
+                        //console.log("Error reading from moderators list");
                     });
                     
                 } else {
@@ -114,8 +114,8 @@ class firebase_interface
                     _this.userType = "Unregistered Member";
                 }
             }).catch(function(error){
-                console.log(error);
-                console.log("Error grabbing this user's data.");
+                //console.log(error);
+                //console.log("Error grabbing this user's data.");
             }).finally(function(){
                 _this.callback(_this);
             });
@@ -138,9 +138,9 @@ class firebase_interface
                 memberDoc.publicData, 
                 { merge: true }
             ).then(function(){
-                console.log("Wrote public data to db");
+                //console.log("Wrote public data to db");
             }).catch(function(error){
-                console.log(error);
+                //console.log(error);
             })
         }
         if ( privateData )
@@ -150,9 +150,9 @@ class firebase_interface
                 memberDoc.privateData, 
                 { merge: true }
             ).then(function(){
-                console.log("Wrote private data to db");
+                //console.log("Wrote private data to db");
             }).catch(function(error){
-                console.log(error);
+                //console.log(error);
             })
         }
     }
@@ -173,10 +173,14 @@ class firebase_interface
         A simple function for retreving data stored in the cache object
         @param key
     */
-    readCache(key)
+    readCache(key, cloned=false)
     {
-        return this.cache[key];
+        if( cloned )
+            return clone( this.cache[key] );
+        else
+            return this.cache[key];
     }
+
 
     /* getSnapshot
         Simple read function that returns a snapshot from the given path, no 
@@ -283,12 +287,12 @@ class memberDocument
     * */
    parseInput(memberData, callback) 
    {
-       console.log(memberData);
+       //console.log(memberData);
         // get data length and check if there was any data at all
         var len = Object.entries(memberData).length;
         if(len <= 0)
         {
-            console.log("No data given");
+            //console.log("No data given");
             callback(this, this.testPrint);
         }
         // Iterate over key/value pairs of input object
@@ -303,7 +307,7 @@ class memberDocument
                 {
                     // If it was deleted, reset it as null, which will force an it's new
                     // value to be placed into it a few lines down
-                    console.log("Re-adding "+key);
+                    //console.log("Re-adding "+key);
                     this.publicData[key] = null;
                 }
                 // if value is an object, iterate through its values
@@ -315,15 +319,15 @@ class memberDocument
                         if( nested_key in this.publicData[key] )
                         {
                             // store value if match
-                            console.log("Adding nested: "+nested_key+" = "+nested_value+" to Public data");
+                            //console.log("Adding nested: "+nested_key+" = "+nested_value+" to Public data");
                             this.publicData[key][nested_key] = nested_value;
                         }else{
                             // If no match, report that data given is not defined
-                            console.log(key+"."+nested_key+" is not defined in the prototype object");
+                            //console.log(key+"."+nested_key+" is not defined in the prototype object");
                         }
                     }
                 }else{
-                    console.log("Adding "+key+" = "+value+" to Public data");
+                    //console.log("Adding "+key+" = "+value+" to Public data");
                     this.publicData[key] = value;
                 }
             }
@@ -335,7 +339,7 @@ class memberDocument
                 {
                     // If it was deleted, reset it as null, which will force an it's new
                     // value to be placed into it a few lines down
-                    console.log("Re-adding "+key+" to private data")
+                    //console.log("Re-adding "+key+" to private data")
                     this.privateData[key] = null;
                 }
                 // if value is an object, iterate through its values
@@ -347,16 +351,16 @@ class memberDocument
                         if( nested_key in this.privateData[key] )
                         {
                             // store value if match
-                            console.log("Adding nested: "+nested_key+" = "+nested_value+" to Private data");
+                            //console.log("Adding nested: "+nested_key+" = "+nested_value+" to Private data");
                             this.privateData[key][nested_key] = nested_value;
                         }else{
                             // If no match, report that data given is not defined
-                            console.log(key+"."+nested_key+" is not defined in the prototype object");
+                            //console.log(key+"."+nested_key+" is not defined in the prototype object");
                         }
                     }
                 // if not objcet, assign value
                 }else{
-                    console.log("Adding "+key+" = "+value+" to Private data");
+                    //console.log("Adding "+key+" = "+value+" to Private data");
                     this.privateData[key] = value;
                 }
             }
@@ -387,7 +391,7 @@ class memberDocument
             // Check for null entries, which should be removed
             if( value === null )
             {
-                console.log(key+" not defined");
+                //console.log(key+" not defined");
                 delete _this.publicData[key];
             }
             // If the current value is an object, iterate over it
@@ -398,7 +402,7 @@ class memberDocument
                     // check for null entries and remove them
                     if ( nested_value === null )
                     {
-                        console.log(key+"."+nested_key+" not defined");
+                        //console.log(key+"."+nested_key+" not defined");
                         delete _this.publicData[key][nested_key];
                     }
                 }
@@ -413,7 +417,7 @@ class memberDocument
             // Check for null entries, which should be removed
             if( value === null )
             {
-                console.log(key+" not defined");
+                //console.log(key+" not defined");
                 delete _this.privateData[key];
             }
             // If the current value is an object, iterate over it
@@ -424,7 +428,7 @@ class memberDocument
                     // check for null entries and remove them
                     if ( nested_value === null )
                     {
-                        console.log(key+"."+nested_key+" not defined");
+                        //console.log(key+"."+nested_key+" not defined");
                         delete _this.privateData[key][nested_key];
                     }
                 }
@@ -454,9 +458,47 @@ class memberDocument
   *
   * */
  testPrint(_this){
-     console.log("test print");
-     console.log(_this.privateData);
-     console.log(_this.publicData);
+     //console.log("test print");
+     //console.log(_this.privateData);
+     //console.log(_this.publicData);
  }
 
 }// End class 
+
+
+
+
+/* Utility */
+function clone(obj) {
+    var copy;
+
+    // Handle the 3 simple types, and null or undefined
+    if (null == obj || "object" != typeof obj) return obj;
+
+    // Handle Date
+    if (obj instanceof Date) {
+        copy = new Date();
+        copy.setTime(obj.getTime());
+        return copy;
+    }
+
+    // Handle Array
+    if (obj instanceof Array) {
+        copy = [];
+        for (var i = 0, len = obj.length; i < len; i++) {
+            copy[i] = clone(obj[i]);
+        }
+        return copy;
+    }
+
+    // Handle Object
+    if (obj instanceof Object) {
+        copy = {};
+        for (var attr in obj) {
+            if (obj.hasOwnProperty(attr)) copy[attr] = clone(obj[attr]);
+        }
+        return copy;
+    }
+
+    throw new Error("Unable to copy obj! Its type isn't supported.");
+}

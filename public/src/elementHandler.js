@@ -51,7 +51,7 @@ class elementHandler
                 _this.parseHtmlForFields(data);
             });
         }catch(err){
-            console.log(err);
+            //console.log(err);
         }
     } // end jqueryLoad
 
@@ -118,7 +118,7 @@ class elementHandler
                 }
                 // if not found, fail loading
                 if ( ! resovled ) {
-                    console.log("The element template looks for index "+this.parsedArgs.intIndex+" but it does not exist in the given args.");
+                    //console.log("The element template looks for index "+this.parsedArgs.intIndex+" but it does not exist in the given args.");
                     this.callback(false);
                     return false;
                 }
@@ -140,7 +140,7 @@ class elementHandler
                         resolved = true;                    
                 } // end i loop
                 if ( ! resolved ){
-                    console.log("Argument " + argKeys[j] + " was not found in the resolved argument list from the loaded element.");
+                    //console.log("Argument " + argKeys[j] + " was not found in the resolved argument list from the loaded element.");
                     this.callback(false);
                     return false;
                 }

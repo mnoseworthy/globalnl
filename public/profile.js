@@ -139,7 +139,7 @@ function initAutocomplete() {
                 _firebase_interface.writeCache("location", location);
             }
         }catch(err){
-            console.log(err);
+            //console.log(err);
         }
     });
 
@@ -170,7 +170,7 @@ function initAutocomplete() {
                 _firebase_interface.writeCache("location",location);
             }
         }catch(err){
-            console.log(err);
+            //console.log(err);
         }
     });
 }
@@ -331,7 +331,7 @@ var profile_namespace = function (config)
             // Fill values from public data
             fbi.database.collection("members").doc(userObject.uid).get().then( function(doc){
                 userData = doc.data();
-                console.log(userData);
+                //console.log(userData);
                 $("#first_name").val(userData["first_name"]);
                 $("#last_name").val(userData["last_name"]);
                 $("#email").val(userObject["email"]);
@@ -399,12 +399,12 @@ var profile_namespace = function (config)
 */
 function genNavbar()
 {
-    console.log("Attempting to generate navbar");
+    //console.log("Attempting to generate navbar");
     // This callback is given to the elementHandler constructor, it must do something with
     // the resolved element string
     var injectNav = function ( resolvedDOM )
     {
-        console.log(resolvedDOM);
+        //console.log(resolvedDOM);
         if ( ! resolvedDOM )
         {
             console.log("An error occured while loading the navbar");
