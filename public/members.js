@@ -197,6 +197,11 @@ var members_namespace = function (config)
                 break;
             case "Anonymous":
             default:
+<<<<<<< HEAD
+=======
+                console.log("User type undefined? How did we get here ...");
+                window.location.replace("index.html");
+>>>>>>> 00af6e127fd22a2767d38441b73f70f58c9f858c
                 return false;
         }
 
