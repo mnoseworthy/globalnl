@@ -404,7 +404,6 @@ function genNavbar()
     // the resolved element string
     var injectNav = function ( resolvedDOM )
     {
-        console.log(resolvedDOM);
         if ( ! resolvedDOM )
         {
             console.log("An error occured while loading the navbar");

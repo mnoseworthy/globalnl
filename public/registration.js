@@ -291,7 +291,7 @@ function register()
           alert(report);
       }else{
           _firebase_interface.writeMemberDocument(memberDoc, true, true);
-          alert("Profile updated, refresh to see changes");
+          window.location.replace("index.html");
       }    
   });
 } // end register function

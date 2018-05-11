@@ -220,6 +220,7 @@ var members_namespace = function (config)
 
             default:
                 console.log("User type undefined? How did we get here ...");
+                window.location.replace("index.html");
                 return false;
         }
     }
@@ -432,7 +433,6 @@ function genNavbar()
     // the resolved element string
     var injectNav = function ( resolvedDOM )
     {
-        console.log(resolvedDOM);
         if ( ! resolvedDOM )
         {
             console.log("An error occured while loading the navbar");
