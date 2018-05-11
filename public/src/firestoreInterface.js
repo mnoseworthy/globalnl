@@ -514,9 +514,9 @@ class memberDocument
      //console.log(_this.privateData);
      //console.log(_this.publicData);
      if ( _this.invalidLog.length > 0 ){
-        //console.log("Member had field errors");
+        console.log("Member had field errors");
      } else {
-        //console.log("Done parsing a member object with no validation failures");
+        console.log("Done parsing a member object with no validation failures");
      }
  }
 

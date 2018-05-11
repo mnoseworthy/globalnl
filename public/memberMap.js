@@ -15,6 +15,7 @@ $(document).ready(function(){
 // Code entry point, started when page is finished loading
 function initApp()
 {
+    genNavbar();
   // Initialize config handler, this does nothing more than parse the config object
   // in the config handler file and return the object required for this page to the callback,
   // where the callback is just our namespace below

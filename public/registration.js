@@ -185,7 +185,7 @@ var registration_namespace = function (config)
           case "Moderator":
           case "Member":
               console.log("User already registered");
-              window.location.href = "index.html";
+              window.location.replace = "index.html";
               break;
           case "Unregistered Member":
               // This is the only member type we expect to handle here
