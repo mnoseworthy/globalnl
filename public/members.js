@@ -222,13 +222,20 @@ function readDBforMembers()
            
             // Check for approval status
             if( _firebase_interface.userObject.approved ){
-                // load members
-                _firebase_interface.database.collection("members").orderBy("last_name").where("privacy", "==", "members")
-                    .get().then( function(members){
-                        loadMembers(members, _config, _firebase_interface);
-                        $("#login_note").hide();
-                        document.getElementById("dir_version").innerHTML = "Membership Directory";
+                // grab public members
+                _firebase_interface.database.collection("members").orderBy("last_name").where("privacy", "==", "public")
+                    .get().then( function(public_members){
+                        // load members
+                        _firebase_interface.database.collection("members").orderBy("last_name").where("privacy", "==", "members")
+                        .get().then( function(members){
+                            let _members = Object.assign(members, public_members);
+                            loadMembers(_members, _config, _firebase_interface);
+                            $("#login_note").hide();
+                            document.getElementById("dir_version").innerHTML = "Membership Directory";
+                        });
+                        
                     });
+
             // if not approved...
             }else{
                 // Load public members table
