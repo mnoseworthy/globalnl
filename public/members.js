@@ -185,7 +185,7 @@ var members_namespace = function (config)
                 new elementHandler("src/elements/login_name_mobile.html", args, injectElement);
 
                 // Check for approval status
-                if( fbi.userObject.approved !== "Yes" ){
+                if( ! fbi.userObject.approved ){
                     alert("Your account hasn't been approved yet by a moderator, you only have public access");
                 }
                 break;
@@ -197,11 +197,8 @@ var members_namespace = function (config)
                 break;
             case "Anonymous":
             default:
-<<<<<<< HEAD
-=======
                 console.log("User type undefined? How did we get here ...");
                 window.location.replace("index.html");
->>>>>>> 00af6e127fd22a2767d38441b73f70f58c9f858c
                 return false;
         }
 
@@ -224,7 +221,7 @@ function readDBforMembers()
         case "Member":
            
             // Check for approval status
-            if( _firebase_interface.userObject.approved == "Yes" ){
+            if( _firebase_interface.userObject.approved ){
                 // load members
                 _firebase_interface.database.collection("members").orderBy("last_name").where("privacy", "==", "members")
                     .get().then( function(members){

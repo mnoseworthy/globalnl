@@ -97,6 +97,8 @@ class firebase_interface
                 if (doc.exists) {
                     // We know that this user is at least a registered member
                     _this.userType = "Member";
+                    // Store their approval status in the user object
+                    _this.userObject.approved = doc.data().approved;
                     // Finally, check if they're a moderator or not
                     var modRef = this.database.collection("moderators").where("UID", "==", _this.userObject.uid);
                     modRef.get().then(function(doc){
