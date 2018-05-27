@@ -225,9 +225,11 @@ function readDBforMembers()
                 // grab public members
                 _firebase_interface.database.collection("members").orderBy("last_name").where("privacy", "==", "public")
                     .get().then( function(public_members){
+                        console.log("Loaded public members...")
                         // load members
                         _firebase_interface.database.collection("members").orderBy("last_name").where("privacy", "==", "members")
                         .get().then( function(members){
+                            console.log("Loaded private members...")
                             let _members = Object.assign(members, public_members);
                             loadMembers(_members, _config, _firebase_interface);
                             $("#login_note").hide();
