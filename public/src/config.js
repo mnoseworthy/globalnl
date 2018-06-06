@@ -9,7 +9,7 @@ var __globalnl_internal_config__  = function() { return {
         "firebase" : {
             "config" : {
                 apiKey: "AIzaSyBDf7OWORlKoMM6Y9ly5ftxAw6QYjY_ulw",
-                authDomain: "globalnl-database.firebaseapp.com",
+                authDomain: "members.globalnl.com",
                 databaseURL: "https://globalnl-database.firebaseio.com",
                 projectId: "globalnl-database",
                 storageBucket: "globalnl-database.appspot.com",
@@ -37,7 +37,7 @@ var __globalnl_internal_config__  = function() { return {
     },
     "members" : {
         max_pages : 5,
-        members_per_page : 10
+        members_per_page : 9
     },
     "profile" : {},
     "registration" : {

@@ -1,0 +1,99 @@
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+  position: relative;
+  margin-top: 10px;
+  min-height: 100%;
+}
+body {
+  /* Margin bottom by footer height */
+  margin-bottom: 60px;
+}
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  /* Set the fixed height of the footer here */
+  height: 60px;
+  line-height: 60px; /* Vertically center the text there */
+  background-color: #f5f5f5;
+}
+
+
+/* Custom page CSS
+-------------------------------------------------- */
+/* Not required for template or sticky footer method. */
+
+body > .container {
+  padding: 60px 15px 0;
+}
+
+.footer > .container {
+  padding-right: 15px;
+  padding-left: 15px;
+}
+
+.card-columns{
+	padding-top: 20px;
+	padding-left: 4px;
+}
+
+.card{
+	width:366px;
+	min-height: 360px;
+}
+
+.card-header {
+    font-weight: 700;
+    font-size: 1.2rem;
+	margin-bottom: 0;
+	padding: .5rem 1rem;
+}
+
+.card-body {
+	padding-left: 0px;
+	padding-right: 0px;
+	padding-bottom: 0px;
+	padding-top: 0.8rem;
+}
+
+.card-title {
+	font-weight: 400;
+	margin-bottom: 0.5rem;
+	font-size: 0.8rem;
+	margin-left: 0.5rem;
+	margin-right: 0.5rem;
+}
+
+.card-text {
+font-style: italic;
+}
+
+.linkedin_profile_card {
+	margin-top: 20px;
+	margin-bottom: 5px;
+	margin-left: 0px;
+	margin-right: 0px;
+}
+
+.fa-globalnl{
+    margin-right: 0.2rem;
+    margin-left: 0.2rem;
+	width: 1.6rem;
+	text-align: center;
+	
+}
+
+.fa-gnl-head{
+	padding-right: 10px;
+}
+
+.fa-gnlsearch{
+	font-size:1.5rem;
+	text-align: center;
+}
+
+.form-row{	
+	padding-left: 14px;
+	padding-right: 14px;
+}

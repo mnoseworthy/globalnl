@@ -290,8 +290,16 @@ function register()
           });
           alert(report);
       }else{
-          _firebase_interface.writeMemberDocument(memberDoc, true, true);
-          window.location.replace("index.html");
+          _firebase_interface.writeMemberDocument(memberDoc, true, true, false, function(){window.location.replace("index.html");});
       }    
   });
+  
+  
+  /*
+  var doc = new memberDocument(member);
+  _firebase_interface.writeMemberDocument(doc, true, true);
+  window.location.replace("/index.html");
+  */
+  
+  
 } // end register function

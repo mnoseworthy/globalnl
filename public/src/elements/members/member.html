@@ -1,6 +1,19 @@
-<div id="{[0](public_uid)}">
-    <a class="list-group-item" onclick="toggleInfoWindow( '{[0](public_uid)}' );"href="#">
-        <h4 class="list-group-item-heading">{[1](firstName)} {[2](lastName)}</h4>
-        <p class="list-group-item-text"> {[3](currentAddress)} </p>
-    </a>
+<div id="{[0](public_uid)}" class="card">
+	<div class="card-header"><span class="fas fa-gnl-head fa-portrait"></span>{[1](firstName)} {[2](lastName)}</div>
+	<div class="card-body">
+	<h5 class="card-title"><span class="fas fa-globalnl fa-map-marker-alt"></span>{[3](currentAddress)}</h5>
+	<h5 class="card-title"><span class="fas fa-globalnl fa-briefcase"></span>{[4](industry)}</h5>
+	<h5 class="card-title"><span class="fas fa-globalnl fa-anchor"></span>{[5](hometown)}</h5>
+	<!--<p class="card-text"><span class="fas fa-globalnl fa-question-circle"></span>I have had an interesting career and I like walks on the beach</p>-->
+	<div class="linkedin_profile_card">
+	<!-- {[6](linkedin_profile)} -->
+	<script type="IN/MemberProfile" data-id="{[6](linkedin_profile)}" data-format="inline" data-related="false"></script>
+	<!-- <div class="LI-profile-badge"  data-version="v1" data-size="large" data-locale="en_US" data-type="horizontal" data-theme="light" data-vanity="tarafeener"><a class="LI-simple-link" href='https://www.linkedin.com/in/tarafeener?trk=profile-badge'>Tara Feener</a></div> -->
+	</div>
+  </div>
+<!--  
+	<div class="card-footer">
+		<a href="#" class="btn btn-primary">More about {[1](firstName)}</a>
+	</div>
+  -->
 </div>

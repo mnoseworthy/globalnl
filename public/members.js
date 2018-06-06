@@ -1,3 +1,8 @@
+//$(function() {
+//	$('container-outer').css("padding", 0);
+//	$('li-profile-container member-profile').css("padding", 0);
+//});
+
 /********************
 * Interface reference
 ********************/
@@ -6,22 +11,60 @@
 var _firebase_interface;
 var _config;
 
+var formLocation = {};
+var last_read_doc = 0;
+var scroll_done = false;
+var searchPressed = false;
+
 /*****************************************************  
 * Register event callbacks & implement element callbacks
 ******************************************************/
 // Init auth on load web page event
 $(document).ready(function(){
     initApp();
+	console.log('Document ready');
 });
+
+$(window).scroll(function() {
+	if(scroll_done){
+	  if ($(window).scrollTop() > $(document).height() - $(window).height() - $(window).height()/6 ) {
+		scroll_done=false;
+		memberSearch();
+	}
+  }
+});
+
+$('#form_location').submit(function(e){
+	console.log("Searching...");
+	last_read_doc = 0;
+	$( "#members-list" ).empty();
+	searchPressed = true;
+	memberSearch();
+	event.preventDefault();
+});
+
+$('#search_clear').click(function(e){
+	console.log("Clear search...");
+	$('#form_location').get(0).reset();
+	searchPressed = false;
+	last_read_doc = 0;
+	$( "#members-list" ).empty();
+	memberSearch();
+});
+
 // Callback executed on page load
 function initApp()
 {
     // Generate navbar
-    genNavbar();
+    //genNavbar();
     // Initialize config handler, this does nothing more than parse the config object
     // in the config handler file and return the object required for this page to the callback,
     // where the callback is just our namespace
     new configHandler( members_namespace, 'members' );
+	if ($(window).width() <= 400) {
+		
+	}
+
     return true;
 }
 // profile load callback
@@ -39,113 +82,6 @@ function logout() {
     });
 }
 
-// toggle info window callback, this will be removed along with the profile pannel we think
-function toggleInfoWindow(key) {
-    if (! window.matchMedia("(min-width:900px)").matches) {
-        if ($("#contactCard").is(":visible")) {
-            $("#list").show();
-            $("#contactCard").hide();
-        } else {
-            $("#contactCard").show();
-            $("#list").hide();
-        }
-    } else {
-        if ( $("#contactCard").is(":hidden") ) {
-            $("#contactCard").show();
-        }
-    }
-    if(key != "null") {
-      setInfoWindowData(key);
-    }
-}
-
-// set info window
-function setInfoWindowData(uid) {
-    // Read member object from firebase cache (Saved as members were loaded to page)
-    var memberObject = _firebase_interface.readCache("member_references")[uid];
-    // Set data fields in html
-    $("#member_name").html(memberObject.first_name+' '+memberObject.last_name);
-    $("#member_industry").html(memberObject.industry);
-    $("#member_current_location").html(getLocationString(memberObject.current_address));
-    $("#member_hometown").html(getLocationString(memberObject.hometown_address));
-    $("#member_ambassador").html(memberObject.ambassador);
-    // TODO This seems pretty rough and should be removed eventually
-    if ($(window).width() <= 400) {
-        // If mobile, add link to profile
-        document.getElementById('linkedin_profile').innerHTML = '<a href="' + memberObject["linkedin_profile"] + '">' + memberObject["linkedin_profile"] + '<\/a>';
-    } else {
-        // If desktop, load the profile in-line or something?
-        document.getElementById('linkedin_profile').innerHTML = '<script type="IN/MemberProfile" data-id="' + memberObject["linkedin_profile"] + '" data-format="inline" data-related="false"><\/script>';
-        IN.parse(document.getElementById("linkedin_profile"));
-    }
-}
-// Filter members ()
-function filterMembers(input_id) {
-    // Current UI states "search for Name, location or industry"
-
-    // Load member references from cache
-    if(input_id === "member_search")
-    {
-        // get search string
-        searchFor = $("#member_search").val()
-        member_data = _firebase_interface.readCache("member_data");
-        
-        // Sort by closest match to input
-        member_data.sort( function(a, b){
-            var aName = a.last_name 
-            var bName = b.last_name
-            x = levDist(searchFor , aName);
-            y = levDist(searchFor , bName );
-            //console.log("searchFor="+searchFor+" aName="+aName+" bName="+bName+" x="+x+" y="+y);
-            if(x < y)
-                return -1;
-            else
-                return 1; 
-        } )
-    }
-    loadMembers(member_data, _config, _firebase_interface, true);
-
-}
-// Clear search filters
-function unfilterMembers(input_id) {
-    // Load member references from cache
-    if(input_id === "member_search")
-    {
-       
-        readDBforMembers();
-        document.getElementById("member_search").value = "";
-
-    }
-}
-
-/***************************************************  
-* Preform any required global module initialization
-****************************************************/
-/* Initialize bootcards
-*/
-bootcards.init( {
-    offCanvasBackdrop : true,
-    offCanvasHideOnMainClick : true,
-    enableTabletPortraitMode : true,
-    disableRubberBanding : true,
-    disableBreakoutSelector : 'a.no-break-out'
-});
-/* Check for mobile vs desktawp ( Remove me soon plz )
-*/
-if (! window.matchMedia("(min-width:900px)").matches) {
-    // Super classy css link insert ( I know its hard to read It just doesn't deserve a bunch of lines)
-    // As this whole block of checking screen width should be removed eventually
-    (function() { var po = document.createElement('link'); po.type = 'text/css'; po.href = 'https://cdnjs.cloudflare.com/ajax/libs/bootcards/1.1.2/css/bootcards-android.min.css'; var s = document.getElementsByTagName('link')[0]; s.parentNode.insertBefore(po, s); })();    
-    // Not sure what this stuff does, but Daryl had it here before and I'm blindly trusting it's usefulless
-    //$("#list").show();
-    $("#contactCard").hide();
-}else{
-    // Super classy css link insert once again for mobile
-    (function() { var po = document.createElement('link'); po.type = 'text/css'; po.href = 'https://cdnjs.cloudflare.com/ajax/libs/bootcards/1.1.2/css/bootcards-desktop.min.css'; var s = document.getElementsByTagName('link')[0]; s.parentNode.insertBefore(po, s); })();    
-    // Not sure what this stuff does, but Daryl had it here before and I'm blindly trusting it's usefulless
-    //$("#list").hide();
-    $("#contactCard").show();
-}
 
 /********************************
 * Main namespace and control flow
@@ -165,16 +101,27 @@ var members_namespace = function (config)
         _config = config;
         
         // Switch based on user type
-        //console.log(fbi.userType);
+        console.log(fbi.userType);
         switch ( fbi.userType ) 
         {
             case "Moderator":
             case "Member":
                 // Load user information at top of page for desktop
-                var injectElement = function(domString) {
+                $('#login_name').html(fbi.userObject.displayName);
+				$('#userNavBar').append(
+				'<li class="nav-item"><a class="nav-link" href="profile.html"><span class="fas fa-globalnl fa-edit"></span><span id="">Edit profile</span></a></li><li id="button_logout" class="nav-item"><a class="nav-link" href="#"><span class="fas fa-globalnl fa-sign-out-alt"></span><span id="">Logout</span></a></li>'
+				);
+				$('#button_logout').click(function(e){
+				// Cancel the default action
+					logout();
+					e.preventDefault();
+				});
+				/*
+				var injectElement = function(domString) {
                     document.getElementById('login_name').innerHTML = domString;
                 }
-                var args = { displayName:fbi.userObject.displayName, email:fbi.userObject.email };
+                /*
+				var args = { displayName:fbi.userObject.displayName, email:fbi.userObject.email };
                 new elementHandler("src/elements/login_name.html", args, injectElement);
                 // Load user information for mobile
                 injectElement = function(domString) {
@@ -183,11 +130,14 @@ var members_namespace = function (config)
                 }
                 args = { displayName:fbi.userObject.displayName };
                 new elementHandler("src/elements/login_name_mobile.html", args, injectElement);
+				*/
 
                 // Check for approval status
-                if( ! fbi.userObject.approved ){
+                /*
+				if( ! fbi.userObject.approved ){
                     alert("Your account hasn't been approved yet by a moderator, you only have public access");
                 }
+				*/
                 break;
             case "Unregistered Member":
                 // Member never filled out registration form
@@ -222,27 +172,20 @@ function readDBforMembers()
            
             // Check for approval status
             if( _firebase_interface.userObject.approved ){
-                // grab public members
-                _firebase_interface.database.collection("members").orderBy("last_name").where("privacy", "==", "public")
-                    .get().then( function(public_members){
-                        console.log("Loaded public members...")
-                        // load members
-                        _firebase_interface.database.collection("members").orderBy("last_name").where("privacy", "==", "members")
-                        .get().then( function(members){
-                            console.log("Loaded private members...")
-                            let _members = Object.assign(members, public_members);
-                            loadMembers(_members, _config, _firebase_interface);
-                            $("#login_note").hide();
-                            document.getElementById("dir_version").innerHTML = "Membership Directory";
-                        });
-                        
-                    });
+				console.log("Approved member...");
+               _firebase_interface.database.collection("members").orderBy("last_name").startAt('A').limit(_config.members_per_page)
+                   .get().then( function(members){
+                       console.log("Loaded members...");
+					   loadMembers(members, _config, _firebase_interface);
+                   });
 
             // if not approved...
             }else{
+				// For now doing same thing here
                 // Load public members table
                 // load members who've agreed to be viewable
-                _firebase_interface.database.collection("members").orderBy("last_name").where("privacy", "==", "public")
+				console.log("Unapproved member...");
+                _firebase_interface.database.collection("members").orderBy("last_name").startAt('B').limit(9) //.where("last_name", "==", "feener")
                     .get().then( function(members){
                         loadMembers(members, _config, _firebase_interface);
                     });
@@ -250,13 +193,16 @@ function readDBforMembers()
             break;
         case "Unregistered Member":
             // Load public members table
-            _firebase_interface.database.collection("members").orderBy("last_name").where("privacy", "==", "public")
+			console.log("Unregistered member...");
+            _firebase_interface.database.collection("members").orderBy("last_name").where("privacy", "==", "public").startAt('B').limit(9)
                 .get().then( function(members){
                     loadMembers(members, _config, _firebase_interface);
             });
             break;
-        case "Anonymous":
-        _firebase_interface.database.collection("members").orderBy("last_name").where("privacy", "==", "public")
+        case "Anonymous": 
+		// Shouldn't get here based on lack of user object for firebase
+		console.log("Anonymous viewer...");
+        _firebase_interface.database.collection("members").orderBy("last_name").where("privacy", "==", "public").startAt('B').limit(9)
             .get().then( function(members){
                 loadMembers(members, _config, _firebase_interface);
             });
@@ -289,6 +235,7 @@ function readDBforMembers()
 */
 function loadMembers(snapshotValue, config, fbi, reload=false)
 {
+	
     // For backcompatability with the rest of this functionality, I'm just
     // going to convert the firestore query result into json that has the
     // same format as the old json that would have been returned from firebase
@@ -296,21 +243,33 @@ function loadMembers(snapshotValue, config, fbi, reload=false)
     var dataIndex = []
     // if there are old references, remove them
     if(_firebase_interface.readCache("member_references")){
+		console.log("Prior elements exist in readCache");
         // Remove old elements
+		/*
+		// Have to remove for now KG
         doms = _firebase_interface.readCache("member_dom_references");
         doms.forEach(function(dom){
             var obj = jQuery(dom);
             obj.remove();
         })
+		*/
+		
     }
+	
     if(!reload) 
     {
+		if(snapshotValue.docs.length == 0){
+			console.log("No results returned");
+		}
+		last_read_doc = snapshotValue.docs[snapshotValue.docs.length - 1];
+		
         snapshotValue.forEach(function(doc) {
             // doc.data() is never undefined for query doc snapshots
             data = doc.data();
             backCompat[doc.id] = doc.data();
             data["docID"] = doc.id;
             dataIndex.push(data);
+			//console.log(data);
         });
         snapshotValue = backCompat;
         _firebase_interface.writeCache("member_data", dataIndex);
@@ -324,6 +283,7 @@ function loadMembers(snapshotValue, config, fbi, reload=false)
         })
         snapshotValue = backCompat;
     }
+	
 
     /* loadMembersEntry
         Entry point for load members control flow
@@ -342,27 +302,24 @@ function loadMembers(snapshotValue, config, fbi, reload=false)
             Function callback for elementHandler, defines how to handle the created DOM string
             @param memberDomString (String) - string contained the resolved element from src/elements/members/member.hmtl
         */
-        isFirst = true;
         var injectMemberElement = function(memberDomString)
         {
             // Build jquery object
             var memObj = $.parseHTML(memberDomString);
             // add to page
-            $( ".members-list" ).append( memObj );
-            // hide if more than max loaded
-            if ( member_dom_references.length > config.members_per_page )
-                $( memObj ).hide();
-            // store refernece to object
+			$( "#members-list" ).append( memObj );
+            //$( "#members-list" ).append( memberDomString );
+			//console.log(memberDomString);
+            // store refernce to object
             member_dom_references.push( memObj );
-            // If first element, trigger update to info window
-            if ( isFirst ){
-                // set flag
-                isFirst = false;
-                setInfoWindowData(member_uids[0]);      
-            }
+
             // If all uid's have been parsed, execute callback
             if ( member_dom_references.length == member_uids.length ){
-                callback(member_dom_references, finalizeLoading);
+				if ($(window).width() <= 550) {$('.card').css('min-height','0px');}
+				$( window ).resize(function() {if ($(window).width() <= 550) {$('.card').css('min-height','0px');}else{$('.card').css('min-height','360px')}});
+				console.log('Parse LinkedIn badges...');
+				IN.parse();
+				scroll_done=true;
                 // add dom references to data cache in firebase interface
                 fbi.writeCache("member_dom_references", member_dom_references);
             }
@@ -382,81 +339,107 @@ function loadMembers(snapshotValue, config, fbi, reload=false)
                 public_uid : uid,
                 firstName : member.first_name,
                 lastName : member.last_name,
-                currentAddress : getLocationString(member.current_address)
+                currentAddress : getLocationString(member.current_address),
+				industry : member.industry,
+				hometown : getLocationString(member.hometown_address),
+				linkedin_profile : member.linkedin_profile
             }
             // Build element and inject
+			if(member.linkedin_profile && member.linkedin_profile.length > 30){
             new elementHandler("src/elements/members/member.html", args, injectMemberElement);
+			console.log(member.first_name + "  -  " + member.linkedin_profile + "  -  " + uid);	
+			}
+			else{
+            new elementHandler("src/elements/members/memberNoLinkedIn.html", args, injectMemberElement);
+			console.log(member.first_name + "  -  No LinkedIn  -  " + uid);
+			}
         }
     } // end loadMembersEntry
-
-    /* buildPagnationObject
-        @param member_dom_refernces (Array[]) - list of member dom referneces created
-        @param callback (Function pointer) - next function in control flow 
-    */
-    function buildPagnationObject(member_dom_references, callback)
-    {
-        // Convert member_dom_references array into an object of page numbers
-        // mapped to the members that are to be displayed on the page
-        var pageNum = 0;
-        var pages_of_members = [null];
-        for ( var i = 0; i < member_dom_references.length; i++  )
-        {
-            // if i is a multiple of the number of members per page, start a new page
-            if ( i % config.members_per_page === 0 ){
-                pageNum ++;
-                pages_of_members[pageNum] = [];
-            }
-            // Append object to page
-            pages_of_members[pageNum].push( member_dom_references[i][0] );
-        }
-        callback(pages_of_members, member_dom_references.length);
-    } // end buildPagnationObject
-
-    /* finaliseLoading
-        @param pages_of_members (Object) - member DOM referneces nested under page numbers
-        @param numMembers - total number of DOM's created, i.e. the number of members loaded
-    */
-    function finalizeLoading(pages_of_members, numMembers)
-    {
-        // Load pagnation
-        $('#pagination').twbsPagination('destroy');
-        var currentPage = 1;
-        $('#pagination').twbsPagination({
-            totalPages: pages_of_members.length,
-            visiblePages: config.max_pages,
-            prev: 'Prev',
-            first: "First",
-            last: "Last",
-            onPageClick: function (event, page) {
-                // get current page/*
-                // iterate over current page references and hide them
-                for (var i = 0; i < pages_of_members[currentPage].length; i ++)
-                {
-                    $( pages_of_members[currentPage][i] ).hide();
-                }
-                // Iterate over next page and reveal them
-                for (var i = 0; i < pages_of_members[page].length; i++)
-                {
-                    $( pages_of_members[page][i] ).show();
-                }
-                // Update current page
-                currentPage = page;
-            }
-        });
-
-        // Populate some elements with info about the loading we just did
-        //setInfoWindowData(objArray[0]["public_uid"]);
-
-        document.getElementById("count").innerHTML = "Membership Count: " + numMembers;
-        // create the navigation based on the page metrics
-        //makePageNav(total_pages, page_members, objArray);
-        return true;
-    } // end finalizeLoading
-
-    // trigger control flow with entry point and callback to next task in queue
-    loadMembersEntry(buildPagnationObject);
+	
+	// trigger control flow with entry point and callback to next task in queue
+	loadMembersEntry();
 
 } // end loadMembers
+
+
+/* Searching
+
+*/
+
+function memberSearch(){
+	
+	if(searchPressed && last_read_doc){
+		if(formLocation['current_address'] == null){
+			alert('Please enter a Current Location');
+		}
+		else if(formLocation['current_address']['locality']){
+			console.log('Town entered');
+			_firebase_interface.database.collection("members").orderBy('last_name').startAfter(last_read_doc).where("current_address.locality", "==", formLocation['current_address']['locality']).where("current_address.administrative_area_level_1", "==", formLocation['current_address']['administrative_area_level_1']).where("current_address.country", "==", formLocation['current_address']['country']).limit(_config.members_per_page)
+		   .get().then( function(members){
+			   console.log("Loaded members...");
+			   loadMembers(members, _config, _firebase_interface);
+		   });
+		}
+		else if(formLocation['current_address']['administrative_area_level_1']){
+			console.log('Province/State entered');
+			_firebase_interface.database.collection("members").orderBy('last_name').startAfter(last_read_doc).where("current_address.administrative_area_level_1", "==", formLocation['current_address']['administrative_area_level_1']).where("current_address.country", "==", formLocation['current_address']['country']).limit(_config.members_per_page)
+		   .get().then( function(members){
+			   console.log("Loaded members...");
+			   loadMembers(members, _config, _firebase_interface);
+		   });;
+		}
+		else if(formLocation['current_address']['country']){
+			console.log('Country entered');
+			_firebase_interface.database.collection("members").orderBy('last_name').startAfter(last_read_doc).where("current_address.country", "==", formLocation['current_address']['country']).limit(_config.members_per_page)
+		   .get().then( function(members){
+			   console.log("Loaded members...");
+			   loadMembers(members, _config, _firebase_interface);
+		   });
+		}
+		else{
+			console.log('Error');
+		}
+	}
+	else if(searchPressed){
+		if(formLocation['current_address'] == null){
+			alert('Please enter a Current Location');
+		}
+		else if(formLocation['current_address']['locality']){
+			console.log('Town entered');
+			_firebase_interface.database.collection("members").orderBy('last_name').where("current_address.locality", "==", formLocation['current_address']['locality']).where("current_address.administrative_area_level_1", "==", formLocation['current_address']['administrative_area_level_1']).where("current_address.country", "==", formLocation['current_address']['country']).startAfter(last_read_doc).limit(_config.members_per_page)
+		   .get().then( function(members){
+			   console.log("Loaded more members...");
+			   loadMembers(members, _config, _firebase_interface);
+		   });
+		}
+		else if(formLocation['current_address']['administrative_area_level_1']){
+			console.log('Province/State entered');
+			_firebase_interface.database.collection("members").orderBy('last_name').where("current_address.administrative_area_level_1", "==", formLocation['current_address']['administrative_area_level_1']).where("current_address.country", "==", formLocation['current_address']['country']).startAfter(last_read_doc).limit(_config.members_per_page)
+		   .get().then( function(members){
+			   console.log("Loaded more members...");
+			   loadMembers(members, _config, _firebase_interface);
+		   });;
+		}
+		else if(formLocation['current_address']['country']){
+			console.log('Country entered');
+			_firebase_interface.database.collection("members").orderBy('last_name').where("current_address.country", "==", formLocation['current_address']['country']).startAfter(last_read_doc).limit(_config.members_per_page)
+		   .get().then( function(members){
+			   console.log("Loaded more members...");
+			   loadMembers(members, _config, _firebase_interface);
+		   });
+		}
+		else{
+			console.log('Error');
+		}
+	}
+	else{
+		_firebase_interface.database.collection("members").orderBy("last_name").startAfter(last_read_doc).limit(_config.members_per_page)
+		.get().then( function(members){
+		console.log("Loaded more members...");
+		loadMembers(members, _config, _firebase_interface);
+		});
+	}
+}
 
 /* Build location string
     Concatonate the data in the location value from a member object
@@ -467,89 +450,93 @@ function getLocationString(locationObject)
 {
     // Initalize empty array to work with
     var location = [];
-    // Append all required data to array
-    location.push(locationObject.locality, locationObject.administrative_area_level_1, locationObject.country);
-    // Filter array for unwanted data, then join with ', ' to create a comma separated string from data
-    return location.filter(e => e !== "" && e !== undefined).join(", "); 
+
+	if(locationObject.administrative_area_level_1 == "Newfoundland and Labrador"){
+		// Append all required data to array
+		location.push(locationObject.locality);
+	}
+	else if(locationObject.country == "Canada" || locationObject.country == "United States"){
+		location.push(locationObject.locality, locationObject.administrative_area_level_1); 
+	}
+	else{
+		location.push(locationObject.locality, locationObject.administrative_area_level_1, locationObject.country);
+	}
+	// Filter array for unwanted data, then join with ', ' to create a comma separated string from data
+	return location.filter(e => e !== "" && e !== undefined).join(", "); 
 }
 
-/* Utilises the elementHandler class to generate the top-fixed navbar on the page
-*/
-function genNavbar()
-{
-    // This callback is given to the elementHandler constructor, it must do something with
-    // the resolved element string
-    var injectNav = function ( resolvedDOM )
-    {
-        if ( ! resolvedDOM )
-        {
-            console.log("An error occured while loading the navbar");
-        }else{
-            //Use your loaded element !
-            $("#navbar").append(resolvedDOM);
-        }
-    }
 
-    // define path to the element file
-    var path = "src/elements/navbar/navbar.html";
+// Callback for google maps autocomplete for storing autocompleted location data into
+// the new member objcet
+function initAutocomplete() {
+  // Register our autocomplete elements, see URL for more information
+  // https://developers.google.com/maps/documentation/javascript/examples/places-autocomplete-addressform
+  autocomplete_current = new google.maps.places.Autocomplete(
+      /** @type {!HTMLInputElement} */(document.getElementById('autocomplete_current')),
+      {types: ['geocode']});
+  autocomplete_hometown = new google.maps.places.Autocomplete(
+      /** @type {!HTMLInputElement} */(document.getElementById('autocomplete_hometown')),
+      {types: ['geocode']});
 
-    // No arguments for navbar currently
-    var args = [];
-    // Call the constructor, this will handle all loading/parsing and then releave data when complete
-    // after executing the callback with the requesting dom string
-    new elementHandler(path, args, injectNav);
-}
+  // Look for these keys in the place object returned by google API
+  // if found, their values are filled and written to our new member object
+  var locationData = {
+      street_number               : true,
+      route                       : true,
+      locality                    : true,
+      administrative_area_level_1 : true,
+      country                     : true,
+      postal_code                 : true
+  };
 
-/*
-    https://stackoverflow.com/questions/11919065/sort-an-array-by-the-levenshtein-distance-with-best-performance-in-javascript
-*/
-var levDist = function(s, t) {
-    var d = []; //2d matrix
+  // define event callbacks for each element, these fire when the fields
+    // are auto filled by google api and then the location data is stored in our member object
+    autocomplete_current.addListener('place_changed', function(){
+      try{
+          // Get place object from google api
+          var place = autocomplete_current.getPlace();
+          if(place){
+              // iterate over object and look for the keys in locationData
+              formLocation["current_address"] = {};
+              for (var i = 0; i < place.address_components.length; i++) {
+                  var addressType = place.address_components[i].types[0];
+                  if (locationData.hasOwnProperty(addressType)) {
+                      formLocation["current_address"][addressType] = place.address_components[i]["long_name"];;
+                  }
+              }
+              // Store geometry into new member object as well
+              formLocation["current_address"]["lat"] = place.geometry.location.lat();
+              formLocation["current_address"]["lng"] = place.geometry.location.lng();
+			  //console.log(formLocation);
+          }
+      }catch(err){
+          console.log(err);
+      }
+  });
 
-    // Step 1
-    var n = s.length;
-    var m = t.length;
+  // Second autocomplete callback, the repeated code kills me but im currently lazy
+  // TODO: tear out the repeated code into a function above
+  autocomplete_hometown.addListener('place_changed', function() {
+      try{
+          // Get place object from google api
+          var place = autocomplete_hometown.getPlace();
+          if(place){
+              // iterate over object and look for the keys in locationData
+              formLocation["hometown_address"] = {};
 
-    if (n == 0) return m;
-    if (m == 0) return n;
-
-    //Create an array of arrays in javascript (a descending loop is quicker)
-    for (var i = n; i >= 0; i--) d[i] = [];
-
-    // Step 2
-    for (var i = n; i >= 0; i--) d[i][0] = i;
-    for (var j = m; j >= 0; j--) d[0][j] = j;
-
-    // Step 3
-    for (var i = 1; i <= n; i++) {
-        var s_i = s.charAt(i - 1);
-
-        // Step 4
-        for (var j = 1; j <= m; j++) {
-
-            //Check the jagged ld total so far
-            if (i == j && d[i][j] > 4) return n;
-
-            var t_j = t.charAt(j - 1);
-            var cost = (s_i == t_j) ? 0 : 1; // Step 5
-
-            //Calculate the minimum
-            var mi = d[i - 1][j] + 1;
-            var b = d[i][j - 1] + 1;
-            var c = d[i - 1][j - 1] + cost;
-
-            if (b < mi) mi = b;
-            if (c < mi) mi = c;
-
-            d[i][j] = mi; // Step 6
-
-            //Damerau transposition
-            if (i > 1 && j > 1 && s_i == t.charAt(j - 2) && s.charAt(i - 2) == t_j) {
-                d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + cost);
-            }
-        }
-    }
-
-    // Step 7
-    return d[n][m];
+              for (var i = 0; i < place.address_components.length; i++) {
+              var addressType = place.address_components[i].types[0];
+                  if (locationData.hasOwnProperty(addressType) ){
+                      formLocation["hometown_address"][addressType] = place.address_components[i]["long_name"];;
+                  }
+              }
+              // Store geometry into new member object as well
+              formLocation["hometown_address"]["lat"] = place.geometry.location.lat();
+              formLocation["hometown_address"]["lng"] = place.geometry.location.lng();
+			  console.log(formLocation);
+          }
+      }catch(err){
+          console.log(err);
+      }
+  });
 }

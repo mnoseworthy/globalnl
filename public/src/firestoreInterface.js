@@ -5,7 +5,7 @@
     the firebase module and attempts to authenticated via the current user. The type of user is 
     resolved based on their database access priv's.
 */
-class firebase_interface
+class firebase_interface 
 {
     /* Initialize
 
@@ -27,7 +27,9 @@ class firebase_interface
         this.cache = {};
 
         // Ensure that firebase has been previously loaded
-        if ( ! $('script[src$="/firebase.js"') ) {
+		// This is currently preventing iPhone to load -KG
+        /*
+		if ( ! $('script[src$="/firebase.js"') ) {
             // checks for all script tags ending in /firebase.js
             // i.e. if true, no script has attempted to load firebase
             if( ! this.finishedLoading ) {
@@ -36,6 +38,7 @@ class firebase_interface
                 return false
             }
         }
+		*/
         // Initialize application by passing config to firebase
         // https://firebase.google.com/docs/reference/js/firebase#.initializeApp
         if ( firebase.app.apps === undefined ){
@@ -58,7 +61,7 @@ class firebase_interface
         // Trigger authentication and capture the return
         firebase.auth().onAuthStateChanged( function( user ) {
             if ( user ) {
-                //console.log("Attempting to read user type");
+                console.log("Attempting to read user type");
                 _this.userObject = user;
                 _this.parseUserType();
             } else {
@@ -79,7 +82,7 @@ class firebase_interface
     */
     parseUserType()
     {
-        //console.log(this.userObject.uid);
+        console.log(this.userObject.uid);
         // flags & object reference
         var resolved = false;
         var _this = this;
@@ -95,31 +98,34 @@ class firebase_interface
             privateRef.get().then(function(doc){
                 // Does the user have a private data field?
                 if (doc.exists) {
-                    // We know that this user is at least a registered member
+					// We know that this user is at least a registered member
                     _this.userType = "Member";
                     // Store their approval status in the user object
                     _this.userObject.approved = doc.data().approved;
+                }
+            }).catch(function(error){
+                console.log(error);
+                console.log("Error grabbing this user's data.");
+            }).finally(function(){
+                if(_this.userType === "Member")
+                {
                     // Finally, check if they're a moderator or not
-                    var modRef = this.database.collection("moderators").where("UID", "==", _this.userObject.uid);
+                    var modRef = _this.database.collection("moderators").doc(_this.userObject.uid);
                     modRef.get().then(function(doc){
                         if(doc.exists){
+                            console.log("Is Moderator")
                             _this.userType = "Moderator";
                         }
                     }).catch(function(error){
-                        //console.log(error);
-                        //console.log("Error reading from moderators list");
+                        
+                        console.log(error);
+                        console.log("Error reading from moderators list");
+                    }).finally(function(){
+                        _this.callback(_this);
                     });
-                    
-                } else {
-                    // User must not be registered yet, or was
-                    // improperly added to the database
-                    _this.userType = "Unregistered Member";
+                }else{
+                    _this.callback(_this);
                 }
-            }).catch(function(error){
-                //console.log(error);
-                //console.log("Error grabbing this user's data.");
-            }).finally(function(){
-                _this.callback(_this);
             });
         }
     } //  end parse user type
@@ -131,32 +137,55 @@ class firebase_interface
     *   in the memberDocument class, this function DIRECTLY WRITES the data to the
     *   db
     * */
-    writeMemberDocument(memberDoc, publicData=false, privateData=false){
+    writeMemberDocument(memberDoc, publicData=false, privateData=false, docUID=false, callback){
+		
+		var ready =[false, false];
+		var executed = false;
+
+        // Allow a moderator to write to a different UID document, this isn't just protected
+        // from here, there is also a database rule to prevent this
+        var UID = this.userObject.uid;
+        if( this.userType === "Moderator" && docUID != false){
+            UID = docUID;
+        }
+
+
         if ( publicData ) 
         {
             // Write user's public data. Set merge == true to enable this funciton
             // to be used to both modify and create member data
-            this.database.collection("members").doc(this.userObject.uid).set(
+            this.database.collection("members").doc(UID).set(
                 memberDoc.publicData, 
                 { merge: true }
             ).then(function(){
-                //console.log("Wrote public data to db");
+                console.log("Wrote public data to db");
+				ready[0]=true;
+				if(ready[0]&&ready[1]&&!executed){
+					executed = true;
+					callback();
+				}
             }).catch(function(error){
-                //console.log(error);
+                console.log(error);
             })
         }
         if ( privateData )
         {
             //Write private data
-            this.database.collection("private_data").doc(this.userObject.uid).set(
+            this.database.collection("private_data").doc(UID).set(
                 memberDoc.privateData, 
                 { merge: true }
             ).then(function(){
-                //console.log("Wrote private data to db");
+                console.log("Wrote private data to db");
+				ready[1]=true;
+				if(ready[0]&&ready[1]&&!executed){
+					executed=true;
+					callback();
+				}
             }).catch(function(error){
-                //console.log(error);
+                console.log(error);
             })
         }
+			
     }
 
 
@@ -175,18 +204,16 @@ class firebase_interface
         A simple function for retreving data stored in the cache object
         @param key
     */
-    readCache(key, cloned=false)
+    readCache(key)
     {
-        if( cloned )
-            return clone( this.cache[key] );
-        else
+        if( this.cache.hasOwnProperty(key) )
             return this.cache[key];
+        return false;
     }
 
-
     /* getSnapshot
-        Simple read function that returns a snapshot from the given path, no 
-        need to pass rootRef. 
+        Quick way to provide legacy support to pages still using firebase calls, while
+        still actually pulling from firebase 
 
         @param path (string) - path to the data you want a snapshot of in firebase
         @param callback (function pointer) - function to pass result to
@@ -221,13 +248,29 @@ class memberDocument
 {
     // Constructor will be used start with a default object,
     // then trigger the required functions to fill in given fields
-    constructor(memberData={})
+    constructor(memberData={}, UID=false, callback=false)
     {
         // Data in members collection
         this.publicData = this.publicDataPrimitive;
         // Data in private_data collection
         this.privateData = this.privateDataPrimitive;
 
+        // Create a field validator that this docment can utilise
+        this.validation = new memberDocumentValidation();
+        // When a validation check fails, this array is used to store the failure
+        // in reference to the failed data key
+        this.invalidLog = []
+
+        // Optionally attempt to associate this data with a certain UID
+        this.UID = UID;
+
+        // If a completion callback was given, store it
+        console.log(callback);
+        if ( callback !== false){
+            this.callback = callback;
+        }else{
+            this.callback = this.testPrint;
+        }
         // Parse given data
         this.parseInput(memberData, this.cleanData);
 
@@ -264,7 +307,8 @@ class memberDocument
             linkedin_profile:null,
             program:null,
             school:null,
-            status:null
+            status:null,
+            privacy: false
         }
    }
    get privateDataPrimitive()
@@ -279,7 +323,7 @@ class memberDocument
                 organize: false,
                 support: false
             },
-            shared: false
+            comments : null
         }
    }
     /*  parseInput
@@ -294,7 +338,7 @@ class memberDocument
         var len = Object.entries(memberData).length;
         if(len <= 0)
         {
-            //console.log("No data given");
+            console.log("No data given");
             callback(this, this.testPrint);
         }
         // Iterate over key/value pairs of input object
@@ -370,7 +414,7 @@ class memberDocument
             index ++;
             if(index >= len)
             {
-                callback(this, this.testPrint);
+                callback(this, this.callback);
             }
         } // End looping over given data 
    } // End parseInput
@@ -395,6 +439,12 @@ class memberDocument
             {
                 //console.log(key+" not defined");
                 delete _this.publicData[key];
+            }else{
+                // Validate field, if invalid, revert the value to default
+                if ( ! _this.validation.validateField[key](value) ) {
+                    _this.publicData[key]= _this.publicDataPrimitive[key];
+                    _this.invalidLog.push(key +" was invalid given value "+value);
+                }
             }
             // If the current value is an object, iterate over it
             if ( value !== null && typeof value === "object" )
@@ -406,9 +456,16 @@ class memberDocument
                     {
                         //console.log(key+"."+nested_key+" not defined");
                         delete _this.publicData[key][nested_key];
+                    } else {
+                        // Validate field, if invalid, revert the value to default
+                        if ( ! _this.validation.validateField[nested_key](nested_value) ) {
+                            _this.publicData[key][nested_key] = _this.publicDataPrimitive[key][nested_key];
+                            _this.invalidLog.push(key+":"+nested_key +" was invalid given value "+nested_value);
+                        } 
                     }
                 }
             }
+
         }
         /*
         *  Iterate over key/value pairs of privateData
@@ -421,6 +478,12 @@ class memberDocument
             {
                 //console.log(key+" not defined");
                 delete _this.privateData[key];
+            }else{
+                // Validate field, if invalid, revert the value to default
+                if ( ! _this.validation.validateField[key](value) ) {
+                    _this.privateData[key]= _this.privateDataPrimitive[key];
+                    _this.invalidLog.push(key +" was invalid given value "+value);                
+                }
             }
             // If the current value is an object, iterate over it
             if ( value !== null && typeof value === "object" )
@@ -432,6 +495,12 @@ class memberDocument
                     {
                         //console.log(key+"."+nested_key+" not defined");
                         delete _this.privateData[key][nested_key];
+                    } else {
+                        // Validate field, if invalid, revert the value to default
+                        if ( ! _this.validation.validateField[key](value) ) {
+                            _this.publicData[key][nested_key]= _this.publicDataPrimitive[key][nested_key];    
+                            _this.invalidLog.push(key+":"+nested_key +" was invalid given value "+nested_value);
+                        }       
                     }
                 }
             }
@@ -473,39 +542,195 @@ class memberDocument
 }// End class 
 
 
-
-
-/* Utility */
-function clone(obj) {
-    var copy;
-
-    // Handle the 3 simple types, and null or undefined
-    if (null == obj || "object" != typeof obj) return obj;
-
-    // Handle Date
-    if (obj instanceof Date) {
-        copy = new Date();
-        copy.setTime(obj.getTime());
-        return copy;
-    }
-
-    // Handle Array
-    if (obj instanceof Array) {
-        copy = [];
-        for (var i = 0, len = obj.length; i < len; i++) {
-            copy[i] = clone(obj[i]);
+/*
+*     This section will define a function mapping to each expected key in 
+*   our data primitive, where the matched functions verify the validity of
+*   the data to some degree. I.e. each will return true/false if we can 
+*   utilise the given data or if we have to throw it away.
+*/
+class memberDocumentValidation
+{
+    constructor()
+    {
+        //Define the function map
+        this.validateField = {
+            ambassador                  : this.isBool      ,
+            current_address             : this.isObject    ,
+            administrative_area_level_1 : this.isProvince  ,  
+            country                     : this.isCountry   ,  
+            lat                         : this.isLatitude  ,  
+            lng                         : this.isLongitude ,
+            locality                    : this.isTown      ,
+            date_created                : this.isEpoch     ,
+            first_name                  : this.isName      ,     
+            grad_year                   : this.isYear      ,  
+            hometown_address            : this.isObject    ,
+            industry                    : this.isIndustry  ,
+            last_name                   : this.isName      ,
+            linkedin_profile            : this.isLinkedIn  ,
+            program                     : this.isProgram   ,
+            school                      : this.isSchool    ,
+            status                      : this.isStatus    ,
+            approved                    : this.isBool      ,
+            email                       : this.isEmail     ,
+            interests                   : this.isObject    ,
+            connect                     : this.isBool      ,
+            learn                       : this.isBool      ,
+            mentor                      : this.isBool      ,
+            organize                    : this.isBool      ,
+            support                     : this.isBool      ,
+            privacy                     : this.isPrivacy   ,
+            comments                    : this.isText      
         }
-        return copy;
     }
 
-    // Handle Object
-    if (obj instanceof Object) {
-        copy = {};
-        for (var attr in obj) {
-            if (obj.hasOwnProperty(attr)) copy[attr] = clone(obj[attr]);
+    // Returns true if value is an object
+    isObject(field){
+        if ( field !== null && typeof field === 'object' )
+            return true;
+        return false;
+    }
+    // Returns true if value is boolean
+    isBool(field){
+        if ( typeof(field) === typeof(true) )
+            return true;
+        return false;
+    }
+    // Returns true if URL is a valid linked-in profile
+    // Eventually use linkedin API to validate this
+    isLinkedIn(field){
+        // Taken from here https://stackoverflow.com/questions/13532149/jquery-url-validation-needs-to-contain-linkedin-com
+        // Removed /(ftp|http|https):\/\/?(?:www\.)? as a lot of members forgot to add this 
+        if ( /linkedin.com(\w+:{0,1}\w*@)?(\S+)(:([0-9])+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/.test(field) )
+            return true;
+        return false;
+    }
+    // Return true if the string could be a name
+    isName(field){
+        const regex = /^[-'À-ÿa-zA-ZÀ-ÖØ-öø-ſ\s().]+$/gm;
+        if ( regex.test(field) )
+            return true;
+        return false;
+    }
+    // Returns true if the string could be a Province or state
+    isProvince(field){
+        // For now we can just enforce that there are no symbols or numbers... except . '
+        const regex = /^[-'À-ÿa-zA-ZÀ-ÖØ-öø-ſ\s.’']+$/gm
+        if ( regex.test(field) )
+            return true;
+        return false;
+    }
+    // Returns true if the string is a country
+    isCountry(field) {
+        // For now we can just enforce that there are no symbols or numbers...
+        const regex = /^[-'À-ÿa-zA-ZÀ-ÖØ-öø-ſ\s.’']+$/gm
+        if ( regex.test(field) )
+            return true;
+        return false;
+    }
+    // Returns true if the number is a valid year
+    isYear(year){   
+        var text = /^[0-9]+$/;
+        if( year.toString().length == 4 ) {
+            if (year != 0) {
+                if ((year != "") && (!text.test(year))) { 
+                    return false;
+                }      
+                var current_year=new Date().getFullYear();
+                if((year < 1920) || (year > current_year + 100))
+                {                      
+                    return false;
+                }                  
+                return true;
+            } 
         }
-        return copy;
+        console.log("Tested "+year)
     }
-
-    throw new Error("Unable to copy obj! Its type isn't supported.");
+    // returns true if the value is a valid latitude
+    isLatitude(field) {
+        if ( !isNaN(+field) && isFinite(field) ){
+            if ( field <= 90 && field >= -90 )
+                return true;
+        } 
+        return false;
+    }
+    // returns true if the value is a valid longitude
+    isLongitude(field) {
+        if ( !isNaN(+field) && isFinite(field) ){
+            if ( field <= 180 && field >= -180 )
+                return true;
+        } 
+        return false;
+    }
+    // returns true if the string could be town/city name
+    isTown(field) {
+        // For now we can just enforce that there are no symbols or numbers...
+        const regex = /^[-'À-ÿa-zA-ZÀ-ÖØ-öø-ſ\s.’']+$/gm
+        if ( regex.test(field) )
+            return true;
+        return false;
+    }
+    // returns true if the value could be an Epoch
+    isEpoch(field) {
+        // just try to parse a date out of the value, if it works without fail we're happy enough
+        try{
+            var d = new Date(0); // The 0 there is the key, which sets the date to the epoch
+            d.setUTCSeconds(field);
+        }catch (err){
+            // Empty catch == pass 
+            return false;
+        }
+        return true;
+    }
+    // Returns true if the string could be an academic program name
+    isProgram(field) {
+        // For now we can just enforce that there are no symbols or numbers...
+        const regex = /^[-'À-ÿa-zA-ZÀ-ÖØ-öø-ſ\s.'’(),&]+$/gm
+        if ( regex.test(field) )
+            return true;
+        return false;
+    }
+    // Returns true if the string could be a school name
+    isSchool(field) {
+        // For now we can just enforce that there are no symbols or numbers...
+        const regex = /^[-'À-ÿa-zA-ZÀ-ÖØ-öø-ſ\s.'’,()0-9]+$/gm
+        if ( regex.test(field) )
+            return true;
+        return false;
+    }
+    // Returns true if the string could be a person's status
+    isStatus(field) {
+        // For now we can just enforce that there are no symbols or numbers...
+        const regex = /^[-'À-ÿa-zA-ZÀ-ÖØ-öø-ſ\s]+$/gm
+        if ( regex.test(field) )
+            return true;
+        return false;
+    }
+    // Returns true if the string is a valid industry
+    isIndustry(field) {
+        // For now we can just enforce that there are no symbols or numbers...
+        const regex = /^[-'À-ÿa-zA-ZÀ-ÖØ-öø-ſ\s&,’']+$/gm
+        if ( regex.test(field) )
+            return true;
+        return false;
+    }
+    // Returns true if the value is a valid e-mail
+    isEmail(field) {
+        // Taken from https://www.w3resource.com/javascript/form/email-validation.php
+        if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(field))
+        {
+          return true;
+        }
+          return false;
+    }
+    // Returns true if the value is one of our privacy settings
+    isPrivacy(field) {
+        if(field === "members" || field === "public")
+            return true;
+        return false;
+    }
+    // Returns true if the values are proper text format
+    isText(field){
+        return true;
+    }
 }
