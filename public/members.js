@@ -11,10 +11,31 @@
 var _firebase_interface;
 var _config;
 
-var formLocation = {};
+// Debugging variable to disable LinkedIn banners
+var LinkedInEnable = true;
+
+/******************************************************
+* Track dynamic page loading and search versus browse
+******************************************************/
+
+// Object with last returned database query to use for pagination
 var last_read_doc = 0;
-var scroll_done = false;
-var searchPressed = false;
+
+// Track status of request to add more member profiles during scroll
+// Set to true after request is completed to avoid initiating a new query before the first one is returned
+var scrollQueryComplete = false;
+
+// Keep track of locations entered in search fields
+var formDynamic = {};
+var formStatic = {};
+
+// Track which buttons were pressed to know which pagination query to send when scrolled to bottom of page
+var searchButtonStates = {};
+searchButtonStates['name'] = false;
+searchButtonStates['location'] = false;
+searchButtonStates['industry'] = false;
+searchButtonStates['hometown'] = false;
+
 
 /*****************************************************  
 * Register event callbacks & implement element callbacks
@@ -26,27 +47,85 @@ $(document).ready(function(){
 });
 
 $(window).scroll(function() {
-	if(scroll_done){
+	if(scrollQueryComplete){
 	  if ($(window).scrollTop() > $(document).height() - $(window).height() - $(window).height()/6 ) {
-		scroll_done=false;
+		scrollQueryComplete=false;
 		memberSearch();
 	}
   }
 });
 
-$('#form_location').submit(function(e){
-	console.log("Searching...");
+$('#form_name').submit(function(event){
+	console.log("Searching by name...");
+	event.preventDefault();
+	formStatic['name']=[];
+	formStatic['name']['first'] = $('#inputFirstName').val().charAt(0).toUpperCase() + $('#inputFirstName').val().slice(1);
+	formStatic['name']['last'] = $('#inputLastName').val().charAt(0).toUpperCase() + $('#inputLastName').val().slice(1);
 	last_read_doc = 0;
 	$( "#members-list" ).empty();
-	searchPressed = true;
+	searchButtonStates['name']  = true;
+	searchButtonStates['location'] = false;
+	searchButtonStates['industry'] = false;
+	searchButtonStates['hometown'] = false;
 	memberSearch();
-	event.preventDefault();
 });
 
-$('#search_clear').click(function(e){
+$('#form_location').submit(function(event){
+	console.log("Searching by location...");
+	event.preventDefault();
+	formStatic['location'] = [];
+	formStatic['location']['city'] = formDynamic['current_address']['locality'];
+	formStatic['location']['prov'] = formDynamic['current_address']['administrative_area_level_1'];
+	formStatic['location']['country'] = formDynamic['current_address']['country'];
+	last_read_doc = 0;
+	$( "#members-list" ).empty();
+	searchButtonStates['location'] = true;
+	searchButtonStates['name']  = false;
+	searchButtonStates['industry'] = false;
+	searchButtonStates['hometown'] = false;
+	memberSearch();
+});
+
+$('#form_industry').submit(function(event){
+	console.log("Searching by industry...");
+	event.preventDefault();
+	formStatic['industry'] = $('#inputIndustry').val();
+	last_read_doc = 0;
+	$( "#members-list" ).empty();
+	searchButtonStates['industry'] = true;
+	searchButtonStates['name']  = false;
+	searchButtonStates['location'] = false;
+	searchButtonStates['hometown'] = false;
+	memberSearch();
+});
+
+$('#form_hometown').submit(function(event){
+	console.log("Searching by hometown / NL roots...");
+	event.preventDefault();
+	formStatic['hometown'] = [];
+	formStatic['hometown']['city'] = formDynamic['hometown_address']['locality'];
+	formStatic['hometown']['prov'] = formDynamic['hometown_address']['administrative_area_level_1'];
+	formStatic['hometown']['country'] = formDynamic['hometown_address']['country'];
+	last_read_doc = 0;
+	$( "#members-list" ).empty();
+	searchButtonStates['hometown'] = true;
+	searchButtonStates['name']  = false;
+	searchButtonStates['location'] = false;
+	searchButtonStates['industry'] = false;
+	memberSearch();
+});
+
+
+$('.clear_button').click(function(event){
 	console.log("Clear search...");
+	$('#form_name').get(0).reset();
 	$('#form_location').get(0).reset();
-	searchPressed = false;
+	$('#form_industry').get(0).reset();
+	$('#form_hometown').get(0).reset();
+	searchButtonStates['name']  = false;
+	searchButtonStates['location'] = false;
+	searchButtonStates['industry'] = false;
+	searchButtonStates['hometown'] = false;
 	last_read_doc = 0;
 	$( "#members-list" ).empty();
 	memberSearch();
@@ -61,10 +140,6 @@ function initApp()
     // in the config handler file and return the object required for this page to the callback,
     // where the callback is just our namespace
     new configHandler( members_namespace, 'members' );
-	if ($(window).width() <= 400) {
-		
-	}
-
     return true;
 }
 // profile load callback
@@ -296,43 +371,76 @@ function loadMembers(snapshotValue, config, fbi, reload=false)
         // Filter out dummy
         member_uids = member_uids.filter(e => e !== "dummy");
         // array of jquery objects containing the members that will be parsed soon
-        var member_dom_references = []
+        var member_dom_references = [];
+		
+		var nameSort = [];
+		
+		function nameSortFunc(a, b)
+		{
+			var A = a[0].toLowerCase();
+			var B = b[0].toLowerCase();  
+			if (A < B) return -1;
+			if (A > B) return 1;
+			return 0;
+		}
+		
+		// Iterate over snapshotValue to capture last name and UID of all members returned
+		for(var i = 0; i < member_uids.length; i ++){
+			// First is last name second is UID
+			nameSort[i] = [ snapshotValue[member_uids[i]].last_name, member_uids[i] ];
+		}
+		
+		//console.log(nameSort);
+		
+		// Sort by last name
+		nameSort.sort(nameSortFunc);
+		
+		//console.log(nameSort);
 
         /* injectMemberElement
             Function callback for elementHandler, defines how to handle the created DOM string
             @param memberDomString (String) - string contained the resolved element from src/elements/members/member.hmtl
         */
-        var injectMemberElement = function(memberDomString)
+        var injectMemberElement = function(memberDomString, tracker)
         {
             // Build jquery object
             var memObj = $.parseHTML(memberDomString);
             // add to page
-			$( "#members-list" ).append( memObj );
+			//$( "#members-list" ).append( memObj );
             //$( "#members-list" ).append( memberDomString );
 			//console.log(memberDomString);
             // store refernce to object
-            member_dom_references.push( memObj );
+            member_dom_references[tracker] = memObj;
 
             // If all uid's have been parsed, execute callback
             if ( member_dom_references.length == member_uids.length ){
+				for(var i = 0; i < member_dom_references.length; i ++){
+					if(member_dom_references[i]){
+						$( "#members-list" ).append( member_dom_references[i] )					
+					}					
+				}
 				if ($(window).width() <= 550) {$('.card').css('min-height','0px');}
-				$( window ).resize(function() {if ($(window).width() <= 550) {$('.card').css('min-height','0px');}else{$('.card').css('min-height','360px')}});
+				$( window ).resize(function() {if ($(window).width() <= 550) {$('.card').css('min-height','0px');}else{$('.card').css('min-height','365px');}});
 				console.log('Parse LinkedIn badges...');
-				IN.parse();
-				scroll_done=true;
+				if(LinkedInEnable) IN.parse();
+				scrollQueryComplete=true;
                 // add dom references to data cache in firebase interface
                 fbi.writeCache("member_dom_references", member_dom_references);
             }
         };
+		
 
         // Iterate over snapshotValue for each member by uid
         for(var i = 0; i < member_uids.length; i ++)
         {
             // Grab required objects from snapshot
-            var uid = member_uids[i]
+            //var uid = member_uids[i];
+			// Grab required objects sorted by name
+			var uid = nameSort[i][1];
             // Get member data from snapshot
             var member = snapshotValue[uid];
             //console.log(member);
+			
             
             // Build argument's for memberElement
             var args = {
@@ -345,12 +453,12 @@ function loadMembers(snapshotValue, config, fbi, reload=false)
 				linkedin_profile : member.linkedin_profile
             }
             // Build element and inject
-			if(member.linkedin_profile && member.linkedin_profile.length > 30){
-            new elementHandler("src/elements/members/member.html", args, injectMemberElement);
+			if(member.linkedin_profile && member.linkedin_profile.length > 30 && LinkedInEnable){
+            new elementHandler("src/elements/members/member.html", args, injectMemberElement, i);
 			console.log(member.first_name + "  -  " + member.linkedin_profile + "  -  " + uid);	
 			}
 			else{
-            new elementHandler("src/elements/members/memberNoLinkedIn.html", args, injectMemberElement);
+            new elementHandler("src/elements/members/memberNoLinkedIn.html", args, injectMemberElement, i);
 			console.log(member.first_name + "  -  No LinkedIn  -  " + uid);
 			}
         }
@@ -364,33 +472,34 @@ function loadMembers(snapshotValue, config, fbi, reload=false)
 
 /* Searching
 
+	Need to clean this up...
+
 */
 
 function memberSearch(){
-	
-	if(searchPressed && last_read_doc){
-		if(formLocation['current_address'] == null){
-			alert('Please enter a Current Location');
+	if(searchButtonStates['name']  && last_read_doc){
+		if(formStatic['name'] == null){
+			alert('Please enter a name to search');
 		}
-		else if(formLocation['current_address']['locality']){
-			console.log('Town entered');
-			_firebase_interface.database.collection("members").orderBy('last_name').startAfter(last_read_doc).where("current_address.locality", "==", formLocation['current_address']['locality']).where("current_address.administrative_area_level_1", "==", formLocation['current_address']['administrative_area_level_1']).where("current_address.country", "==", formLocation['current_address']['country']).limit(_config.members_per_page)
+		else if(formStatic['name']['first'] && formStatic['name']['last']){
+			console.log('First name and last name entered');
+			_firebase_interface.database.collection("members").startAfter(last_read_doc).where("last_name", "==", formStatic['name']['last']).where("first_name", "==", formStatic['name']['first']).limit(_config.members_per_page)
 		   .get().then( function(members){
 			   console.log("Loaded members...");
 			   loadMembers(members, _config, _firebase_interface);
 		   });
 		}
-		else if(formLocation['current_address']['administrative_area_level_1']){
-			console.log('Province/State entered');
-			_firebase_interface.database.collection("members").orderBy('last_name').startAfter(last_read_doc).where("current_address.administrative_area_level_1", "==", formLocation['current_address']['administrative_area_level_1']).where("current_address.country", "==", formLocation['current_address']['country']).limit(_config.members_per_page)
+		else if(formStatic['name']['last']){
+			console.log('Last name only entered');
+			_firebase_interface.database.collection("members").startAfter(last_read_doc).where("last_name", "==", formStatic['name']['last']).limit(_config.members_per_page)
 		   .get().then( function(members){
 			   console.log("Loaded members...");
 			   loadMembers(members, _config, _firebase_interface);
 		   });;
 		}
-		else if(formLocation['current_address']['country']){
-			console.log('Country entered');
-			_firebase_interface.database.collection("members").orderBy('last_name').startAfter(last_read_doc).where("current_address.country", "==", formLocation['current_address']['country']).limit(_config.members_per_page)
+		else if(formStatic['name']['first']){
+			console.log('First name only entered');
+			_firebase_interface.database.collection("members").orderBy('last_name').startAfter(last_read_doc).where("first_name", "==", formStatic['name']['first']).limit(_config.members_per_page)
 		   .get().then( function(members){
 			   console.log("Loaded members...");
 			   loadMembers(members, _config, _firebase_interface);
@@ -400,29 +509,184 @@ function memberSearch(){
 			console.log('Error');
 		}
 	}
-	else if(searchPressed){
-		if(formLocation['current_address'] == null){
+	else if(searchButtonStates['name'] ){
+		if(formStatic['name'] == null){
+			alert('Please enter a name to search');
+		}
+		else if(formStatic['name']['first'] && formStatic['name']['last']){
+			console.log('First name and last name entered');
+			_firebase_interface.database.collection("members").where("last_name", "==", formStatic['name']['last']).where("first_name", "==", formStatic['name']['first']).limit(_config.members_per_page)
+		   .get().then( function(members){
+			   console.log("Loaded members...");
+			   loadMembers(members, _config, _firebase_interface);
+		   });
+		}
+		else if(formStatic['name']['last']){
+			console.log('Last name only entered');
+			_firebase_interface.database.collection("members").where("last_name", "==", formStatic['name']['last']).limit(_config.members_per_page)
+		   .get().then( function(members){
+			   console.log("Loaded members...");
+			   loadMembers(members, _config, _firebase_interface);
+		   });;
+		}
+		else if(formStatic['name']['first']){
+			console.log('First name only entered');
+			_firebase_interface.database.collection("members").orderBy('last_name').where("first_name", "==", formStatic['name']['first']).limit(_config.members_per_page)
+		   .get().then( function(members){
+			   console.log("Loaded members...");
+			   loadMembers(members, _config, _firebase_interface);
+		   });
+		}
+		else{
+			console.log('Error');
+		}
+	}
+	else if(searchButtonStates['location'] && last_read_doc){
+		if(formStatic['location'] == null){
 			alert('Please enter a Current Location');
 		}
-		else if(formLocation['current_address']['locality']){
+		else if(formStatic['location']['city']){
 			console.log('Town entered');
-			_firebase_interface.database.collection("members").orderBy('last_name').where("current_address.locality", "==", formLocation['current_address']['locality']).where("current_address.administrative_area_level_1", "==", formLocation['current_address']['administrative_area_level_1']).where("current_address.country", "==", formLocation['current_address']['country']).startAfter(last_read_doc).limit(_config.members_per_page)
+			_firebase_interface.database.collection("members").orderBy('last_name').startAfter(last_read_doc).where("current_address.locality", "==", formStatic['location']['city']).where("current_address.administrative_area_level_1", "==", formStatic['location']['prov']).where("current_address.country", "==", formStatic['location']['country']).limit(_config.members_per_page)
+		   .get().then( function(members){
+			   console.log("Loaded members...");
+			   loadMembers(members, _config, _firebase_interface);
+		   });
+		}
+		else if(formStatic['location']['prov']){
+			console.log('Province/State entered');
+			_firebase_interface.database.collection("members").orderBy('last_name').startAfter(last_read_doc).where("current_address.administrative_area_level_1", "==", formStatic['location']['prov']).where("current_address.country", "==", formStatic['location']['country']).limit(_config.members_per_page)
+		   .get().then( function(members){
+			   console.log("Loaded members...");
+			   loadMembers(members, _config, _firebase_interface);
+		   });;
+		}
+		else if(formStatic['location']['country']){
+			console.log('Country entered');
+			_firebase_interface.database.collection("members").orderBy('last_name').startAfter(last_read_doc).where("current_address.country", "==", formStatic['location']['country']).limit(_config.members_per_page)
+		   .get().then( function(members){
+			   console.log("Loaded members...");
+			   loadMembers(members, _config, _firebase_interface);
+		   });
+		}
+		else{
+			console.log('Error');
+		}
+	}
+	else if(searchButtonStates['location']){
+		if(formStatic['location'] == null){
+			alert('Please enter a Current Location 2');
+		}
+		else if(formStatic['location']['city']){
+			console.log('Town entered');
+			_firebase_interface.database.collection("members").orderBy('last_name').where("current_address.locality", "==", formStatic['location']['city']).where("current_address.administrative_area_level_1", "==", formStatic['location']['prov']).where("current_address.country", "==", formStatic['location']['country']).startAfter(last_read_doc).limit(_config.members_per_page)
 		   .get().then( function(members){
 			   console.log("Loaded more members...");
 			   loadMembers(members, _config, _firebase_interface);
 		   });
 		}
-		else if(formLocation['current_address']['administrative_area_level_1']){
+		else if(formStatic['location']['prov']){
 			console.log('Province/State entered');
-			_firebase_interface.database.collection("members").orderBy('last_name').where("current_address.administrative_area_level_1", "==", formLocation['current_address']['administrative_area_level_1']).where("current_address.country", "==", formLocation['current_address']['country']).startAfter(last_read_doc).limit(_config.members_per_page)
+			_firebase_interface.database.collection("members").orderBy('last_name').where("current_address.administrative_area_level_1", "==", formStatic['location']['prov']).where("current_address.country", "==", formStatic['location']['country']).startAfter(last_read_doc).limit(_config.members_per_page)
 		   .get().then( function(members){
 			   console.log("Loaded more members...");
 			   loadMembers(members, _config, _firebase_interface);
 		   });;
 		}
-		else if(formLocation['current_address']['country']){
+		else if(formStatic['location']['country']){
 			console.log('Country entered');
-			_firebase_interface.database.collection("members").orderBy('last_name').where("current_address.country", "==", formLocation['current_address']['country']).startAfter(last_read_doc).limit(_config.members_per_page)
+			_firebase_interface.database.collection("members").orderBy('last_name').where("current_address.country", "==", formStatic['location']['country']).startAfter(last_read_doc).limit(_config.members_per_page)
+		   .get().then( function(members){
+			   console.log("Loaded more members...");
+			   loadMembers(members, _config, _firebase_interface);
+		   });
+		}
+		else{
+			console.log('Error');
+		}
+	}
+	else if(searchButtonStates['industry'] && last_read_doc){
+		if(formStatic['industry'] == null){
+			alert('Please enter an industry to search');
+		}
+		else{
+			console.log('Industry entered');
+			_firebase_interface.database.collection("members").orderBy('last_name').startAfter(last_read_doc).where("industry", "==", formStatic['industry']).limit(_config.members_per_page)
+		   .get().then( function(members){
+			   console.log("Loaded members...");
+			   loadMembers(members, _config, _firebase_interface);
+		   });
+		}
+
+	}
+	else if(searchButtonStates['industry']){
+		if(formStatic['industry'] == null){
+			alert('Please enter an industry to search');
+		}
+		else{
+			console.log('Industry entered');
+			_firebase_interface.database.collection("members").orderBy('last_name').where("industry", "==", formStatic['industry']).limit(_config.members_per_page)
+		   .get().then( function(members){
+			   console.log("Loaded members...");
+			   loadMembers(members, _config, _firebase_interface);
+		   });
+		}
+	}
+	else if(searchButtonStates['hometown'] && last_read_doc){
+		if(formDynamic['hometown_address'] == null){
+			alert('Please enter a location');
+		}
+		else if(formStatic['hometown']['city']){
+			console.log('Town entered');
+			_firebase_interface.database.collection("members").orderBy('last_name').startAfter(last_read_doc).where("hometown_address.locality", "==", formStatic['hometown']['city']).where("hometown_address.administrative_area_level_1", "==", formStatic['hometown']['prov']).where("hometown_address.country", "==", formStatic['hometown']['country']).limit(_config.members_per_page)
+		   .get().then( function(members){
+			   console.log("Loaded members...");
+			   loadMembers(members, _config, _firebase_interface);
+		   });
+		}
+		else if(formStatic['hometown']['prov']){
+			console.log('Province/State entered');
+			_firebase_interface.database.collection("members").orderBy('last_name').startAfter(last_read_doc).where("hometown_address.administrative_area_level_1", "==", formStatic['hometown']['prov']).where("hometown_address.country", "==", formStatic['hometown']['country']).limit(_config.members_per_page)
+		   .get().then( function(members){
+			   console.log("Loaded members...");
+			   loadMembers(members, _config, _firebase_interface);
+		   });;
+		}
+		else if(formStatic['hometown']['country']){
+			console.log('Country entered');
+			_firebase_interface.database.collection("members").orderBy('last_name').startAfter(last_read_doc).where("hometown_address.country", "==", formStatic['hometown']['country']).limit(_config.members_per_page)
+		   .get().then( function(members){
+			   console.log("Loaded members...");
+			   loadMembers(members, _config, _firebase_interface);
+		   });
+		}
+		else{
+			console.log('Error');
+		}
+	}
+	else if(searchButtonStates['hometown']){
+		if(formStatic['hometown'] == null){
+			alert('Please enter a location');
+		}
+		else if(formStatic['hometown']['city']){
+			console.log('Town entered');
+			_firebase_interface.database.collection("members").orderBy('last_name').where("hometown_address.locality", "==", formStatic['hometown']['city']).where("hometown_address.administrative_area_level_1", "==", formStatic['hometown']['prov']).where("hometown_address.country", "==", formStatic['hometown']['country']).startAfter(last_read_doc).limit(_config.members_per_page)
+		   .get().then( function(members){
+			   console.log("Loaded more members...");
+			   loadMembers(members, _config, _firebase_interface);
+		   });
+		}
+		else if(formStatic['hometown']['prov']){
+			console.log('Province/State entered');
+			_firebase_interface.database.collection("members").orderBy('last_name').where("hometown_address.administrative_area_level_1", "==", formStatic['hometown']['prov']).where("hometown_address.country", "==", formStatic['hometown']['country']).startAfter(last_read_doc).limit(_config.members_per_page)
+		   .get().then( function(members){
+			   console.log("Loaded more members...");
+			   loadMembers(members, _config, _firebase_interface);
+		   });;
+		}
+		else if(formStatic['hometown']['country']){
+			console.log('Country entered');
+			_firebase_interface.database.collection("members").orderBy('last_name').where("hometown_address.country", "==", formStatic['hometown']['country']).startAfter(last_read_doc).limit(_config.members_per_page)
 		   .get().then( function(members){
 			   console.log("Loaded more members...");
 			   loadMembers(members, _config, _firebase_interface);
@@ -457,6 +721,14 @@ function getLocationString(locationObject)
 	}
 	else if(locationObject.country == "Canada" || locationObject.country == "United States"){
 		location.push(locationObject.locality, locationObject.administrative_area_level_1); 
+	}
+	else if(!locationObject.locality){
+		if(!locationObject.administrative_area_level_1){
+			location.push(locationObject.country);
+		}
+		else{
+			location.push(locationObject.administrative_area_level_1, locationObject.country);
+		}
 	}
 	else{
 		location.push(locationObject.locality, locationObject.administrative_area_level_1, locationObject.country);
@@ -497,17 +769,17 @@ function initAutocomplete() {
           var place = autocomplete_current.getPlace();
           if(place){
               // iterate over object and look for the keys in locationData
-              formLocation["current_address"] = {};
+              formDynamic["current_address"] = {};
               for (var i = 0; i < place.address_components.length; i++) {
                   var addressType = place.address_components[i].types[0];
                   if (locationData.hasOwnProperty(addressType)) {
-                      formLocation["current_address"][addressType] = place.address_components[i]["long_name"];;
+                      formDynamic["current_address"][addressType] = place.address_components[i]["long_name"];;
                   }
               }
               // Store geometry into new member object as well
-              formLocation["current_address"]["lat"] = place.geometry.location.lat();
-              formLocation["current_address"]["lng"] = place.geometry.location.lng();
-			  //console.log(formLocation);
+              formDynamic["current_address"]["lat"] = place.geometry.location.lat();
+              formDynamic["current_address"]["lng"] = place.geometry.location.lng();
+			  //console.log(formDynamic);
           }
       }catch(err){
           console.log(err);
@@ -522,18 +794,18 @@ function initAutocomplete() {
           var place = autocomplete_hometown.getPlace();
           if(place){
               // iterate over object and look for the keys in locationData
-              formLocation["hometown_address"] = {};
+              formDynamic["hometown_address"] = {};
 
               for (var i = 0; i < place.address_components.length; i++) {
               var addressType = place.address_components[i].types[0];
                   if (locationData.hasOwnProperty(addressType) ){
-                      formLocation["hometown_address"][addressType] = place.address_components[i]["long_name"];;
+                      formDynamic["hometown_address"][addressType] = place.address_components[i]["long_name"];;
                   }
               }
               // Store geometry into new member object as well
-              formLocation["hometown_address"]["lat"] = place.geometry.location.lat();
-              formLocation["hometown_address"]["lng"] = place.geometry.location.lng();
-			  console.log(formLocation);
+              formDynamic["hometown_address"]["lat"] = place.geometry.location.lat();
+              formDynamic["hometown_address"]["lng"] = place.geometry.location.lng();
+			  console.log(formDynamic);
           }
       }catch(err){
           console.log(err);

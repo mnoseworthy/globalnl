@@ -21,11 +21,7 @@
 		
 		<!-- Custom CSS -->
 		<link rel="stylesheet" href="globalnl.css">		
-		<link rel="stylesheet" href="vTabs.css">		
-		
-		<script src="//platform.linkedin.com/in.js" type="text/javascript"></script>
-
-		
+		<link rel="stylesheet" href="vTabs.css">				
 	</head>
 
 	<body>
@@ -86,85 +82,84 @@
 		</ul>
 		<div class="tab-content d-flex align-items-stretch">
 			<div class="tab-pane fade" id="name" role="tabpanel">
-				<h1>Search by member's name <i>(not yet functional)</i></h1>
-				<form autocomplete="off">
+				<h1>Search members by name</h1>
+				<form autocomplete="off" id="form_name">
 				<div class="form-row">
 					<div class="form-group col-xs-4">
 						<!-- <label for="inputFirstName">First Name</label> -->
-						<input type="text" class="form-control" id="inputFirstName" placeholder="First Name" disabled>
+						<input type="text" class="form-control" id="inputFirstName" placeholder="First Name">
 					</div>
 					<div class="form-group col-xs-4">
 						<!-- <label for="inputLastName">Last Name</label> -->
-						<input type="text" class="form-control" id="inputLastName" placeholder="Last Name" disabled>
+						<input type="text" class="form-control" id="inputLastName" placeholder="Last Name">
 					</div>
 				</div>
-				<button type="button" id="search_button" class="btn btn-primary ml-1">Search</button>
-				<button type="button" class="btn btn-secondary">Clear Search</button>
+				<button type="submit" id="form_name_search_button" class="btn btn-primary ml-1">Search</button>
+				<button type="button" id="form_name_clear_button" class="btn btn-secondary clear_button">Clear Search</button>
 				</form>	
 
 			</div>
 			<div class="tab-pane fade show active" id="location" role="tabpanel">
-				<h1>Search by member's current location</h1>
+				<h1>Search members by current location</h1>
 				<form autocomplete="off" id="form_location">
 				<div class="form-row">
 					 <!-- <label class="col-md-4 control-label">Current Location</label> -->
 					 <div class="form-group col-xs-8">
 					<input id="autocomplete_current" name="cl" placeholder="Location" class="form-control" type="text">
-					<small class="form-text text-muted">City/Town or Province/State or Country</small>
+					<small class="form-text text-muted">Find members by their current Town, City, Province, State or Country</small>
 					</div>
 				</div>
-				<button type="submit" id="search_button" class="btn btn-primary ml-1">Search</button>
-				<button type="button" id="search_clear" class="btn btn-secondary">Clear Search</button>
+				<button type="submit" id="form_location_search_button" class="btn btn-primary ml-1">Search</button>
+				<button type="button" id="form_location_clear_button" class="btn btn-secondary clear_button">Clear Search</button>
 				</form>	
 			</div>
 			<div class="tab-pane fade" id="industry" role="tabpanel">
-				<h1>Search by member's industry<i>(not yet functional)</i></h1>
-				<form autocomplete="off">
+				<h1>Search members by industry</h1>
+				<form autocomplete="off" id="form_industry">
 					<div class="form-row">
 						<!-- <label for="inputIndustry">Industry</label> -->
 						<div class="form-group col-xs-8">
 							<select id="inputIndustry" class="form-control">
-								<option disabled>Accommodation and Food Services</option>
-								<option disabled>Administrative and Support</option>
-								<option disabled>Agriculture and Forestry</option></option>
-								<option disabled>Arts, Entertainment and Recreation</option>
-								<option disabled>Construction</option>
-								<option disabled>Education</option>
-								<option disabled>Finance and Insurance</option>
-								<option disabled>Fisheries and Aquaculture</option>
-								<option disabled>Health Care and Social Assistance</option>
-								<option disabled>Manufacturing</option>
-								<option disabled>Mining and Quarrying</option>
-								<option disabled>Oil & Gas</option>
-								<option disabled>Professional, Scientific and Technical Services</option>
-								<option disabled>Public Administration</option>
-								<option disabled>Real Estate and Rental and Leasing</option>
-								<option disabled>Retail</option>
-								<option disabled>Technology</option>
-								<option disabled>Transportation and Warehousing</option>
-								<option disabled>Utilities</option>
-								<option disabled>Waste Management and Remediation Services</option>
-								<option disabled>Wholesale Trade</option>
-								<option disabled>Other</option>
+								<option>Accommodation and Food Services</option>
+								<option>Administrative and Support</option>
+								<option>Agriculture and Forestry</option></option>
+								<option>Arts, Entertainment and Recreation</option>
+								<option>Construction</option>
+								<option>Education</option>
+								<option>Finance and Insurance</option>
+								<option>Fisheries and Aquaculture</option>
+								<option>Health Care and Social Assistance</option>
+								<option>Manufacturing</option>
+								<option>Mining and Quarrying</option>
+								<option>Oil & Gas</option>
+								<option>Professional, Scientific and Technical Services</option>
+								<option>Public Administration</option>
+								<option>Real Estate and Rental and Leasing</option>
+								<option>Retail</option>
+								<option>Technology</option>
+								<option>Transportation and Warehousing</option>
+								<option>Utilities</option>
+								<option>Waste Management and Remediation Services</option>
+								<option>Wholesale Trade</option>
+								<option>Other</option>
 							</select>
 						</div>
 					</div>
-					<button type="button" id="search_button" class="btn btn-primary ml-1">Search</button>
-					<button type="button" class="btn btn-secondary">Clear Search</button>
+					<button type="submit" id="form_industry_search_button" class="btn btn-primary ml-1">Search</button>
+					<button type="button" id="form_industry_clear_button" class="btn btn-secondary clear_button">Clear Search</button>
 				</form>
 			</div>
 			<div class="tab-pane fade" id="roots" role="tabpanel">
-				<h1>Search by member's hometown or NL roots<i>(not yet functional)</i></h1>
-				<form autocomplete="off">
+				<h1>Search members by hometown or NL roots</h1>
+				<form autocomplete="off" id="form_hometown">
 					<div class="form-row">
-						 <!-- <label class="col-md-4 control-label">Current Location</label> -->
 						 <div class="form-group col-xs-8">
-							<input id="autocomplete_hometown" name="ht" placeholder="Location" class="form-control" type="text" disabled>
-							<small class="form-text text-muted">Find other members from or with a connection to the same town in NL.</small>
+							<input id="autocomplete_hometown" name="ht" placeholder="Location" class="form-control" type="text">
+							<small class="form-text text-muted">Find other members from or with a connection to the same town in NL</small>
 						</div>
 					</div>
-					<button type="button" id="search_button" class="btn btn-primary ml-1">Search</button>
-					<button type="button" class="btn btn-secondary">Clear Search</button>
+					<button type="submit" id="form_hometown_search_button" class="btn btn-primary ml-1">Search</button>
+					<button type="button" id="form_hometown_clear_button" class="btn btn-secondary clear_button">Clear Search</button>
 				</form>	
 			</div>
 		
@@ -202,7 +197,8 @@
 	
 	
 	<!-- jQuery -->
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>		
+	<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> -->
+	<script src="assets/jQuery-3.2.1/jquery-3.2.1.js"></script>		
 
 	<!-- Bootstrap -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/js/bootstrap.min.js"></script>
@@ -213,22 +209,16 @@
 	
 	<!-- LinkedIn Badges -->
 	<!-- <script type="text/javascript" src="https://platform.linkedin.com/badges/js/profile.js" async defer></script> -->
-	<!-- <script src="//platform.linkedin.com/in.js" type="text/javascript"></script> -->
+	<script src="//platform.linkedin.com/in.js" type="text/javascript"></script>
 
-	<!-- Site source, handlers and interfaces first, then the page code 
-	<script type="text/javascript" src="src/config.js"></script>
-	<script type="text/javascript" src="src/firestoreInterface.js"></script>
-	<script type="text/javascript" src="src/elementHandler.js"></script>
-	<script type="text/javascript" src="members.js"></script>
-	-->
+	<!-- Site source, handlers and interfaces first, then the page code -->
 	<script type="text/javascript" src="src/config.js"></script>
 	<script type="text/javascript" src="src/firestoreInterface.js"></script>
 	<script type="text/javascript" src="src/elementHandler.js"></script>
 	 <script type="text/javascript" src="members.js"></script>
 	 
 	 <!-- auto complete from google maps must be called after globalnl.js -->
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB1eOBITvxAHRcodvjmw4_fWQxQB_iKPKQ&libraries=places&callback=initAutocomplete"
-        async defer></script>
+	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBDf7OWORlKoMM6Y9ly5ftxAw6QYjY_ulw&libraries=places&callback=initAutocomplete" async defer></script>
 	
 	
 	

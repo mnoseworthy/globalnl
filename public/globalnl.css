@@ -40,7 +40,8 @@ body > .container {
 
 .card{
 	width:366px;
-	min-height: 360px;
+	min-width: 366px;
+	min-height: 365px;
 }
 
 .card-header {
@@ -51,18 +52,19 @@ body > .container {
 }
 
 .card-body {
-	padding-left: 0px;
-	padding-right: 0px;
-	padding-bottom: 0px;
-	padding-top: 0.8rem;
+	padding: 0px;
 }
 
 .card-title {
 	font-weight: 400;
-	margin-bottom: 0.5rem;
 	font-size: 0.8rem;
+	margin-top: 0.9rem;
 	margin-left: 0.5rem;
 	margin-right: 0.5rem;
+	margin-bottom: 0px;
+}
+.card-title-bottom {
+	margin-bottom: 0.9rem;
 }
 
 .card-text {
@@ -70,8 +72,8 @@ font-style: italic;
 }
 
 .linkedin_profile_card {
-	margin-top: 20px;
-	margin-bottom: 5px;
+	margin-top: 0px;
+	margin-bottom: -6px;
 	margin-left: 0px;
 	margin-right: 0px;
 }

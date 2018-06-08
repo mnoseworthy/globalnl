@@ -19,7 +19,7 @@ class elementHandler
         @param args (Array or Object) - Either an array of values, sorted by the int keys in the element file; or an object where the keys match the strings in the element file.
         @param callback ( function pointer) - function to execute when parsing is complete. Will return either the html dom string, or false if an error occured. 
     */
-    constructor(elementPath, args, callback)
+    constructor(elementPath, args, callback, tracker = -1)
     {
         // Initialize properties
         this.argFieldRegex = /\{\[\d+\]\(\w+\)\}/g;  // matches {[int](string)}    
@@ -31,6 +31,7 @@ class elementHandler
         // Store parameters
         this.args = args;
         this.callback = callback;
+		this.tracker = tracker;
         // Kick off control flow by running jqueryLoad...
         // jqueryLoad -> Load element from elementPath
         //  parseHtmlForFields -> Parse loaded object for argument fields
@@ -92,7 +93,7 @@ class elementHandler
             this.validateArgs();
         }else{
             // No arguments in element, just output it !
-            this.callback(loadedElement);
+            this.callback(loadedElement, this.tracker);
             return true;
         }
     }// end parseHtmlForFields
@@ -203,7 +204,7 @@ class elementHandler
         // Finally, add the last element of splitElement to finish the buildf
         this.output = this.output.concat( this.splitElement[ this.splitElement.length - 1 ] );
         // Continue control flow, here we are done so run the callback with the result
-        this.callback(this.output);
+        this.callback(this.output, this.tracker);
         return true;
     }
 } // end elementHandler class definition
