@@ -4,6 +4,8 @@
     only be called by the configHandler class defined below.
 */
 
+var LinkedInString = (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+
 var __globalnl_internal_config__  = function() { return {
     "GLOBAL" : {
         "firebase" : {
@@ -64,7 +66,7 @@ var __globalnl_internal_config__  = function() { return {
     },
     "signup" : {
         "firebase" : {
-            "signInSuccessUrl" : "registration.html"
+            "signInSuccessUrl" : "https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=86xotu9f4tiis6&redirect_uri=https%3A%2F%2F"+window.location.hostname+"%2Fregistration.html&state="+LinkedInString+"&scope=r_basicprofile"
         }
     }
 }}

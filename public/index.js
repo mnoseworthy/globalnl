@@ -47,6 +47,10 @@ var index_namespace = function (config)
           console.log("An error has occured while initializing the firebase interface");
           return false;
       }
+	  
+	  if(fbi.userObject){
+		  window.location.replace("members.html");
+	  }
 
       // Store reference globally for access by callbacks
        _firebase_interface = fbi;

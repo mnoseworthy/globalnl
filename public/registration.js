@@ -12,7 +12,24 @@ var _firebase_interface;
 // Init auth on load web page event
 $(document).ready(function(){
     initApp();
-});
+})
+
+    function onLinkedInLoad() {
+		IN.Event.on(IN, "auth", getProfileData);
+    }
+   function getProfileData() {
+        IN.API.Profile("me").fields("id", "first-name", "last-name", "public-profile-url", "picture-url", "picture-urls::(original)").result(loadForm);
+    }
+    // 2. Runs when the Profile() API call returns successfully
+    function loadForm(profiles) {
+        member = profiles.values[0];
+		console.log(member);
+		
+		$( "#linkedin_profile" ).val(member.publicProfileUrl);
+		$( "#first_name" ).val(member.firstName);
+		$( "#last_name" ).val(member.lastName);
+
+    }
 
 // Prevent the enter key from submitting the form when uncomplete
 $(window).keydown(function(event){
@@ -197,6 +214,8 @@ var registration_namespace = function (config)
               console.log("User type undefined? How did we get here ...");
               break;
       }
+	  
+	  $( "#email" ).val(fbi.userObject.email);  
 
       /*******
        *   Callbacks that require data from config or firebase

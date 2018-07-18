@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Global NL - Registration</title>
+  <meta http-equiv="Content-Security-Policy" content="script-src * 'unsafe-inline'">
+  <title>Global NL Registration</title>
 
 <link rel="stylesheet" type="text/css" href="assets/DataTables-1.10.16/datatables.min.css"/>
 <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
@@ -15,11 +16,12 @@
 
 <div class="container">
 
+<center><h2><b>Global NL Registration</b></h2></center>
+
+<center><img id="LinkedInLogin" src="src/elements/LinkedInLogin.png" onClick="LinkedInLoad();"/ style="display:none;"></center>
+
 <form class="well form-horizontal" id="register_form">
 <fieldset>
-
-<!-- Form Name -->
-<legend><center><h2><b>Global NL - Registration Form</b></h2></center></legend><br>
 
 <!-- Text input-->
 
@@ -64,7 +66,7 @@
 <div class="col-md-5 inputGroupContainer">
 <div class="input-group">
 <span class="input-group-addon"><i class="glyphicon glyphicon-globe"></i></span>
-<input id="autocomplete_current" name="cl" placeholder="Where ya at" class="form-control" type="text" autocomplete="country-name" required>
+<input id="autocomplete_current" name="cl" placeholder="Where ya at?" class="form-control" type="text" autocomplete="country-name" required>
   </div>
 </div>
 </div>
@@ -76,7 +78,7 @@
 <div class="col-md-5 inputGroupContainer">
 <div class="input-group">
 <span class="input-group-addon"><i class="glyphicon glyphicon-home"></i></span>
-<input id="autocomplete_hometown" name="ht" placeholder="Where ya from or where are ya NL roots" class="form-control" autocomplete="country-name" type="text" required>
+<input id="autocomplete_hometown" name="ht" placeholder="Where ya from/rooted to?" class="form-control" autocomplete="country-name" type="text" required>
   </div>
 </div>
 </div>
@@ -252,6 +254,11 @@
 <script src="src/config.js"></script>
 <script src="src/firestoreInterface.js"></script>
 <script src='registration.js'></script>
+	<script src="//platform.linkedin.com/in.js" type="text/javascript">
+        api_key: 86xotu9f4tiis6
+        onLoad: onLinkedInLoad
+        authorize: true
+    </script>
 <!-- auto complete from google maps must be called after registration.js -->
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB1eOBITvxAHRcodvjmw4_fWQxQB_iKPKQ&libraries=places&callback=initAutocomplete"
         async defer></script>
