@@ -11,8 +11,9 @@
 var _firebase_interface;
 var _config;
 
-// Debugging variable to disable LinkedIn banners
+// Disable LinkedIn banners via toggle button
 var LinkedInEnable = true;
+
 
 /******************************************************
 * Track dynamic page loading and search versus browse
@@ -42,13 +43,25 @@ searchButtonStates['hometown'] = false;
 ******************************************************/
 // Init auth on load web page event
 $(document).ready(function(){
+	$('#preloader').hide();
     initApp();
 	console.log('Document ready');
+});
+
+$('#linkedin_toggle').change(function() {
+  if($('#linkedin_toggle:checked').val() == 'on'){
+	  LinkedInEnable = true;
+  }
+  else{
+	  LinkedInEnable = false;
+  }
+
 });
 
 $(window).scroll(function() {
 	if(scrollQueryComplete){
 	  if ($(window).scrollTop() > $(document).height() - $(window).height() - $(window).height()/6 ) {
+		$('#preloader').show();
 		scrollQueryComplete=false;
 		memberSearch();
 	}
@@ -57,12 +70,13 @@ $(window).scroll(function() {
 
 $('#form_name').submit(function(event){
 	console.log("Searching by name...");
+	$( "#members-list" ).empty();
+	$('#preloader').show();
 	event.preventDefault();
 	formStatic['name']=[];
 	formStatic['name']['first'] = $('#inputFirstName').val().charAt(0).toUpperCase() + $('#inputFirstName').val().slice(1);
 	formStatic['name']['last'] = $('#inputLastName').val().charAt(0).toUpperCase() + $('#inputLastName').val().slice(1);
 	last_read_doc = 0;
-	$( "#members-list" ).empty();
 	searchButtonStates['name']  = true;
 	searchButtonStates['location'] = false;
 	searchButtonStates['industry'] = false;
@@ -72,13 +86,14 @@ $('#form_name').submit(function(event){
 
 $('#form_location').submit(function(event){
 	console.log("Searching by location...");
+	$( "#members-list" ).empty();
+	$('#preloader').show();
 	event.preventDefault();
 	formStatic['location'] = [];
 	formStatic['location']['city'] = formDynamic['current_address']['locality'];
 	formStatic['location']['prov'] = formDynamic['current_address']['administrative_area_level_1'];
 	formStatic['location']['country'] = formDynamic['current_address']['country'];
 	last_read_doc = 0;
-	$( "#members-list" ).empty();
 	searchButtonStates['location'] = true;
 	searchButtonStates['name']  = false;
 	searchButtonStates['industry'] = false;
@@ -88,10 +103,11 @@ $('#form_location').submit(function(event){
 
 $('#form_industry').submit(function(event){
 	console.log("Searching by industry...");
+	$( "#members-list" ).empty();
+	$('#preloader').show();
 	event.preventDefault();
 	formStatic['industry'] = $('#inputIndustry').val();
 	last_read_doc = 0;
-	$( "#members-list" ).empty();
 	searchButtonStates['industry'] = true;
 	searchButtonStates['name']  = false;
 	searchButtonStates['location'] = false;
@@ -101,13 +117,14 @@ $('#form_industry').submit(function(event){
 
 $('#form_hometown').submit(function(event){
 	console.log("Searching by hometown / NL roots...");
+	$( "#members-list" ).empty();
+	$('#preloader').show();
 	event.preventDefault();
 	formStatic['hometown'] = [];
 	formStatic['hometown']['city'] = formDynamic['hometown_address']['locality'];
 	formStatic['hometown']['prov'] = formDynamic['hometown_address']['administrative_area_level_1'];
 	formStatic['hometown']['country'] = formDynamic['hometown_address']['country'];
 	last_read_doc = 0;
-	$( "#members-list" ).empty();
 	searchButtonStates['hometown'] = true;
 	searchButtonStates['name']  = false;
 	searchButtonStates['location'] = false;
@@ -118,6 +135,7 @@ $('#form_hometown').submit(function(event){
 
 $('.clear_button').click(function(event){
 	console.log("Clear search...");
+	$('#preloader').show();
 	$('#form_name').get(0).reset();
 	$('#form_location').get(0).reset();
 	$('#form_industry').get(0).reset();
@@ -260,7 +278,7 @@ function readDBforMembers()
                 // Load public members table
                 // load members who've agreed to be viewable
 				console.log("Unapproved member...");
-                _firebase_interface.database.collection("members").orderBy("last_name").startAt('B').limit(9) //.where("last_name", "==", "feener")
+                _firebase_interface.database.collection("members").orderBy("last_name").startAt('B').limit(15) //.where("last_name", "==", "feener")
                     .get().then( function(members){
                         loadMembers(members, _config, _firebase_interface);
                     });
@@ -334,6 +352,7 @@ function loadMembers(snapshotValue, config, fbi, reload=false)
     if(!reload) 
     {
 		if(snapshotValue.docs.length == 0){
+			$('#preloader').hide();
 			console.log("No results returned");
 		}
 		last_read_doc = snapshotValue.docs[snapshotValue.docs.length - 1];
@@ -419,8 +438,10 @@ function loadMembers(snapshotValue, config, fbi, reload=false)
 						$( "#members-list" ).append( member_dom_references[i] )					
 					}					
 				}
-				if ($(window).width() <= 550) {$('.card').css('min-height','0px');}
-				$( window ).resize(function() {if ($(window).width() <= 550) {$('.card').css('min-height','0px');}else{$('.card').css('min-height','365px');}});
+				if ($(window).width() <= 550) {
+					//('#members-list').removeClass('card-deck').addClass('card-columns');
+					}
+				//$( window ).resize(function() {if ($(window).width() <= 550) {$('#members-list').removeClass('card-deck').addClass('card-columns');}else{$('#members-list').removeClass('card-columns').addClass('card-deck');}});
 				console.log('Parse LinkedIn badges...');
 				if(LinkedInEnable) IN.parse();
 				scrollQueryComplete=true;
@@ -462,6 +483,7 @@ function loadMembers(snapshotValue, config, fbi, reload=false)
 			console.log(member.first_name + "  -  No LinkedIn  -  " + uid);
 			}
         }
+		$('#preloader').hide();
     } // end loadMembersEntry
 	
 	// trigger control flow with entry point and callback to next task in queue
@@ -712,6 +734,7 @@ function memberSearch(){
 */
 function getLocationString(locationObject)
 {
+	if(locationObject){
     // Initalize empty array to work with
     var location = [];
 
@@ -735,6 +758,10 @@ function getLocationString(locationObject)
 	}
 	// Filter array for unwanted data, then join with ', ' to create a comma separated string from data
 	return location.filter(e => e !== "" && e !== undefined).join(", "); 
+	}
+	else{
+		return '';
+	}
 }
 
 

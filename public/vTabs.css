@@ -14,7 +14,7 @@
 	padding-bottom: 0.8rem;
 }
 .nav-tabs--left {
-  margin: 0 15px;
+  margin: 0 15px 0 4px;
 }
 .nav-tabs--left .nav-item + .nav-item {
   margin-top: 0.25rem;
