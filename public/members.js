@@ -234,9 +234,8 @@ var members_namespace = function (config)
                 break;
             case "Unregistered Member":
                 // Member never filled out registration form
-                if (confirm("Account not fully registered, continue to registration form? If not your access will be limited.")) {
-                    window.location.href = "registration.html";
-                }
+                alert("We have not received your registration form. Please complete to view the directory. Thank you!");
+                window.location.href = "signup.html";
                 break;
             case "Anonymous":
             default:
