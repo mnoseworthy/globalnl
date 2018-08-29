@@ -1,52 +1,249 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Global NL - Member Portal</title>
+<html>	
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta http-equiv="Content-Security-Policy" content="script-src * 'unsafe-inline'">
+		<!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+		<link rel="icon" href="favicon.ico" type="image/x-icon" />
 
-	<link rel="stylesheet" type="text/css" href="assets/DataTables-1.10.16/datatables.min.css"/>
+		<title>Global NL - Member Directory</title>
+		
+		<!-- Font-Awesome: -->
+		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
+		
+		<!-- Bootstrap CSS -->
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.min.css">
+		
+		<!-- Custom CSS -->
+		<link rel="stylesheet" href="globalnl.css">		
+		<link rel="stylesheet" href="vTabs.css">			
 
-  </head>
+		<style>
+		#mainPage{
+			padding-left: 1px;
+			padding-right: 6px;
+		}
+		#loginPage { background: url(assets/linkedin.svg) no-repeat -9999px -9999px; }
+		</style>		
+	</head>
 
-<!-- <script type="text/javascript" src="assets/DataTables-1.10.16/datatables.min.js"></script> -->
-<!-- <script src="https://use.fontawesome.com/b58b304000.js"></script> -->
-<!-- Font-Awesome: -->
-<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> -->
-<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+	<body>
 
-<!-- <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/2.5.1/firebaseui.css" /> -->
-<link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/3.0.0/firebaseui.css" />
+	  <header>
+      <!-- Fixed navbar -->
+      <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+		<a class="navbar-brand" href="http://www.globalnl.com/">
+		<img src="/assets/GlobalNL-Logo-Icon-White.png" width="30" height="30" class="d-inline-block align-top" alt="">
+		Global NL
+		</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+              <a class="nav-link" href="#"><span class="fas fa-globalnl fa-book"></span>Member Directory <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="map.html"><span class="fas fa-globalnl fa-globe"></span>Member Map</a>
+            </li>
+          </ul>
+		  <ul id="userNavBar" class="nav navbar-nav navbar-right">
+			<li class="nav-item"><a class="nav-link" href="#" onClick="LIlogin();clickNavBar();return false;"><span class="fas fa-globalnl fa-user"></span><span>Sign in</span></a></li>
+		</ul>
+	
+      </nav>
+    </header>
+	
+	<div id="loginPage" class="container">
+	<div class=""> <!-- Was row -->
+			<div class="Absolute-Center is-Responsive">
+			  <div class="text-center">
+			  <h1 class="w-100">
+				Sign in </h1>
+			   <p class="w-100">
+			   to continue to the Global NL Members Portal
+			  </p>  
+			  </div>
+			  <img class="mx-auto d-block" alt="Sign in with LinkedIn" id="sign-in-button" onClick="LIlogin();return false;" 
+			  src="assets/Sign-In-Small---Default.png" onmouseover="this.src='assets/Sign-In-Small---Hover.png'" onmouseout="this.src='assets/Sign-In-Small---Default.png'"/>
+        <div class="w-100 m-2"></div>
+      <div id="loginPage_text" class="text-center">
+			  <small class="font-italic text-muted">
+			  Global NL uses LinkedIn to provide a secure<br/>experience for our commmunity of members
+			  </small> 
+      </div>
+			</div>    
+		</div>
+	</div>	
+		
+	
+	<div id="mainPage" class="container">
+	
+	<div class=""> <!-- Was row -->
+	
+	<!-- Search form -->
+	
+	<div class="d-flex flex-row mt-30">
+		<ul class="nav nav-tabs nav-tabs--vertical nav-tabs--left" role="navigation">
+			<li class="nav-item">
+				<a href="#name" class="nav-link" data-toggle="tab" role="tab" aria-controls="name"><span class="fas fa-portrait"></span></a>
+			</li>
+			<li class="nav-item">
+				<a href="#location" class="nav-link active" data-toggle="tab" role="tab" aria-controls="location"><span class="fas fa-map-marker-alt"></span></a>
+			</li>
+			<li class="nav-item">
+				<a href="#industry" class="nav-link" data-toggle="tab" role="tab" aria-controls="industry"><span class="fas fa-briefcase"></span></a>
+			</li>
+			<li class="nav-item">
+				<a href="#roots" class="nav-link" data-toggle="tab" role="tab" aria-controls="roots"><span class="fas fa-anchor"></span></a>
+			</li>
+		</ul>
+		<div class="tab-content d-flex align-items-stretch">
+			<div class="tab-pane fade" id="name" role="tabpanel">
+				<h1>Search members by name</h1>
+				<form autocomplete="off" id="form_name">
+				<div class="form-row">
+					<div class="form-group col-xs-4">
+						<!-- <label for="inputFirstName">First Name</label> -->
+						<input type="text" class="form-control" id="inputFirstName" placeholder="First Name">
+					</div>
+					<div class="form-group col-xs-4">
+						<!-- <label for="inputLastName">Last Name</label> -->
+						<input type="text" class="form-control" id="inputLastName" placeholder="Last Name">
+					</div>
+				</div>
+				<button type="submit" id="form_name_search_button" class="btn btn-primary ml-1">Search</button>
+				<button type="button" id="form_name_clear_button" class="btn btn-secondary clear_button">Clear Search</button>
+				</form>	
 
+			</div>
+			<div class="tab-pane fade show active" id="location" role="tabpanel">
+				<h1>Search members by current location</h1>
+				<form autocomplete="off" id="form_location">
+				<div class="form-row">
+					 <!-- <label class="col-md-4 control-label">Current Location</label> -->
+					 <div class="form-group col-xs-8">
+					<input id="autocomplete_current" name="cl" placeholder="Location" class="form-control" type="text">
+					<small class="form-text text-muted">Find members by their current Town, City, Province, State or Country</small>
+					</div>
+				</div>
+				<button type="submit" id="form_location_search_button" class="btn btn-primary ml-1">Search</button>
+				<button type="button" id="form_location_clear_button" class="btn btn-secondary clear_button">Clear Search</button>
+				</form>	
+					
 
-<div></div>
-<body>
-  <br></br>
-  <div class="container well">
-    <legend>Global NL Member Portal</legend>
-    <p>Log into the account you signed up with to access the Global NL members directory and other features.</p>
-    <div id="firebaseui-auth-container"></div>
-    <div class="col-sm-12" align="right">
-      <p>© 2018 Global NL</p>
-    </div>
-  </div>
-</body>
+				
+			</div>
+			<div class="tab-pane fade" id="industry" role="tabpanel">
+				<h1>Search members by industry</h1>
+				<form autocomplete="off" id="form_industry">
+					<div class="form-row">
+						<!-- <label for="inputIndustry">Industry</label> -->
+						<div class="form-group col-xs-8">
+							<select id="inputIndustry" class="form-control">
+								<option>Accommodation and Food Services</option>
+								<option>Administrative and Support</option>
+								<option>Agriculture and Forestry</option></option>
+								<option>Arts, Entertainment and Recreation</option>
+								<option>Construction</option>
+								<option>Education</option>
+								<option>Finance and Insurance</option>
+								<option>Fisheries and Aquaculture</option>
+								<option>Health Care and Social Assistance</option>
+								<option>Manufacturing</option>
+								<option>Mining and Quarrying</option>
+								<option>Oil & Gas</option>
+								<option>Professional, Scientific and Technical Services</option>
+								<option>Public Administration</option>
+								<option>Real Estate and Rental and Leasing</option>
+								<option>Retail</option>
+								<option>Technology</option>
+								<option>Transportation and Warehousing</option>
+								<option>Utilities</option>
+								<option>Waste Management and Remediation Services</option>
+								<option>Wholesale Trade</option>
+								<option>Other</option>
+							</select>
+						</div>
+					</div>
+					<button type="submit" id="form_industry_search_button" class="btn btn-primary ml-1">Search</button>
+					<button type="button" id="form_industry_clear_button" class="btn btn-secondary clear_button">Clear Search</button>
+				</form>
+			</div>
+			<div class="tab-pane fade" id="roots" role="tabpanel">
+				<h1>Search members by NL roots</h1>
+				<form autocomplete="off" id="form_hometown">
+					<div class="form-row">
+						 <div class="form-group col-xs-8">
+							<input id="autocomplete_hometown" name="ht" placeholder="Location" class="form-control" type="text">
+							<small class="form-text text-muted">Find other members from or with a connection to the same town in NL</small>
+						</div>
+					</div>
+					<button type="submit" id="form_hometown_search_button" class="btn btn-primary ml-1">Search</button>
+					<button type="button" id="form_hometown_clear_button" class="btn btn-secondary clear_button">Clear Search</button>
+				</form>	
+					<br/>
 
+			</div>
+		
+		<!-- tab-content -->	
+		</div>
+	<!-- d-flex -->
+	</div>
+
+	<!-- Search form -->
+	</div>
+	<!-- Row -->
+	
+	<div class=""> <!-- Was row -->		
+	
+	<!-- Card deck -->
+	<div id="members-list" class="card-deck">
+
+	</div>
+	<!-- Card deck -->
+	</div>
+	<!-- Row -->
+	
+	<div style="display:table;margin-left:auto;margin-right:auto;" id="preloader"><img src="assets/preloader.gif"/></div>
+	
+	</div>
+	<!-- container -->
+	
+
+	
+	<footer class="footer">
+      <div class="container">
+	  <span class="fa fas-globe"></span>
+        <span class="text-muted">Global NL — <i>A Global Community</i></span>
+      </div>
+    </footer>
+		
+	
 	<!-- jQuery -->
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>		
+	<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 
 	<!-- Bootstrap -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/js/bootstrap.min.js"></script>
 
 	<!-- include firestore now -->
-	<script src="https://www.gstatic.com/firebasejs/4.12.0/firebase.js"></script>
-	<script src="https://www.gstatic.com/firebasejs/4.12.0/firebase-firestore.js"></script>
+	<script src="/__/firebase/5.3.0/firebase-app.js"></script>
+	<script src="/__/firebase/5.3.0/firebase-auth.js"></script>
+	<script src="/__/firebase/5.3.0/firebase-firestore.js"></script>
+	<script src="/__/firebase/init.js"></script>
 	
-	<script src="https://cdn.firebase.com/libs/firebaseui/3.0.0/firebaseui.js"></script>
+	<!-- LinkedIn Badges -->
+	<!-- <script type="text/javascript" src="https://platform.linkedin.com/badges/js/profile.js" async defer></script> -->
+	<script src="//platform.linkedin.com/in.js" type="text/javascript"></script>
 
-	<script type="text/javascript" src="src/config.js"></script>
-	<script type="text/javascript" src="src/firestoreInterface.js"></script>
-	<!-- <script type="text/javascript" src="src/elementHandler.js"></script> -->
-	<script type="text/javascript" src="index.js"> </script>
-
+	<!-- Site source, handlers and interfaces first, then the page code -->
+	<script type="text/javascript" src="index.js"></script>
+	 
+	 <!-- auto complete from google maps must be called after members.js -->
+	<script src="https://maps.googleapis.com/maps/api/js?libraries=places&callback=initAutocomplete" async defer></script>
+	
+	</body>
 </html>

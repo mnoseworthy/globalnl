@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta http-equiv="Content-Security-Policy" content="script-src * 'unsafe-inline'">
+	<!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+	<link rel="icon" href="favicon.ico" type="image/x-icon" />
+    <title>Global NL - Login</title>
+ 
+  <style>
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  background: #f5f5f5;
+}
+
+img{
+  display: block;
+  margin: 0 auto;
+}
+
+.linkedin-image {
+    background-image: url(assets/linkedin.svg);
+    height: 100px;
+    width: 100px;
+    margin: 0 auto 32px;
+    transform: translate(0,0);
+    opacity: 1;
+  }
+
+.container {
+  width: 200px;
+  height: 200px;
+  background-size: cover;
+  vertical-align: middle;
+  margin: 20% auto;
+}
+
+.line {
+  height: 3px;
+  width: 100%;
+  background: #e8e8e8;
+  margin-top: 30%;
+}
+.line .inner {
+  width: 100%;
+  height: inherit;
+  background: #0077B5;
+  animation: slide 2s ease-in-out infinite;
+}
+
+@keyframes slide {
+  0% {
+    transform-origin: left;
+    transform: scalex(0.3);
+  }
+  25% {
+    transform-origin: left;
+    transform: scalex(1);
+  }
+  26% {
+    transform-origin: right;
+    transform: scalex(1);
+  }
+  50% {
+    transform-origin: right;
+    transform: scalex(0.3);
+  }
+  75% {
+    transform-origin: right;
+    transform: scalex(1);
+  }
+  76% {
+    transform-origin: left;
+    transform: scalex(1);
+  }
+  100% {
+    transform-origin: left;
+    transform: scalex(0.3);
+  }
+}
+  </style>
+  
+    </head>
+  <body>
+
+<div class="container">
+  <div class="linkedin-image"></div>
+  <div class="line">
+    <div class="inner"></div>
+  </div>
+</div>
+
+<!-- include firestore now -->
+<script src="/__/firebase/5.3.0/firebase-app.js"></script>
+<script src="/__/firebase/5.3.0/firebase-auth.js"></script>
+<!-- <script src="/__/firebase/5.3.0/firebase-firestore.js"></script> -->
+<script src="/__/firebase/init.js"></script>
+
+
+<script>
+
+  /**
+   * Returns the value of the given URL query parameter.
+   */
+  function getURLParameter(name) {
+    return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) ||
+        [null, ''])[1].replace(/\+/g, '%20')) || null;
+  }
+    /**
+   * Returns the ID of the Firebase project.
+   */
+  function getFirebaseProjectId() {
+    return firebase.app().options.authDomain.split('.')[0];
+  }
+  /**
+   * This callback is called by the JSONP callback of the 'token' Firebase Function with the Firebase auth token.
+   */
+  function tokenReceived(data) {
+    if (data.token) {
+	  console.log(data);
+      firebase.auth().signInWithCustomToken(data.token).then(function() {
+	  //for new user don't close here but send to registration form 
+	  if(!window.close()){
+		window.location.href  = 'index.html';
+	  }
+      });
+    } else {
+      console.error(data);
+      document.body.innerText = 'Error in the token Function: ' + data.error;
+    }
+  }
+  var code = getURLParameter('code');
+  var state = getURLParameter('state');
+  var error = getURLParameter('error');
+  if (error) {
+    document.body.innerText = 'Error back from the LinkedIn auth page: ' + error;
+  } else if(!code) {
+    // Start the auth flow.
+	//window.location.href  = 'https://us-central1-' + getFirebaseProjectId() + '.cloudfunctions.net/redirect';
+	window.location.href  = 'https://us-central1-globalnl-members.cloudfunctions.net/redirect';
+	//window.location.href  = 'https://members.globalnl.com/redirect';
+  } else {
+    // Use JSONP to load the 'token' Firebase Function to exchange the auth code against a Firebase custom token.
+    const script = document.createElement('script');
+    script.type = 'text/javascript';
+    // This is the URL to the HTTP triggered 'token' Firebase Function.
+    // See https://firebase.google.com/docs/functions.
+	//var tokenFunctionURL = 'https://us-central1-' + getFirebaseProjectId() + '.cloudfunctions.net/token';
+	var tokenFunctionURL = 'https://us-central1-globalnl-members.cloudfunctions.net/token';
+    //var tokenFunctionURL = 'https://members.globalnl.com/token';
+	script.src = tokenFunctionURL +
+        '?code=' + encodeURIComponent(code) +
+        '&state=' + encodeURIComponent(state) +
+        '&callback=' + tokenReceived.name;
+    document.head.appendChild(script);
+  }
+</script>
+</body>
+
+</html>
