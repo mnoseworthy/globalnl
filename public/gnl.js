@@ -11,6 +11,20 @@ window.gnl = (function () {
     );
   };
 
+  auth.logout = function () {
+    firebase
+      .auth()
+      .signOut()
+      .then(
+        function () {
+          console.log("Signed Out");
+        },
+        function (error) {
+          console.error("Sign Out Error", error);
+        }
+      );
+  }
+
   return {
     auth: auth
   };

@@ -49,7 +49,7 @@ firebase.auth().onAuthStateChanged(function(user) {
     $("#button_logout").click(function(e) {
       // Cancel the default action
       e.preventDefault();
-      logout();
+      gnl.auth.logout();
       clickNavBar();
     });
     initApp();
@@ -59,22 +59,6 @@ firebase.auth().onAuthStateChanged(function(user) {
     $("#loginPage").show();
   }
 });
-
-// Logout callback
-function logout() {
-  firebase
-    .auth()
-    .signOut()
-    .then(
-      function() {
-        console.log("Signed Out");
-        //window.location.href = "index.html";
-      },
-      function(error) {
-        console.error("Sign Out Error", error);
-      }
-    );
-}
 
 function clickNavBar() {
   if ($(".navbar-toggler").css("display") != "none") {

@@ -71,7 +71,7 @@ function initMap() {
       $("#button_logout").click(function(e) {
         // Cancel the default action
         e.preventDefault();
-        logout();
+        gnl.auth.logout();
         clickNavBar();
       });
       parseCords();
@@ -166,21 +166,6 @@ function loadMembersOnMap(ne, sw) {
 function profile() {
   console.log("Nav profile.html");
   window.location.href = "profile.html";
-}
-
-// Logout callback
-function logout() {
-  firebase
-    .auth()
-    .signOut()
-    .then(
-      function() {
-        console.log("Signed Out");
-      },
-      function(error) {
-        console.error("Sign Out Error", error);
-      }
-    );
 }
 
 function clickNavBar() {

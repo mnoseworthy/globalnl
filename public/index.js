@@ -67,7 +67,7 @@ firebase.auth().onAuthStateChanged(function(user) {
     $("#button_logout").click(function(e) {
       // Cancel the default action
       e.preventDefault();
-      logout();
+      gnl.auth.logout();
       clickNavBar();
     });
   } else {
@@ -231,7 +231,7 @@ function initLoad() {
     .then(doc => {
       if (!doc.exists) {
         console.log("User does not exist in database");
-        logout();
+        gnl.auth.logout();
       } else {
         if (!doc.data().date_updated || doc.data().date_updated == "-1") {
           window.location.href = "profile.html";
@@ -298,22 +298,6 @@ function initLoad() {
 function profile() {
   console.log("Nav profile.html");
   window.location.href = "profile.html";
-}
-
-// Logout callback
-function logout() {
-  firebase
-    .auth()
-    .signOut()
-    .then(
-      function() {
-        console.log("Signed Out");
-        //window.location.href = "index.html";
-      },
-      function(error) {
-        console.error("Sign Out Error", error);
-      }
-    );
 }
 
 function clickNavBar() {
