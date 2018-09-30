@@ -452,16 +452,3 @@ function getLocationString(locationObject) {
   // Filter array for unwanted data, then join with ', ' to create a comma separated string from data
   return location.filter(e => e !== "" && e !== undefined).join(", ");
 }
-
-/**
- * Returns the value of the given URL query parameter.
- */
-function getURLParameter(name) {
-  return (
-    decodeURIComponent(
-      (new RegExp("[?|&]" + name + "=" + "([^&;]+?)(&|#|;|$)").exec(
-        location.search
-      ) || [null, ""])[1].replace(/\+/g, "%20")
-    ) || null
-  );
-}
