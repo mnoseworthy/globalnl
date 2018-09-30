@@ -35,7 +35,7 @@ function renderWithUser(user) {
   $("#members-list").empty();
   $("#mainPage").show();
   initLoad();
-  $("#linkedin_toggle").change(function () {
+  $("#linkedin_toggle").change(function() {
     if ($("#linkedin_toggle:checked").val() == "on") {
       LinkedInEnable = true;
     } else {
@@ -55,14 +55,14 @@ gnl.auth.listenForStageChange(renderWithUser, renderWithoutUser, true);
  * Register event callbacks & implement element callbacks
  ******************************************************/
 // Init auth on load web page event
-$(document).ready(function () {
+$(document).ready(function() {
   $("#preloader").hide();
   initApp();
 });
 
 // Callback executed on page load
 function initApp() {
-  $(window).scroll(function () {
+  $(window).scroll(function() {
     if (scrollQueryComplete) {
       if (
         $(window).scrollTop() >
@@ -75,7 +75,7 @@ function initApp() {
     }
   });
 
-  $("#form_name").submit(function (event) {
+  $("#form_name").submit(function(event) {
     event.preventDefault();
     if ($("#inputFirstName").val() || $("#inputLastName").val()) {
       console.log("Searching by name...");
@@ -109,7 +109,7 @@ function initApp() {
     }
   });
 
-  $("#form_location").submit(function (event) {
+  $("#form_location").submit(function(event) {
     event.preventDefault();
     if ($("#autocomplete_current").val()) {
       console.log("Searching by location...");
@@ -131,7 +131,7 @@ function initApp() {
     }
   });
 
-  $("#form_industry").submit(function (event) {
+  $("#form_industry").submit(function(event) {
     event.preventDefault();
     if ($("#inputIndustry").val()) {
       console.log("Searching by industry...");
@@ -147,7 +147,7 @@ function initApp() {
     }
   });
 
-  $("#form_hometown").submit(function (event) {
+  $("#form_hometown").submit(function(event) {
     event.preventDefault();
     if ($("#autocomplete_hometown").val()) {
       console.log("Searching by hometown / NL roots...");
@@ -169,7 +169,7 @@ function initApp() {
     }
   });
 
-  $(".clear_button").click(function (event) {
+  $(".clear_button").click(function(event) {
     console.log("Clear search...");
     $("#preloader").show();
     $("#form_name")
@@ -261,7 +261,7 @@ function initLoad() {
     .startAt("A")
     .limit(members_per_page)
     .get()
-    .then(function (querySnapshot) {
+    .then(function(querySnapshot) {
       loadMembers(querySnapshot);
     });
 
@@ -278,7 +278,7 @@ function profile() {
 function loadMembers(querySnapshot) {
   if (querySnapshot.docs.length > 0) {
     last_read_doc = querySnapshot.docs[querySnapshot.docs.length - 1];
-    querySnapshot.forEach(function (doc) {
+    querySnapshot.forEach(function(doc) {
       // doc.data() is never undefined for query doc snapshots
 
       // copied_account set if old account migrated over - need to manually delete these
@@ -306,36 +306,36 @@ function loadMembers(querySnapshot) {
         memberDomString = `<div class="col-auto p-1 card-col">
 <div id="${memberFields.public_uid}" class="card card-gnl">
 	<div class="card-header card-header-gnl"><span class="fas fa-gnl-head fa-portrait"></span>${
-          memberFields.firstName
-          } ${memberFields.lastName}</div>
+    memberFields.firstName
+  } ${memberFields.lastName}</div>
 	<div class="card-body card-body-gnl">
 	<h5 class="card-title"><span class="fas fa-globalnl fa-map-marker-alt"></span>${
-          memberFields.currentAddress
-          }</h5>
+    memberFields.currentAddress
+  }</h5>
 	<h5 class="card-title"><span class="fas fa-globalnl fa-briefcase"></span>${
-          memberFields.industry
-          }</h5>
+    memberFields.industry
+  }</h5>
 	<h5 class="card-title"><span class="fas fa-globalnl fa-anchor"></span>${
-          memberFields.hometown
-          }</h5>
+    memberFields.hometown
+  }</h5>
 	<h5 class="card-title card-title-bottom"><span class="fas fa-globalnl fa-info-circle"></span>${
-          memberFields.bio
-          }</h5>
+    memberFields.bio
+  }</h5>
 	<div class="linkedin_profile_card">
 	<script type="IN/MemberProfile" data-id="${
-          memberFields.linkedin_profile
-          }" data-format="inline" data-related="false"></script>
+    memberFields.linkedin_profile
+  }" data-format="inline" data-related="false"></script>
 	</div>
   </div>
 </div>
 </div>`;
         console.log(
           "Loaded profile: " +
-          doc.data().first_name +
-          "  -  " +
-          doc.data().linkedin_profile +
-          "  -  " +
-          doc.id
+            doc.data().first_name +
+            "  -  " +
+            doc.data().linkedin_profile +
+            "  -  " +
+            doc.id
         );
       } else if (
         doc.data().linkedin_profile &&
@@ -345,86 +345,86 @@ function loadMembers(querySnapshot) {
         memberDomString = `<div class="col-auto p-1 card-col">
 <div id="${memberFields.public_uid}" class="card card-gnl">
 	<div class="card-header card-header-gnl"><span class="fas fa-gnl-head fa-portrait"></span>${
-          memberFields.firstName
-          } ${memberFields.lastName}</div>
+    memberFields.firstName
+  } ${memberFields.lastName}</div>
 	<div class="card-body card-body-gnl">
 	<h5 class="card-title"><span class="fas fa-globalnl fa-map-marker-alt"></span>${
-          memberFields.currentAddress
-          }</h5>
+    memberFields.currentAddress
+  }</h5>
 	<h5 class="card-title"><span class="fas fa-globalnl fa-briefcase"></span>${
-          memberFields.industry
-          }</h5>
+    memberFields.industry
+  }</h5>
 	<h5 class="card-title card-title-bottom"><span class="fas fa-globalnl fa-anchor"></span>${
-          memberFields.hometown
-          }</h5>
+    memberFields.hometown
+  }</h5>
 	<div class="linkedin_profile_card">
 	<script type="IN/MemberProfile" data-id="${
-          memberFields.linkedin_profile
-          }" data-format="inline" data-related="false"></script>
+    memberFields.linkedin_profile
+  }" data-format="inline" data-related="false"></script>
 	</div>
   </div>
 </div>
 </div>`;
         console.log(
           "Loaded profile: " +
-          doc.data().first_name +
-          "  -  " +
-          doc.data().linkedin_profile +
-          "  -  " +
-          doc.id
+            doc.data().first_name +
+            "  -  " +
+            doc.data().linkedin_profile +
+            "  -  " +
+            doc.id
         );
       } else if (memberFields.bio) {
         memberDomString = `<div class="col-auto p-1 card-col">
 <div id="{[0](public_uid)}" class="card card-gnl">
 	<div class="card-header card-header-gnl"><span class="fas fa-gnl-head fa-portrait"></span>${
-          memberFields.firstName
-          } ${memberFields.lastName}</div>
+    memberFields.firstName
+  } ${memberFields.lastName}</div>
 	<div class="card-body card-body-gnl">
 	<h5 class="card-title"><span class="fas fa-globalnl fa-map-marker-alt"></span>${
-          memberFields.currentAddress
-          }</h5>
+    memberFields.currentAddress
+  }</h5>
 	<h5 class="card-title"><span class="fas fa-globalnl fa-briefcase"></span>${
-          memberFields.industry
-          }</h5>
+    memberFields.industry
+  }</h5>
 	<h5 class="card-title"><span class="fas fa-globalnl fa-anchor"></span>${
-          memberFields.hometown
-          }</h5>
+    memberFields.hometown
+  }</h5>
 	<h5 class="card-title card-title-bottom"><span class="fas fa-globalnl fa-info-circle"></span>${
-          memberFields.bio
-          }</h5>
+    memberFields.bio
+  }</h5>
   </div>
 </div>
 </div>`;
         console.log(
           "Loaded profile: " +
-          doc.data().first_name +
-          "  -  No LinkedIn  -  " +
-          doc.id
+            doc.data().first_name +
+            "  -  No LinkedIn  -  " +
+            doc.id
         );
       } else {
         memberDomString = `<div class="col-auto p-1 card-col">
 <div id="{[0](public_uid)}" class="card card-gnl">
 	<div class="card-header card-header-gnl"><span class="fas fa-gnl-head fa-portrait"></span>${
-          memberFields.firstName
-          } ${memberFields.lastName}</div>
+    memberFields.firstName
+  } ${memberFields.lastName}</div>
 	<div class="card-body card-body-gnl">
 	<h5 class="card-title"><span class="fas fa-globalnl fa-map-marker-alt"></span>${
-          memberFields.currentAddress
-          }</h5>
+    memberFields.currentAddress
+  }</h5>
 	<h5 class="card-title"><span class="fas fa-globalnl fa-briefcase"></span>${
-          memberFields.industry
-          }</h5>
+    memberFields.industry
+  }</h5>
 	<h5 class="card-title card-title-bottom"><span class="fas fa-globalnl fa-anchor"></span>${
-          memberFields.hometown
-          }</h5>
+    memberFields.hometown
+  }</h5>
   </div>
 </div>
 </div>`;
         console.log(
           "Loaded profile: " +
-          doc.data().first_name +
-          "  -  No LinkedIn  -  " +
-          doc.id
+            doc.data().first_name +
+            "  -  No LinkedIn  -  " +
+            doc.id
         );
       }
       var memObj = $.parseHTML(memberDomString);
@@ -465,7 +465,7 @@ function memberSearch() {
         .where("first_name", "==", formStatic["name"]["first"])
         .limit(members_per_page)
         .get()
-        .then(function (querySnapshot) {
+        .then(function(querySnapshot) {
           loadMembers(querySnapshot);
         });
     } else if (formStatic["name"]["last"]) {
@@ -476,7 +476,7 @@ function memberSearch() {
         .where("last_name", "==", formStatic["name"]["last"])
         .limit(members_per_page)
         .get()
-        .then(function (querySnapshot) {
+        .then(function(querySnapshot) {
           loadMembers(querySnapshot);
         });
     } else if (formStatic["name"]["first"]) {
@@ -488,7 +488,7 @@ function memberSearch() {
         .where("first_name", "==", formStatic["name"]["first"])
         .limit(members_per_page)
         .get()
-        .then(function (querySnapshot) {
+        .then(function(querySnapshot) {
           loadMembers(querySnapshot);
         });
     } else {
@@ -505,7 +505,7 @@ function memberSearch() {
         .where("first_name", "==", formStatic["name"]["first"])
         .limit(members_per_page)
         .get()
-        .then(function (querySnapshot) {
+        .then(function(querySnapshot) {
           loadMembers(querySnapshot);
         });
     } else if (formStatic["name"]["last"]) {
@@ -515,7 +515,7 @@ function memberSearch() {
         .where("last_name", "==", formStatic["name"]["last"])
         .limit(members_per_page)
         .get()
-        .then(function (querySnapshot) {
+        .then(function(querySnapshot) {
           loadMembers(querySnapshot);
         });
     } else if (formStatic["name"]["first"]) {
@@ -526,7 +526,7 @@ function memberSearch() {
         .where("first_name", "==", formStatic["name"]["first"])
         .limit(members_per_page)
         .get()
-        .then(function (querySnapshot) {
+        .then(function(querySnapshot) {
           loadMembers(querySnapshot);
         });
     } else {
@@ -554,7 +554,7 @@ function memberSearch() {
         )
         .limit(members_per_page)
         .get()
-        .then(function (querySnapshot) {
+        .then(function(querySnapshot) {
           loadMembers(querySnapshot);
         });
     } else if (formStatic["location"]["prov"]) {
@@ -575,7 +575,7 @@ function memberSearch() {
         )
         .limit(members_per_page)
         .get()
-        .then(function (querySnapshot) {
+        .then(function(querySnapshot) {
           loadMembers(querySnapshot);
         });
     } else if (formStatic["location"]["country"]) {
@@ -591,7 +591,7 @@ function memberSearch() {
         )
         .limit(members_per_page)
         .get()
-        .then(function (querySnapshot) {
+        .then(function(querySnapshot) {
           loadMembers(querySnapshot);
         });
     } else {
@@ -619,7 +619,7 @@ function memberSearch() {
         .startAfter(last_read_doc)
         .limit(members_per_page)
         .get()
-        .then(function (querySnapshot) {
+        .then(function(querySnapshot) {
           loadMembers(querySnapshot);
         });
     } else if (formStatic["location"]["prov"]) {
@@ -640,7 +640,7 @@ function memberSearch() {
         .startAfter(last_read_doc)
         .limit(members_per_page)
         .get()
-        .then(function (querySnapshot) {
+        .then(function(querySnapshot) {
           loadMembers(querySnapshot);
         });
     } else if (formStatic["location"]["country"]) {
@@ -656,7 +656,7 @@ function memberSearch() {
         .startAfter(last_read_doc)
         .limit(members_per_page)
         .get()
-        .then(function (querySnapshot) {
+        .then(function(querySnapshot) {
           loadMembers(querySnapshot);
         });
     } else {
@@ -674,7 +674,7 @@ function memberSearch() {
         .where("industry", "==", formStatic["industry"])
         .limit(members_per_page)
         .get()
-        .then(function (querySnapshot) {
+        .then(function(querySnapshot) {
           loadMembers(querySnapshot);
         });
     }
@@ -689,7 +689,7 @@ function memberSearch() {
         .where("industry", "==", formStatic["industry"])
         .limit(members_per_page)
         .get()
-        .then(function (querySnapshot) {
+        .then(function(querySnapshot) {
           loadMembers(querySnapshot);
         });
     }
@@ -718,7 +718,7 @@ function memberSearch() {
         )
         .limit(members_per_page)
         .get()
-        .then(function (querySnapshot) {
+        .then(function(querySnapshot) {
           loadMembers(querySnapshot);
         });
     } else if (formStatic["hometown"]["prov"]) {
@@ -739,7 +739,7 @@ function memberSearch() {
         )
         .limit(members_per_page)
         .get()
-        .then(function (querySnapshot) {
+        .then(function(querySnapshot) {
           loadMembers(querySnapshot);
         });
     } else if (formStatic["hometown"]["country"]) {
@@ -755,7 +755,7 @@ function memberSearch() {
         )
         .limit(members_per_page)
         .get()
-        .then(function (querySnapshot) {
+        .then(function(querySnapshot) {
           loadMembers(querySnapshot);
         });
     } else {
@@ -787,7 +787,7 @@ function memberSearch() {
         .startAfter(last_read_doc)
         .limit(members_per_page)
         .get()
-        .then(function (querySnapshot) {
+        .then(function(querySnapshot) {
           loadMembers(querySnapshot);
         });
     } else if (formStatic["hometown"]["prov"]) {
@@ -808,7 +808,7 @@ function memberSearch() {
         .startAfter(last_read_doc)
         .limit(members_per_page)
         .get()
-        .then(function (querySnapshot) {
+        .then(function(querySnapshot) {
           loadMembers(querySnapshot);
         });
     } else if (formStatic["hometown"]["country"]) {
@@ -824,7 +824,7 @@ function memberSearch() {
         .startAfter(last_read_doc)
         .limit(members_per_page)
         .get()
-        .then(function (querySnapshot) {
+        .then(function(querySnapshot) {
           loadMembers(querySnapshot);
         });
     } else {
@@ -837,7 +837,7 @@ function memberSearch() {
       .startAfter(last_read_doc)
       .limit(members_per_page)
       .get()
-      .then(function (querySnapshot) {
+      .then(function(querySnapshot) {
         loadMembers(querySnapshot);
       });
   }
@@ -855,7 +855,7 @@ function getLocationString(locationObject) {
 
     if (
       locationObject.administrative_area_level_1 ==
-      "Newfoundland and Labrador" &&
+        "Newfoundland and Labrador" &&
       locationObject.locality
     ) {
       // Append all required data to array
@@ -911,13 +911,13 @@ function initAutocomplete() {
   // Register our autocomplete elements, see URL for more information
   // https://developers.google.com/maps/documentation/javascript/examples/places-autocomplete-addressform
   autocomplete_current = new google.maps.places.Autocomplete(
-    /** @type {!HTMLInputElement} */(document.getElementById(
+    /** @type {!HTMLInputElement} */ (document.getElementById(
       "autocomplete_current"
     )),
     { types: ["geocode"] }
   );
   autocomplete_hometown = new google.maps.places.Autocomplete(
-    /** @type {!HTMLInputElement} */(document.getElementById(
+    /** @type {!HTMLInputElement} */ (document.getElementById(
       "autocomplete_hometown"
     )),
     { types: ["geocode"] }
@@ -936,7 +936,7 @@ function initAutocomplete() {
 
   // define event callbacks for each element, these fire when the fields
   // are auto filled by google api and then the location data is stored in our member object
-  autocomplete_current.addListener("place_changed", function () {
+  autocomplete_current.addListener("place_changed", function() {
     try {
       // Get place object from google api
       var place = autocomplete_current.getPlace();
@@ -968,7 +968,7 @@ function initAutocomplete() {
 
   // Second autocomplete callback, the repeated code kills me but im currently lazy
   // TODO: tear out the repeated code into a function above
-  autocomplete_hometown.addListener("place_changed", function () {
+  autocomplete_hometown.addListener("place_changed", function() {
     try {
       // Get place object from google api
       var place = autocomplete_hometown.getPlace();

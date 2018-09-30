@@ -1,9 +1,9 @@
 // Temporary place to expose shared functions until the
 // rest of the codebase has been moved into modules.
-window.gnl = (function () {
+window.gnl = (function() {
   const auth = {};
 
-  auth.loginLinkedIn = function () {
+  auth.loginLinkedIn = function() {
     window.open(
       "login.html",
       "targetWindow",
@@ -11,15 +11,15 @@ window.gnl = (function () {
     );
   };
 
-  auth.logout = function () {
+  auth.logout = function() {
     firebase
       .auth()
       .signOut()
       .then(
-        function () {
+        function() {
           console.log("Signed Out");
         },
-        function (error) {
+        function(error) {
           console.error("Sign Out Error", error);
         }
       );
@@ -58,15 +58,23 @@ window.gnl = (function () {
   </li>
   `;
 
-  auth.listenForStageChange = function (renderWithUser, renderWithoutUser, displayLinkedInToggle) {
-    firebase.auth().onAuthStateChanged(function (user) {
+  auth.listenForStageChange = function(
+    renderWithUser,
+    renderWithoutUser,
+    displayLinkedInToggle
+  ) {
+    firebase.auth().onAuthStateChanged(function(user) {
       if (user) {
-        $("#userNavBar").html(displayLinkedInToggle ? (linkedInToggleUserBar + loggedInUserBar) : loggedInUserBar);
+        $("#userNavBar").html(
+          displayLinkedInToggle
+            ? linkedInToggleUserBar + loggedInUserBar
+            : loggedInUserBar
+        );
         $("#loginPage").hide();
 
         // Load user information at top of page for desktop
         $("#login_name").html(user.displayName);
-        $("#button_logout").click(function (evt) {
+        $("#button_logout").click(function(evt) {
           // Cancel the default action
           evt.preventDefault();
           gnl.auth.logout();
@@ -89,7 +97,7 @@ window.gnl = (function () {
 
   const navBar = {};
 
-  navBar.toggle = function () {
+  navBar.toggle = function() {
     if ($(".navbar-toggler").css("display") !== "none") {
       $(".navbar-toggler").trigger("click");
     }
