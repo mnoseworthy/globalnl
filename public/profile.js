@@ -25,50 +25,38 @@ firebase.firestore().settings(settings);
  * Register event callbacks & implement element callbacks
  ******************************************************/
 // Start execution when page is done loading
-$(document).ready(function() {});
+$(document).ready(function () { });
 
-firebase.auth().onAuthStateChanged(function(user) {
-  $("#members-list").empty();
-  if (user) {
-    // User logged in.
-    $("#loginPage").hide();
-    $("#mainPage").show();
-    $("#userNavBar").html(loggedinUserBar);
-    uid = firebase.auth().currentUser.uid;
-    memberDocRef = firebase
-      .firestore()
-      .collection("members")
-      .doc(uid);
-    privateDocRef = firebase
-      .firestore()
-      .collection("private_data")
-      .doc(uid);
-    // Load user information at top of page for desktop
-    $("#login_name").html(firebase.auth().currentUser.displayName);
-    $("#display_name").val(firebase.auth().currentUser.displayName);
-    $("#button_logout").click(function(e) {
-      // Cancel the default action
-      e.preventDefault();
-      gnl.auth.logout();
-      gnl.navBar.toggle();
-    });
-    initApp();
-  } else {
-    $("#userNavBar").html(defaultUserBar);
-    $("#mainPage").hide();
-    $("#loginPage").show();
-  }
-});
+function renderWithUser(user) {
+  $("#mainPage").show();
+  uid = user.uid;
+  memberDocRef = firebase
+    .firestore()
+    .collection("members")
+    .doc(uid);
+  privateDocRef = firebase
+    .firestore()
+    .collection("private_data")
+    .doc(uid);
+  $("#display_name").val(user.displayName);
+  initApp();
+}
+
+function renderWithoutUser() {
+  $("#mainPage").hide();
+}
+
+gnl.auth.listenForStageChange(renderWithUser, renderWithoutUser);
 
 // Prevent the enter key from submitting the form when uncomplete
-$(window).keydown(function(event) {
+$(window).keydown(function (event) {
   if (event.keyCode == 13) {
     event.preventDefault();
     return false;
   }
 });
 // MUN grad change event
-$("#MUN").on("change", function() {
+$("#MUN").on("change", function () {
   if ($(this).val() === "Yes") {
     $("#grad_year").show();
   } else {
@@ -89,13 +77,13 @@ function initAutocomplete() {
   // Register our autocomplete elements, see URL for more information
   // https://developers.google.com/maps/documentation/javascript/examples/places-autocomplete-addressform
   autocomplete_current = new google.maps.places.Autocomplete(
-    /** @type {!HTMLInputElement} */ (document.getElementById(
+    /** @type {!HTMLInputElement} */(document.getElementById(
       "autocomplete_current"
     )),
     { types: ["geocode"] }
   );
   autocomplete_hometown = new google.maps.places.Autocomplete(
-    /** @type {!HTMLInputElement} */ (document.getElementById(
+    /** @type {!HTMLInputElement} */(document.getElementById(
       "autocomplete_hometown"
     )),
     { types: ["geocode"] }
@@ -114,7 +102,7 @@ function initAutocomplete() {
 
   // define event callbacks for each element, these fire when the fields
   // are auto filled by google api and then the location data is stored in our member object
-  autocomplete_current.addListener("place_changed", function() {
+  autocomplete_current.addListener("place_changed", function () {
     try {
       // Get place object from google api
       var place = autocomplete_current.getPlace();
@@ -154,7 +142,7 @@ function initAutocomplete() {
 
   // Second autocomplete callback, the repeated code kills me but im currently lazy
   // TODO: tear out the repeated code into a function above
-  autocomplete_hometown.addListener("place_changed", function() {
+  autocomplete_hometown.addListener("place_changed", function () {
     try {
       // Get place object from google api
       var place = autocomplete_hometown.getPlace();
@@ -198,13 +186,13 @@ function initAutocomplete() {
   });
 }
 
-$("#cancelButton").click(function() {
+$("#cancelButton").click(function () {
   event.preventDefault();
   window.location.replace("index.html");
 });
 
 // form submit callback
-$("#profile_form").submit(function(event) {
+$("#profile_form").submit(function (event) {
   // prevent navigation out of page
   event.preventDefault();
   /* Store known fields into member objcet
@@ -256,20 +244,20 @@ $("#profile_form").submit(function(event) {
 
   const memberDatabaseTask = memberDocRef
     .set(member, { merge: true })
-    .then(function() {
+    .then(function () {
       console.log("Successfully wrote to public database");
     })
-    .catch(function(error) {
+    .catch(function (error) {
       console.log(error);
       console.log("Error writing public database properties for ", uid);
     });
 
   const privateDatabaseTask = privateDocRef
     .set(private_data, { merge: true })
-    .then(function() {
+    .then(function () {
       console.log("Successfully wrote to private database");
     })
-    .catch(function(error) {
+    .catch(function (error) {
       console.log(error);
       console.log("Error writing private database properties for ", uid);
     });

@@ -46,36 +46,25 @@ firebase.firestore().settings(settings);
 var fbi = firebase.firestore().collection("members");
 //var uid = firebase.auth().currentUser.uid;
 
-firebase.auth().onAuthStateChanged(function(user) {
+function renderWithUser(user) {
   $("#members-list").empty();
-  if (user) {
-    // User logged in.
-    $("#userNavBar").html(loggedinUserBar);
-    $("#loginPage").hide();
-    $("#mainPage").show();
-    initLoad();
-    // Load user information at top of page for desktop
-    $("#login_name").html(firebase.auth().currentUser.displayName);
-    $("#linkedin_toggle").change(function() {
-      if ($("#linkedin_toggle:checked").val() == "on") {
-        LinkedInEnable = true;
-      } else {
-        LinkedInEnable = false;
-      }
-    });
+  $("#mainPage").show();
+  initLoad();
+  $("#linkedin_toggle").change(function() {
+    if ($("#linkedin_toggle:checked").val() == "on") {
+      LinkedInEnable = true;
+    } else {
+      LinkedInEnable = false;
+    }
+  });
+}
 
-    $("#button_logout").click(function(e) {
-      // Cancel the default action
-      e.preventDefault();
-      gnl.auth.logout();
-      gnl.navBar.toggle();
-    });
-  } else {
-    $("#userNavBar").html(defaultUserBar);
-    $("#mainPage").hide();
-    $("#loginPage").show();
-  }
-});
+function renderWithoutUser() {
+  $("#members-list").empty();
+  $("#mainPage").hide();
+}
+
+gnl.auth.listenForStageChange(renderWithUser, renderWithoutUser);
 
 /*****************************************************
  * Register event callbacks & implement element callbacks

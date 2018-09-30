@@ -23,7 +23,36 @@ window.gnl = (function () {
           console.error("Sign Out Error", error);
         }
       );
-  }
+  };
+
+  auth.listenForStageChange = function (renderWithUser, renderWithoutUser) {
+    firebase.auth().onAuthStateChanged(function (user) {
+      if (user) {
+        $("#userNavBar").html(loggedinUserBar);
+        $("#loginPage").hide();
+
+        // Load user information at top of page for desktop
+        $("#login_name").html(user.displayName);
+        $("#button_logout").click(function (evt) {
+          // Cancel the default action
+          evt.preventDefault();
+          gnl.auth.logout();
+          gnl.navBar.toggle();
+        });
+
+        if (renderWithUser) {
+          renderWithUser(user);
+        }
+      } else {
+        $("#userNavBar").html(defaultUserBar);
+        $("#loginPage").show();
+
+        if (renderWithoutUser) {
+          renderWithoutUser(user);
+        }
+      }
+    });
+  };
 
   const navBar = {};
 
@@ -31,10 +60,10 @@ window.gnl = (function () {
     if ($(".navbar-toggler").css("display") !== "none") {
       $(".navbar-toggler").trigger("click");
     }
-  }
+  };
 
   return {
     auth: auth,
     navBar: navBar
   };
-}());
+})();

@@ -27,62 +27,55 @@ var memberDocRef;
  * Register event callbacks & implement element callbacks
  ******************************************************/
 // Init auth on load web page event
-$(document).ready(function() {});
+$(document).ready(function () { });
+
+function renderWithUser(user) {
+  if (!infowindow) {
+    infowindow = new google.maps.InfoWindow();
+    // Try HTML5 geolocation.
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        function (position) {
+          initMap2({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          });
+        },
+        function () {
+          // location service error
+          initmap2({ lat: 41.938, lng: -76.091697 });
+        }
+      );
+    } else {
+      initmap2({ lat: 41.938, lng: -76.091697 });
+    }
+  }
+
+  $("#map").show();
+  uid = user.uid;
+  memberDocRef = firebase
+    .firestore()
+    .collection("members")
+    .doc(uid);
+  // Load user information at top of page for desktop
+  $("#login_name").html(user.displayName);
+  $("#button_logout").click(function (e) {
+    // Cancel the default action
+    e.preventDefault();
+    gnl.auth.logout();
+    gnl.navBar.toggle();
+  });
+  parseCords();
+}
+
+function renderWithoutUser() {
+  $("#map").hide();
+}
 
 // Callback executed on page load
 function initMap() {
-  firebase.auth().onAuthStateChanged(function(user) {
-    $("#members-list").empty();
-    if (user) {
-      // User logged in.
-      $("#userNavBar").html(loggedinUserBar);
-      $("#loginPage").hide();
-
-      if (!infowindow) {
-        infowindow = new google.maps.InfoWindow();
-        // Try HTML5 geolocation.
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(
-            function(position) {
-              initMap2({
-                lat: position.coords.latitude,
-                lng: position.coords.longitude
-              });
-            },
-            function() {
-              // location service error
-              initmap2({ lat: 41.938, lng: -76.091697 });
-            }
-          );
-        } else {
-          initmap2({ lat: 41.938, lng: -76.091697 });
-        }
-      }
-
-      $("#map").show();
-      uid = firebase.auth().currentUser.uid;
-      memberDocRef = firebase
-        .firestore()
-        .collection("members")
-        .doc(uid);
-      // Load user information at top of page for desktop
-      $("#login_name").html(firebase.auth().currentUser.displayName);
-      $("#display_name").val(firebase.auth().currentUser.displayName);
-      $("#button_logout").click(function(e) {
-        // Cancel the default action
-        e.preventDefault();
-        gnl.auth.logout();
-        gnl.navBar.toggle();
-      });
-      parseCords();
-    } else {
-      $("#userNavBar").html(defaultUserBar);
-      $("#map").hide();
-      $("#loginPage").show();
-    }
-  });
+  gnl.auth.listenForStageChange(renderWithUser, renderWithoutUser);
 }
-//end initMap
 
 function initMap2(homepos) {
   _map = new google.maps.Map(document.getElementById("map"), {
@@ -96,7 +89,7 @@ function initMap2(homepos) {
     keepSpiderfied: true,
     basicFormatEvents: true
   });
-  google.maps.event.addListener(_map, "bounds_changed", function(ev) {
+  google.maps.event.addListener(_map, "bounds_changed", function (ev) {
     parseCords();
   });
 }
@@ -122,8 +115,8 @@ function loadMembersOnMap(ne, sw) {
     .where("current_address.lat", "<", ne.lat)
     .where("current_address.lat", ">", sw.lat)
     .get()
-    .then(function(result) {
-      result.forEach(function(doc) {
+    .then(function (result) {
+      result.forEach(function (doc) {
         if (!members.includes(doc.id) && doc.data().current_address.lat) {
           memberData = doc.data();
           var memLoc = {
@@ -141,7 +134,7 @@ function loadMembersOnMap(ne, sw) {
               : "";
             var contentString = `<span class="fas fa-gnl-map fa-portrait"></span><b>${
               memberData.first_name
-            } ${memberData.last_name}</b><br/>
+              } ${memberData.last_name}</b><br/>
 <span class="fas fa-gnl-map fa-map-marker-alt"></span>${currentTown}<br/>					
 <span class="fas fa-gnl-map fa-briefcase"></span>${memberData.industry}<br/>
 <span class="fas fa-gnl-map fa-anchor"></span>${homeTown}`;
@@ -150,7 +143,7 @@ function loadMembersOnMap(ne, sw) {
               title: name,
               text: contentString
             });
-            google.maps.event.addListener(marker, "spider_click", function(e) {
+            google.maps.event.addListener(marker, "spider_click", function (e) {
               // 'spider_click', not plain 'click'
               infowindow.setContent(marker.text);
               infowindow.open(_map, marker);
