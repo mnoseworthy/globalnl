@@ -2,7 +2,7 @@
  * Global variables
  ******************************************************/
 
-const defaultUserBar = `<li class="nav-item"><a class="nav-link" href="#" onClick="LIlogin();clickNavBar();return false;" ><span class="fas fa-globalnl fa-user"></span><span>Sign in</span></a></li>`;
+const defaultUserBar = `<li class="nav-item"><a class="nav-link" href="#" onClick="gnl.auth.loginLinkedIn();clickNavBar();return false;" ><span class="fas fa-globalnl fa-user"></span><span>Sign in</span></a></li>`;
 
 const loggedinUserBar = `<li class="nav-item" id="linkedin_nav">
 			<a class="nav-link" style="padding:8px 8px 0px 0px;" href="#">
@@ -76,14 +76,6 @@ firebase.auth().onAuthStateChanged(function(user) {
     $("#loginPage").show();
   }
 });
-
-function LIlogin() {
-  window.open(
-    "login.html",
-    "targetWindow",
-    "toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,width=585,height=600"
-  );
-}
 
 /*****************************************************
  * Register event callbacks & implement element callbacks

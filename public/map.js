@@ -7,7 +7,7 @@ var oms;
 var infowindow;
 var members = [];
 
-const defaultUserBar = `<li class="nav-item"><a class="nav-link" href="#" onClick="LIlogin();clickNavBar();return false;" ><span class="fas fa-globalnl fa-user"></span><span">Sign in</span></a></li>`;
+const defaultUserBar = `<li class="nav-item"><a class="nav-link" href="#" onClick="gnl.auth.loginLinkedIn();clickNavBar();return false;" ><span class="fas fa-globalnl fa-user"></span><span">Sign in</span></a></li>`;
 
 const loggedinUserBar = `<li class="nav-item" id="login_name_nav"><a class="nav-link" href="#"><span class="fas fa-globalnl fa-user"></span><span id="login_name"></span></a></li>
 			<li class="nav-item"><a class="nav-link" href="profile.html"><span class="fas fa-globalnl fa-edit"></span><span id="">Edit profile</span></a></li>
@@ -166,14 +166,6 @@ function loadMembersOnMap(ne, sw) {
 function profile() {
   console.log("Nav profile.html");
   window.location.href = "profile.html";
-}
-
-function LIlogin() {
-  window.open(
-    "login.html",
-    "targetWindow",
-    "toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,width=585,height=600"
-  );
 }
 
 // Logout callback

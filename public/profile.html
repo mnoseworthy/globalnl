@@ -65,7 +65,7 @@
             </li>
           </ul>
 		  <ul id="userNavBar" class="nav navbar-nav navbar-right">
-			<li class="nav-item"><a class="nav-link" href="#" onClick="LIlogin();clickNavBar();return false;"><span class="fas fa-globalnl fa-user"></span><span>Sign in</span></a></li>
+			<li class="nav-item"><a class="nav-link" href="#" onClick="gnl.auth.loginLinkedIn();clickNavBar();return false;"><span class="fas fa-globalnl fa-user"></span><span>Sign in</span></a></li>
 		</ul>
 	
       </nav>
@@ -81,7 +81,7 @@
 			   to continue to the Global NL Members Portal
 			  </p>  
 			  </div>
-			  <img class="mx-auto d-block" alt="Sign in with LinkedIn" id="sign-in-button" onClick="LIlogin();return false;" 
+			  <img class="mx-auto d-block" alt="Sign in with LinkedIn" id="sign-in-button" onClick="gnl.auth.loginLinkedIn();return false;" 
 			  src="assets/Sign-In-Small---Default.png" onmouseover="this.src='assets/Sign-In-Small---Hover.png'" onmouseout="this.src='assets/Sign-In-Small---Default.png'"/>
         <div class="w-100 m-2"></div>
       <div id="loginPage_text" class="text-center">
@@ -290,6 +290,7 @@
 	<script src="/__/firebase/5.3.0/firebase-firestore.js"></script>
 	<script src="/__/firebase/init.js"></script>
 
+	<script type="text/javascript" src="gnl.js"></script>
 	<script src="profile.js"></script>
 
 
