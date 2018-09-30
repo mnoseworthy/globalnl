@@ -68,116 +68,22 @@ function changeMUN() {
 // Callback for google maps autocomplete for storing autocompleted location data into
 // the new member objcet
 function initAutocomplete() {
-  // Register our autocomplete elements, see URL for more information
-  // https://developers.google.com/maps/documentation/javascript/examples/places-autocomplete-addressform
-  autocomplete_current = new google.maps.places.Autocomplete(
-    /** @type {!HTMLInputElement} */ (document.getElementById(
-      "autocomplete_current"
-    )),
-    { types: ["geocode"] }
-  );
-  autocomplete_hometown = new google.maps.places.Autocomplete(
-    /** @type {!HTMLInputElement} */ (document.getElementById(
-      "autocomplete_hometown"
-    )),
-    { types: ["geocode"] }
-  );
-
-  // Look for these keys in the place object returned by google API
-  // if found, their values are filled and written to our new member object
-  var locationData = {
-    street_number: true,
-    route: true,
-    locality: true,
-    administrative_area_level_1: true,
-    country: true,
-    postal_code: true
-  };
-
-  // define event callbacks for each element, these fire when the fields
-  // are auto filled by google api and then the location data is stored in our member object
-  autocomplete_current.addListener("place_changed", function() {
-    try {
-      // Get place object from google api
-      var place = autocomplete_current.getPlace();
-      if (place) {
-        // iterate over object and look for the keys in locationData
-        locationArray["current_address"] = {
-          locality: null,
-          administrative_area_level_1: null,
-          country: null,
-          locality_short: null,
-          administrative_area_level_1_short: null,
-          country_short: null,
-          postal_code: null,
-          lat: null,
-          lng: null
-        };
-        for (var i = 0; i < place.address_components.length; i++) {
-          var addressType = place.address_components[i].types[0];
-          if (locationData.hasOwnProperty(addressType)) {
-            locationArray["current_address"][addressType] =
-              place.address_components[i]["long_name"];
-            locationArray["current_address"][addressType + "_short"] =
-              place.address_components[i]["short_name"];
-          }
-        }
-        // Store geometry into new member object as well
-        locationArray["current_address"]["lat"] = place.geometry.location.lat();
-        locationArray["current_address"]["lng"] = place.geometry.location.lng();
-        locationArray["current_address"]["form_address"] = $(
-          "#autocomplete_current"
-        ).val();
-      }
-    } catch (err) {
-      console.log(err);
+  gnl.location.bindAutocomplete(
+    locationArray,
+    "autocomplete_current",
+    "current_address",
+    function currentAddress() {
+      $("#autocomplete_current").val();
     }
-  });
-
-  // Second autocomplete callback, the repeated code kills me but im currently lazy
-  // TODO: tear out the repeated code into a function above
-  autocomplete_hometown.addListener("place_changed", function() {
-    try {
-      // Get place object from google api
-      var place = autocomplete_hometown.getPlace();
-      if (place) {
-        // iterate over object and look for the keys in locationData
-        locationArray["hometown_address"] = {
-          locality: null,
-          administrative_area_level_1: null,
-          country: null,
-          locality_short: null,
-          administrative_area_level_1_short: null,
-          country_short: null,
-          postal_code: null,
-          lat: null,
-          lng: null
-        };
-
-        for (var i = 0; i < place.address_components.length; i++) {
-          var addressType = place.address_components[i].types[0];
-          if (locationData.hasOwnProperty(addressType)) {
-            locationArray["hometown_address"][addressType] =
-              place.address_components[i]["long_name"];
-            locationArray["hometown_address"][addressType + "_short"] =
-              place.address_components[i]["short_name"];
-          }
-        }
-        // Store geometry into new member object as well
-        locationArray["hometown_address"][
-          "lat"
-        ] = place.geometry.location.lat();
-        locationArray["hometown_address"][
-          "lng"
-        ] = place.geometry.location.lng();
-        locationArray["hometown_address"]["form_address"] = $(
-          "#autocomplete_hometown"
-        ).val();
-      }
-    } catch (err) {
-      console.log(err);
+  );
+  gnl.location.bindAutocomplete(
+    locationArray,
+    "autocomplete_hometown",
+    "hometown_address",
+    function hometownAddress() {
+      $("#autocomplete_hometown").val();
     }
-  });
+  );
 }
 
 $("#cancelButton").click(function() {

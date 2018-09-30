@@ -905,71 +905,17 @@ function getLocationString(locationObject) {
   }
 }
 
-// Look for these keys in the place object returned by google API
-// if found, their values are filled and written to our new member object
-const locationData = {
-  street_number: true,
-  route: true,
-  locality: true,
-  administrative_area_level_1: true,
-  country: true,
-  postal_code: true
-};
-
-// Iterate over object and look for the keys in locationData
-function parsePlace(place) {
-  const parsed = {
-    administrative_area_level_1: null,
-    country: null,
-    lat: null,
-    lng: null,
-    locality: null
-  };
-
-  for (let i = 0; i < place.address_components.length; i++) {
-    const addressType = place.address_components[i].types[0];
-    if (locationData.hasOwnProperty(addressType)) {
-      parsed[addressType] = place.address_components[i]["long_name"];
-    }
-  }
-
-  // Store geometry into new member object as well
-  parsed.lat = place.geometry.location.lat();
-  parsed.lng = place.geometry.location.lng();
-
-  return parsed;
-}
-
-function addPlaceChangedListener(autocomplete, fieldName) {
-  autocomplete.addListener("place_changed", function() {
-    try {
-      // Get place object from google api
-      const place = autocomplete.getPlace();
-      if (place) {
-        formDynamic[fieldName] = parsePlace(place);
-      }
-    } catch (err) {
-      console.log(err);
-    }
-  });
-}
-
 // Callback for google maps autocomplete for storing autocompleted location data into
 // the new member objcet
 function initAutocomplete() {
-  // Register our autocomplete elements, see URL for more information
-  // https://developers.google.com/maps/documentation/javascript/examples/places-autocomplete-addressform
-  autocomplete_current = new google.maps.places.Autocomplete(
-    document.getElementById("autocomplete_current"),
-    { types: ["geocode"] }
+  gnl.location.bindAutocomplete(
+    formDynamic,
+    "autocomplete_current",
+    "current_address"
   );
-  autocomplete_hometown = new google.maps.places.Autocomplete(
-    document.getElementById("autocomplete_hometown"),
-    { types: ["geocode"] }
+  gnl.location.bindAutocomplete(
+    formDynamic,
+    "autocomplete_hometown",
+    "hometown_address"
   );
-
-  // Define event callbacks for each element, these fire when the fields
-  // are auto filled by google api and then the location data is stored in our member object
-  addPlaceChangedListener(autocomplete_current, "current_address");
-  addPlaceChangedListener(autocomplete_hometown, "hometown_address");
 }

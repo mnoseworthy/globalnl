@@ -103,8 +103,87 @@ window.gnl = (function() {
     }
   };
 
+  const location = {};
+
+  location.bindAutocomplete = function(
+    form,
+    autocompleteId,
+    fieldName,
+    getFormAddress
+  ) {
+    // Register our autocomplete elements, see URL for more information
+    // https://developers.google.com/maps/documentation/javascript/examples/places-autocomplete-addressform
+    const autocomplete = new google.maps.places.Autocomplete(
+      document.getElementById(autocompleteId),
+      { types: ["geocode"] }
+    );
+    autocomplete.addListener("place_changed", function() {
+      try {
+        // Get place object from google api
+        const place = autocomplete.getPlace();
+        if (place) {
+          form[fieldName] = parsePlace(place);
+          // Optionally include form address
+          if (formAddress) {
+            form["form_address"] = getFormAddress();
+          }
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    });
+  };
+
+  // Iterate over object and look for the keys in locationData
+  location.parse = function(place, includeShortNames) {
+    // Look for these keys in the place object returned by google API
+    // if found, their values are filled and written to our new member object
+    const locationData = {
+      street_number: true,
+      route: true,
+      locality: true,
+      administrative_area_level_1: true,
+      country: true,
+      postal_code: true
+    };
+
+    const parsed = {
+      administrative_area_level_1: null,
+      country: null,
+      locality: null,
+      lat: null,
+      lng: null,
+      postal_code: null
+    };
+
+    if (includeShortNames) {
+      parsed.administrative_area_level_1 = null;
+      country_short = null;
+      locality_short = null;
+    }
+
+    for (let i = 0; i < place.address_components.length; i++) {
+      const addressComponent = place.address_components[i];
+      const addressType = addressComponent.types[0];
+      if (locationData.hasOwnProperty(addressType)) {
+        parsed[addressType] = addressComponent["long_name"];
+
+        if (includeShortNames) {
+          parsed[addressType + "_short"] = addressComponent["short_name"];
+        }
+      }
+    }
+
+    // Store geometry into new member object as well
+    parsed.lat = place.geometry.location.lat();
+    parsed.lng = place.geometry.location.lng();
+
+    return parsed;
+  };
+
   return {
     auth: auth,
-    navBar: navBar
+    navBar: navBar,
+    location: location
   };
 })();
