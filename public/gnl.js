@@ -25,7 +25,16 @@ window.gnl = (function () {
       );
   }
 
+  const navBar = {};
+
+  navBar.toggle = function () {
+    if ($(".navbar-toggler").css("display") !== "none") {
+      $(".navbar-toggler").trigger("click");
+    }
+  }
+
   return {
-    auth: auth
+    auth: auth,
+    navBar: navBar
   };
 }());

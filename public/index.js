@@ -2,7 +2,7 @@
  * Global variables
  ******************************************************/
 
-const defaultUserBar = `<li class="nav-item"><a class="nav-link" href="#" onClick="gnl.auth.loginLinkedIn();clickNavBar();return false;" ><span class="fas fa-globalnl fa-user"></span><span>Sign in</span></a></li>`;
+const defaultUserBar = `<li class="nav-item"><a class="nav-link" href="#" onClick="gnl.auth.loginLinkedIn();gnl.navBar.toggle();return false;" ><span class="fas fa-globalnl fa-user"></span><span>Sign in</span></a></li>`;
 
 const loggedinUserBar = `<li class="nav-item" id="linkedin_nav">
 			<a class="nav-link" style="padding:8px 8px 0px 0px;" href="#">
@@ -68,7 +68,7 @@ firebase.auth().onAuthStateChanged(function(user) {
       // Cancel the default action
       e.preventDefault();
       gnl.auth.logout();
-      clickNavBar();
+      gnl.navBar.toggle();
     });
   } else {
     $("#userNavBar").html(defaultUserBar);
@@ -300,14 +300,7 @@ function profile() {
   window.location.href = "profile.html";
 }
 
-function clickNavBar() {
-  if ($(".navbar-toggler").css("display") != "none") {
-    $(".navbar-toggler").trigger("click");
-  }
-}
-
-/* load members
-*/
+/* load members */
 function loadMembers(querySnapshot) {
   if (querySnapshot.docs.length > 0) {
     last_read_doc = querySnapshot.docs[querySnapshot.docs.length - 1];

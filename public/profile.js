@@ -8,7 +8,7 @@ var privateDocRef;
 // For storing current location and hometown from Google Maps
 var locationArray = {};
 
-const defaultUserBar = `<li class="nav-item"><a class="nav-link" href="#" onClick="gnl.auth.loginLinkedIn();clickNavBar();return false;" ><span class="fas fa-globalnl fa-user"></span><span>Sign in</span></a></li>`;
+const defaultUserBar = `<li class="nav-item"><a class="nav-link" href="#" onClick="gnl.auth.loginLinkedIn();gnl.navBar.toggle();return false;" ><span class="fas fa-globalnl fa-user"></span><span>Sign in</span></a></li>`;
 
 const loggedinUserBar = `<li class="nav-item" id="login_name_nav"><a class="nav-link" href="#"><span class="fas fa-globalnl fa-user"></span><span id="login_name"></span></a></li>
 			<li class="nav-item"><a class="nav-link" href="profile.html"><span class="fas fa-globalnl fa-edit"></span><span id="">Edit profile</span></a></li>
@@ -50,7 +50,7 @@ firebase.auth().onAuthStateChanged(function(user) {
       // Cancel the default action
       e.preventDefault();
       gnl.auth.logout();
-      clickNavBar();
+      gnl.navBar.toggle();
     });
     initApp();
   } else {
@@ -59,12 +59,6 @@ firebase.auth().onAuthStateChanged(function(user) {
     $("#loginPage").show();
   }
 });
-
-function clickNavBar() {
-  if ($(".navbar-toggler").css("display") != "none") {
-    $(".navbar-toggler").trigger("click");
-  }
-}
 
 // Prevent the enter key from submitting the form when uncomplete
 $(window).keydown(function(event) {
