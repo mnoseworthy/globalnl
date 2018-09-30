@@ -7,12 +7,6 @@ var oms;
 var infowindow;
 var members = [];
 
-const defaultUserBar = `<li class="nav-item"><a class="nav-link" href="#" onClick="gnl.auth.loginLinkedIn();gnl.navBar.toggle();return false;" ><span class="fas fa-globalnl fa-user"></span><span">Sign in</span></a></li>`;
-
-const loggedinUserBar = `<li class="nav-item" id="login_name_nav"><a class="nav-link" href="#"><span class="fas fa-globalnl fa-user"></span><span id="login_name"></span></a></li>
-			<li class="nav-item"><a class="nav-link" href="profile.html"><span class="fas fa-globalnl fa-edit"></span><span id="">Edit profile</span></a></li>
-			<li id="button_logout" class="nav-item"><a class="nav-link" href="#"><span class="fas fa-globalnl fa-sign-out-alt"></span><span id="">Logout</span></a></li>`;
-
 /*****************************************************
  * Firestore
  ******************************************************/
@@ -43,11 +37,11 @@ function renderWithUser(user) {
         },
         function () {
           // location service error
-          initmap2({ lat: 41.938, lng: -76.091697 });
+          initMap2({ lat: 41.938, lng: -76.091697 });
         }
       );
     } else {
-      initmap2({ lat: 41.938, lng: -76.091697 });
+      initMap2({ lat: 41.938, lng: -76.091697 });
     }
   }
 
@@ -74,7 +68,7 @@ function renderWithoutUser() {
 
 // Callback executed on page load
 function initMap() {
-  gnl.auth.listenForStageChange(renderWithUser, renderWithoutUser);
+  gnl.auth.listenForStageChange(renderWithUser, renderWithoutUser, false);
 }
 
 function initMap2(homepos) {

@@ -8,12 +8,6 @@ var privateDocRef;
 // For storing current location and hometown from Google Maps
 var locationArray = {};
 
-const defaultUserBar = `<li class="nav-item"><a class="nav-link" href="#" onClick="gnl.auth.loginLinkedIn();gnl.navBar.toggle();return false;" ><span class="fas fa-globalnl fa-user"></span><span>Sign in</span></a></li>`;
-
-const loggedinUserBar = `<li class="nav-item" id="login_name_nav"><a class="nav-link" href="#"><span class="fas fa-globalnl fa-user"></span><span id="login_name"></span></a></li>
-			<li class="nav-item"><a class="nav-link" href="profile.html"><span class="fas fa-globalnl fa-edit"></span><span id="">Edit profile</span></a></li>
-			<li id="button_logout" class="nav-item"><a class="nav-link" href="#"><span class="fas fa-globalnl fa-sign-out-alt"></span><span id="">Logout</span></a></li>`;
-
 /*****************************************************
  * Firestore
  ******************************************************/
@@ -46,7 +40,7 @@ function renderWithoutUser() {
   $("#mainPage").hide();
 }
 
-gnl.auth.listenForStageChange(renderWithUser, renderWithoutUser);
+gnl.auth.listenForStageChange(renderWithUser, renderWithoutUser, false);
 
 // Prevent the enter key from submitting the form when uncomplete
 $(window).keydown(function (event) {
