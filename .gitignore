@@ -3,3 +3,4 @@
 globalnl-database-export.js
 /functions/*service-account.json
 .vscode
+.firebase
