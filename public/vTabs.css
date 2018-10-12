@@ -4,14 +4,14 @@
   display: flex;
   flex-flow: column nowrap;
 }
-.nav-tabs--vertical li{
-	font-size: 1.2rem;
-	text-align: center;
+.nav-tabs--vertical li {
+  font-size: 1.2rem;
+  text-align: center;
 }
-.tab-pane h1{
-	font-size: 1rem;
-	padding-top: 0.8rem;
-	padding-bottom: 0.8rem;
+.tab-pane h1 {
+  font-size: 1rem;
+  padding-top: 0.8rem;
+  padding-bottom: 0.8rem;
 }
 .nav-tabs--left {
   margin: 0 15px 0 4px;
