@@ -51,8 +51,18 @@ function renderWithoutUser() {
 
 gnl.auth.listenForStageChange(renderWithUser, renderWithoutUser, true);
 
-function openContactMemberForm(id, firstName, lastName) {
-  console.log(id, firstName, lastName);
+function createSendAMessageForm(id, firstName, lastName) {
+  var sendAMessageContainer = document.getElementById("modalSendAMessageBody"),
+    sendAMessageForm = document.createElement("form"),
+    label = document.createElement("span");
+
+  sendAMessageContainer.innerHTML = "";
+
+  sendAMessageContainer.appendChild(sendAMessageForm);
+
+  sendAMessageForm.appendChild(label);
+
+  label.innerText = `Send a message to ${firstName} ${lastName}...`;
 }
 
 /*****************************************************
@@ -305,7 +315,7 @@ function loadMembers(querySnapshot) {
 
       // Build element and inject
       var linkToContactMemberForm = `
-          <h5 class="card-title card-title-bottom"><span class="fas fa-globalnl fa-envelope"></span><a href="#" onclick="openContactMemberForm('${
+          <h5 class="card-title card-title-bottom"><span class="fas fa-globalnl fa-envelope"></span><a data-toggle="modal" data-target="#modalSendAMessage" href="#" onclick="createSendAMessageForm('${
               doc.id
             }', '${
               firstName
