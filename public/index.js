@@ -51,6 +51,10 @@ function renderWithoutUser() {
 
 gnl.auth.listenForStageChange(renderWithUser, renderWithoutUser, true);
 
+function openContactMemberForm(id, firstName, lastName) {
+  console.log(id, firstName, lastName);
+}
+
 /*****************************************************
  * Register event callbacks & implement element callbacks
  ******************************************************/
@@ -284,30 +288,43 @@ function loadMembers(querySnapshot) {
       // copied_account set if old account migrated over - need to manually delete these
       //if(!doc.data().copied_account){
       // Build argument's for memberElement
+      var data = doc.data(),
+        firstName = data.first_name,
+        lastName = data.last_name;
+
       var memberFields = {
         public_uid: doc.id,
-        firstName: doc.data().first_name,
-        lastName: doc.data().last_name,
-        currentAddress: getLocationString(doc.data().current_address),
-        industry: doc.data().industry,
-        hometown: getLocationString(doc.data().hometown_address),
-        bio: doc.data().bio || "",
-        linkedin_profile: doc.data().linkedin_profile
+        firstName: firstName,
+        lastName: lastName,
+        currentAddress: getLocationString(data.current_address),
+        industry: data.industry,
+        hometown: getLocationString(data.hometown_address),
+        bio: data.bio || "",
+        linkedin_profile: data.linkedin_profile
       };
 
       // Build element and inject
+      var linkToContactMemberForm = `
+          <h5 class="card-title card-title-bottom"><span class="fas fa-globalnl fa-envelope"></span><a href="#" onclick="openContactMemberForm('${
+              doc.id
+            }', '${
+              firstName
+            }', '${
+              lastName
+            }')">Send a message</a>
+          </h5>
+        `;
+
       var memberDomString;
       if (
-        doc.data().linkedin_profile &&
-        doc.data().linkedin_profile.length > 30 &&
+        data.linkedin_profile &&
+        data.linkedin_profile.length > 30 &&
         LinkedInEnable &&
         memberFields.bio
       ) {
         memberDomString = `<div class="col-auto p-1 card-col">
 <div id="${memberFields.public_uid}" class="card card-gnl">
-	<div class="card-header card-header-gnl"><span class="fas fa-gnl-head fa-portrait"></span>${
-    memberFields.firstName
-  } ${memberFields.lastName}</div>
+	<div class="card-header card-header-gnl"><span class="fas fa-gnl-head fa-portrait"></span>${firstName} ${lastName}</div>
 	<div class="card-body card-body-gnl">
 	<h5 class="card-title"><span class="fas fa-globalnl fa-map-marker-alt"></span>${
     memberFields.currentAddress
@@ -318,9 +335,10 @@ function loadMembers(querySnapshot) {
 	<h5 class="card-title"><span class="fas fa-globalnl fa-anchor"></span>${
     memberFields.hometown
   }</h5>
-	<h5 class="card-title card-title-bottom"><span class="fas fa-globalnl fa-info-circle"></span>${
+	<h5 class="card-title"><span class="fas fa-globalnl fa-info-circle"></span>${
     memberFields.bio
   }</h5>
+  ${linkToContactMemberForm}
 	<div class="linkedin_profile_card">
 	<script type="IN/MemberProfile" data-id="${
     memberFields.linkedin_profile
@@ -331,22 +349,20 @@ function loadMembers(querySnapshot) {
 </div>`;
         console.log(
           "Loaded profile: " +
-            doc.data().first_name +
+            firstName +
             "  -  " +
-            doc.data().linkedin_profile +
+            data.linkedin_profile +
             "  -  " +
             doc.id
         );
       } else if (
-        doc.data().linkedin_profile &&
-        doc.data().linkedin_profile.length > 30 &&
+        data.linkedin_profile &&
+        data.linkedin_profile.length > 30 &&
         LinkedInEnable
       ) {
         memberDomString = `<div class="col-auto p-1 card-col">
 <div id="${memberFields.public_uid}" class="card card-gnl">
-	<div class="card-header card-header-gnl"><span class="fas fa-gnl-head fa-portrait"></span>${
-    memberFields.firstName
-  } ${memberFields.lastName}</div>
+	<div class="card-header card-header-gnl"><span class="fas fa-gnl-head fa-portrait"></span>${firstName} ${lastName}</div>
 	<div class="card-body card-body-gnl">
 	<h5 class="card-title"><span class="fas fa-globalnl fa-map-marker-alt"></span>${
     memberFields.currentAddress
@@ -354,9 +370,10 @@ function loadMembers(querySnapshot) {
 	<h5 class="card-title"><span class="fas fa-globalnl fa-briefcase"></span>${
     memberFields.industry
   }</h5>
-	<h5 class="card-title card-title-bottom"><span class="fas fa-globalnl fa-anchor"></span>${
+	<h5 class="card-title"><span class="fas fa-globalnl fa-anchor"></span>${
     memberFields.hometown
   }</h5>
+  ${linkToContactMemberForm}
 	<div class="linkedin_profile_card">
 	<script type="IN/MemberProfile" data-id="${
     memberFields.linkedin_profile
@@ -367,18 +384,16 @@ function loadMembers(querySnapshot) {
 </div>`;
         console.log(
           "Loaded profile: " +
-            doc.data().first_name +
+            firstName +
             "  -  " +
-            doc.data().linkedin_profile +
+            data.linkedin_profile +
             "  -  " +
             doc.id
         );
       } else if (memberFields.bio) {
         memberDomString = `<div class="col-auto p-1 card-col">
 <div id="{[0](public_uid)}" class="card card-gnl">
-	<div class="card-header card-header-gnl"><span class="fas fa-gnl-head fa-portrait"></span>${
-    memberFields.firstName
-  } ${memberFields.lastName}</div>
+	<div class="card-header card-header-gnl"><span class="fas fa-gnl-head fa-portrait"></span>${firstName} ${lastName}</div>
 	<div class="card-body card-body-gnl">
 	<h5 class="card-title"><span class="fas fa-globalnl fa-map-marker-alt"></span>${
     memberFields.currentAddress
@@ -389,24 +404,23 @@ function loadMembers(querySnapshot) {
 	<h5 class="card-title"><span class="fas fa-globalnl fa-anchor"></span>${
     memberFields.hometown
   }</h5>
-	<h5 class="card-title card-title-bottom"><span class="fas fa-globalnl fa-info-circle"></span>${
+	<h5 class="card-title"><span class="fas fa-globalnl fa-info-circle"></span>${
     memberFields.bio
   }</h5>
+  ${linkToContactMemberForm}
   </div>
 </div>
 </div>`;
         console.log(
           "Loaded profile: " +
-            doc.data().first_name +
+            firstName +
             "  -  No LinkedIn  -  " +
             doc.id
         );
       } else {
         memberDomString = `<div class="col-auto p-1 card-col">
 <div id="{[0](public_uid)}" class="card card-gnl">
-	<div class="card-header card-header-gnl"><span class="fas fa-gnl-head fa-portrait"></span>${
-    memberFields.firstName
-  } ${memberFields.lastName}</div>
+	<div class="card-header card-header-gnl"><span class="fas fa-gnl-head fa-portrait"></span>${firstName} ${lastName}</div>
 	<div class="card-body card-body-gnl">
 	<h5 class="card-title"><span class="fas fa-globalnl fa-map-marker-alt"></span>${
     memberFields.currentAddress
@@ -414,15 +428,16 @@ function loadMembers(querySnapshot) {
 	<h5 class="card-title"><span class="fas fa-globalnl fa-briefcase"></span>${
     memberFields.industry
   }</h5>
-	<h5 class="card-title card-title-bottom"><span class="fas fa-globalnl fa-anchor"></span>${
+	<h5 class="card-title"><span class="fas fa-globalnl fa-anchor"></span>${
     memberFields.hometown
   }</h5>
+  ${linkToContactMemberForm}
   </div>
 </div>
 </div>`;
         console.log(
           "Loaded profile: " +
-            doc.data().first_name +
+            firstName +
             "  -  No LinkedIn  -  " +
             doc.id
         );
