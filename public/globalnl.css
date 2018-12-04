@@ -273,3 +273,17 @@ input:checked + .slider:before {
 .slider.round:before {
   border-radius: 50%;
 }
+
+.input-group {
+	margin-bottom: 10px;
+}
+
+.col-form-label {
+  font-weight: bold;
+}
+
+@media (min-width: 992px) {
+  .col-form-label {
+    text-align: right;
+  }
+}

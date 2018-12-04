@@ -54,15 +54,48 @@ gnl.auth.listenForStageChange(renderWithUser, renderWithoutUser, true);
 function createSendAMessageForm(id, firstName, lastName) {
   var sendAMessageContainer = document.getElementById("modalSendAMessageBody"),
     sendAMessageForm = document.createElement("form"),
-    label = document.createElement("span");
+    nameRow = document.createElement("div"),
+    nameInputGroup = document.createElement("div"),
+    nameLabel = document.createElement("label"),
+    nameInput = document.createElement("input"),
+    messageRow = document.createElement("div"),
+    messageInputGroup = document.createElement("div"),
+    messageLabel = document.createElement("label"),
+    messageInput = document.createElement("textarea");
 
   sendAMessageContainer.innerHTML = "";
-
   sendAMessageContainer.appendChild(sendAMessageForm);
 
-  sendAMessageForm.appendChild(label);
+  sendAMessageForm.appendChild(nameRow);
 
-  label.innerText = `Send a message to ${firstName} ${lastName}...`;
+  nameRow.className = "row";
+  nameRow.appendChild(nameInputGroup);
+
+  nameInputGroup.className = "input-group col-xs-12 col-lg-12";
+  nameInputGroup.appendChild(nameLabel);
+  nameInputGroup.appendChild(nameInput);
+
+  nameLabel.className = "col-xs-4 col-lg-3 col-form-label";
+  nameLabel.innerText = "To";
+
+  nameInput.className = "form-control py-2 border";
+  nameInput.value = `${firstName} ${lastName}`;
+  nameInput.readOnly = true;
+
+  sendAMessageForm.appendChild(messageRow);
+
+  messageRow.className = "row";
+  messageRow.appendChild(messageInputGroup);
+
+  messageInputGroup.className = "input-group col-xs-12 col-lg-12";
+  messageInputGroup.appendChild(messageLabel);
+  messageInputGroup.appendChild(messageInput);
+
+  messageLabel.className = "col-xs-4 col-lg-3 col-form-label";
+  messageLabel.innerText = "Message";
+
+  messageInput.className = "form-control py-2 border";
+  messageInput.rows = 5;
 }
 
 /*****************************************************
