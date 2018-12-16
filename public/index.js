@@ -347,16 +347,22 @@ function loadMembers(querySnapshot) {
       };
 
       // Build element and inject
-      var linkToContactMemberForm = `
-          <h5 class="card-title card-title-bottom"><span class="fas fa-globalnl fa-envelope"></span><a data-toggle="modal" data-target="#modalSendAMessage" href="#" onclick="createSendAMessageForm('${
-              doc.id
-            }', '${
-              firstName
-            }', '${
-              lastName
-            }')">Send a message</a>
-          </h5>
-        `;
+      var linkSendAMessage = document.createElement("a");
+      linkSendAMessage.setAttribute("data-toggle", "modal");
+      linkSendAMessage.setAttribute("data-target", "#modalSendAMessage");
+      linkSendAMessage.href = "#";
+      linkSendAMessage.onclick = function() {
+        createSendAMessageForm(doc.id, firstName, lastName);
+      };
+      linkSendAMessage.innerText = "Send a message";
+
+      var spanSendAMessage = document.createElement("span");
+      spanSendAMessage.className = "fas fa-globalnl fa-envelope";
+
+      var headerSendAMessage = document.createElement("h5");
+      headerSendAMessage.className = "card-title card-title-bottom";
+      headerSendAMessage.appendChild(spanSendAMessage);
+      headerSendAMessage.appendChild(linkSendAMessage);
 
       var memberDomString;
       if (
@@ -369,24 +375,23 @@ function loadMembers(querySnapshot) {
 <div id="${memberFields.public_uid}" class="card card-gnl">
 	<div class="card-header card-header-gnl"><span class="fas fa-gnl-head fa-portrait"></span>${firstName} ${lastName}</div>
 	<div class="card-body card-body-gnl">
-	<h5 class="card-title"><span class="fas fa-globalnl fa-map-marker-alt"></span>${
-    memberFields.currentAddress
-  }</h5>
-	<h5 class="card-title"><span class="fas fa-globalnl fa-briefcase"></span>${
-    memberFields.industry
-  }</h5>
-	<h5 class="card-title"><span class="fas fa-globalnl fa-anchor"></span>${
-    memberFields.hometown
-  }</h5>
-	<h5 class="card-title"><span class="fas fa-globalnl fa-info-circle"></span>${
-    memberFields.bio
-  }</h5>
-  ${linkToContactMemberForm}
-	<div class="linkedin_profile_card">
-	<script type="IN/MemberProfile" data-id="${
-    memberFields.linkedin_profile
-  }" data-format="inline" data-related="false"></script>
-	</div>
+    <h5 class="card-title"><span class="fas fa-globalnl fa-map-marker-alt"></span>${
+      memberFields.currentAddress
+    }</h5>
+    <h5 class="card-title"><span class="fas fa-globalnl fa-briefcase"></span>${
+      memberFields.industry
+    }</h5>
+    <h5 class="card-title"><span class="fas fa-globalnl fa-anchor"></span>${
+      memberFields.hometown
+    }</h5>
+    <h5 class="card-title"><span class="fas fa-globalnl fa-info-circle"></span>${
+      memberFields.bio
+    }</h5>
+    <div class="linkedin_profile_card">
+      <script type="IN/MemberProfile" data-id="${
+        memberFields.linkedin_profile
+      }" data-format="inline" data-related="false"></script>
+    </div>
   </div>
 </div>
 </div>`;
@@ -407,21 +412,20 @@ function loadMembers(querySnapshot) {
 <div id="${memberFields.public_uid}" class="card card-gnl">
 	<div class="card-header card-header-gnl"><span class="fas fa-gnl-head fa-portrait"></span>${firstName} ${lastName}</div>
 	<div class="card-body card-body-gnl">
-	<h5 class="card-title"><span class="fas fa-globalnl fa-map-marker-alt"></span>${
-    memberFields.currentAddress
-  }</h5>
-	<h5 class="card-title"><span class="fas fa-globalnl fa-briefcase"></span>${
-    memberFields.industry
-  }</h5>
-	<h5 class="card-title"><span class="fas fa-globalnl fa-anchor"></span>${
-    memberFields.hometown
-  }</h5>
-  ${linkToContactMemberForm}
-	<div class="linkedin_profile_card">
-	<script type="IN/MemberProfile" data-id="${
-    memberFields.linkedin_profile
-  }" data-format="inline" data-related="false"></script>
-	</div>
+    <h5 class="card-title"><span class="fas fa-globalnl fa-map-marker-alt"></span>${
+      memberFields.currentAddress
+    }</h5>
+    <h5 class="card-title"><span class="fas fa-globalnl fa-briefcase"></span>${
+      memberFields.industry
+    }</h5>
+    <h5 class="card-title"><span class="fas fa-globalnl fa-anchor"></span>${
+      memberFields.hometown
+    }</h5>
+    <div class="linkedin_profile_card">
+      <script type="IN/MemberProfile" data-id="${
+        memberFields.linkedin_profile
+      }" data-format="inline" data-related="false"></script>
+    </div>
   </div>
 </div>
 </div>`;
@@ -438,19 +442,18 @@ function loadMembers(querySnapshot) {
 <div id="{[0](public_uid)}" class="card card-gnl">
 	<div class="card-header card-header-gnl"><span class="fas fa-gnl-head fa-portrait"></span>${firstName} ${lastName}</div>
 	<div class="card-body card-body-gnl">
-	<h5 class="card-title"><span class="fas fa-globalnl fa-map-marker-alt"></span>${
-    memberFields.currentAddress
-  }</h5>
-	<h5 class="card-title"><span class="fas fa-globalnl fa-briefcase"></span>${
-    memberFields.industry
-  }</h5>
-	<h5 class="card-title"><span class="fas fa-globalnl fa-anchor"></span>${
-    memberFields.hometown
-  }</h5>
-	<h5 class="card-title"><span class="fas fa-globalnl fa-info-circle"></span>${
-    memberFields.bio
-  }</h5>
-  ${linkToContactMemberForm}
+    <h5 class="card-title"><span class="fas fa-globalnl fa-map-marker-alt"></span>${
+      memberFields.currentAddress
+    }</h5>
+    <h5 class="card-title"><span class="fas fa-globalnl fa-briefcase"></span>${
+      memberFields.industry
+    }</h5>
+    <h5 class="card-title"><span class="fas fa-globalnl fa-anchor"></span>${
+      memberFields.hometown
+    }</h5>
+    <h5 class="card-title"><span class="fas fa-globalnl fa-info-circle"></span>${
+      memberFields.bio
+    }</h5>
   </div>
 </div>
 </div>`;
@@ -465,16 +468,15 @@ function loadMembers(querySnapshot) {
 <div id="{[0](public_uid)}" class="card card-gnl">
 	<div class="card-header card-header-gnl"><span class="fas fa-gnl-head fa-portrait"></span>${firstName} ${lastName}</div>
 	<div class="card-body card-body-gnl">
-	<h5 class="card-title"><span class="fas fa-globalnl fa-map-marker-alt"></span>${
-    memberFields.currentAddress
-  }</h5>
-	<h5 class="card-title"><span class="fas fa-globalnl fa-briefcase"></span>${
-    memberFields.industry
-  }</h5>
-	<h5 class="card-title"><span class="fas fa-globalnl fa-anchor"></span>${
-    memberFields.hometown
-  }</h5>
-  ${linkToContactMemberForm}
+    <h5 class="card-title"><span class="fas fa-globalnl fa-map-marker-alt"></span>${
+      memberFields.currentAddress
+    }</h5>
+    <h5 class="card-title"><span class="fas fa-globalnl fa-briefcase"></span>${
+      memberFields.industry
+    }</h5>
+    <h5 class="card-title"><span class="fas fa-globalnl fa-anchor"></span>${
+      memberFields.hometown
+    }</h5>
   </div>
 </div>
 </div>`;
@@ -485,12 +487,10 @@ function loadMembers(querySnapshot) {
             doc.id
         );
       }
-      var memObj = $.parseHTML(memberDomString);
+
+      var memObj = $($.parseHTML(memberDomString));
+      memObj.find(".card-body-gnl > .card-title:last").after($(headerSendAMessage));
       $("#members-list").append(memObj);
-      //}
-      //else{
-      //	console.log("Duplicate profile: " + doc.data().first_name + "  -  " + doc.id);
-      //}
     });
 
     if (LinkedInEnable) {
@@ -502,12 +502,10 @@ function loadMembers(querySnapshot) {
     last_read_doc = 0;
   }
   $("#preloader").hide();
-} // end loadMembers
+}
 
 /* Searching
-
 	Need to clean this up...
-
 */
 
 function memberSearch() {
