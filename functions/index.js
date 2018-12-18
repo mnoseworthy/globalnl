@@ -21,7 +21,6 @@ const crypto = require("crypto");
 
 //Mailgun Setup
 const mailgunKey = functions.config().mailgun.key;
-var mailgun = require("mailgun-js");
 var mailgun = require("mailgun-js")({
   apiKey: mailgunKey,
   domain: "mail.globalnl.com"
@@ -56,6 +55,58 @@ exports.sendWelcomeEmail = functions.auth.user().onCreate(user => {
   } catch (err) {
     console.error(err);
   }
+});
+
+exports.sendMessageToUser = functions.https.onCall((data, context) => {
+  const { auth } = context,
+    isAuthed = Boolean(auth);
+
+  if (!isAuthed || !data || !data.toUserId || !data.message) {
+    console.log("Error sending message:", isAuthed, data);
+    return;
+  }
+
+  const fromUserId = auth.uid,
+    { toUserId, message } = data,
+    members = db.collection("members"),
+    privateData = db.collection("private_data");
+
+  return Promise.all([
+    members.doc(fromUserId).get(),
+    privateData.doc(fromUserId).get(),
+    members.doc(toUserId).get(),
+    privateData.doc(toUserId).get()
+  ])
+    .then(
+      ([
+        fromUserMemberDoc,
+        fromUserPrivateDataDoc,
+        toUserMemberDoc,
+        toUserPrivateDataDoc
+      ]) => {
+        const fromDisplayName = fromUserMemberDoc.data().display_name,
+          mailOptions = {
+            from: `${fromDisplayName} <connect@globalnl.com>`,
+            to: `${toUserMemberDoc.data().display_name} <${
+              toUserPrivateDataDoc.data().email
+            }>`,
+            subject: `${fromDisplayName} sent you a message on GlobalNL`,
+            text: `${message}
+---
+You are receiving this because a member contacted you through the GlobalNL members list.
+Reply to this email directly to respond to this message.`,
+            "h:Reply-To": `${fromUserPrivateDataDoc.data().email}`
+          };
+
+        return mailgun
+          .messages()
+          .send(mailOptions)
+          .then(() =>
+            console.log(`Member '${fromUserId}' sent message to '${toUserId}'`)
+          );
+      }
+    )
+    .catch(error => console.log("Error sending message:", error));
 });
 
 /**

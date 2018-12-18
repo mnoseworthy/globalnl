@@ -51,7 +51,9 @@ function renderWithoutUser() {
 
 gnl.auth.listenForStageChange(renderWithUser, renderWithoutUser, true);
 
-function createSendAMessageForm(id, firstName, lastName) {
+function noop() {}
+
+function createSendAMessageForm(id, displayName) {
   var sendAMessageContainer = document.getElementById("modalSendAMessageBody"),
     sendAMessageForm = document.createElement("form"),
     nameRow = document.createElement("div"),
@@ -61,7 +63,8 @@ function createSendAMessageForm(id, firstName, lastName) {
     messageRow = document.createElement("div"),
     messageInputGroup = document.createElement("div"),
     messageLabel = document.createElement("label"),
-    messageInput = document.createElement("textarea");
+    messageInput = document.createElement("textarea"),
+    submitForm = document.getElementById("modalSendAMessageSubmit");
 
   sendAMessageContainer.innerHTML = "";
   sendAMessageContainer.appendChild(sendAMessageForm);
@@ -79,7 +82,7 @@ function createSendAMessageForm(id, firstName, lastName) {
   nameLabel.innerText = "To";
 
   nameInput.className = "form-control py-2 border";
-  nameInput.value = `${firstName} ${lastName}`;
+  nameInput.value = displayName;
   nameInput.readOnly = true;
 
   sendAMessageForm.appendChild(messageRow);
@@ -96,6 +99,24 @@ function createSendAMessageForm(id, firstName, lastName) {
 
   messageInput.className = "form-control py-2 border";
   messageInput.rows = 5;
+
+  submitForm.onclick = function () {
+    submitForm.onclick = noop;
+
+    $('#modalSendAMessage').modal('hide')
+
+    var sendMessageToUser = firebase.functions().httpsCallable('sendMessageToUser');
+    sendMessageToUser({
+      toUserId: id,
+      message: messageInput.value
+    })
+      .then(function (result) {
+        console.log(result);
+      })
+      .catch(function (reason) {
+        console.error("Send message failed", reason);
+      })
+  };
 }
 
 /*****************************************************
@@ -352,7 +373,7 @@ function loadMembers(querySnapshot) {
       linkSendAMessage.setAttribute("data-target", "#modalSendAMessage");
       linkSendAMessage.href = "#";
       linkSendAMessage.onclick = function() {
-        createSendAMessageForm(doc.id, firstName, lastName);
+        createSendAMessageForm(doc.id, data.display_name);
       };
       linkSendAMessage.innerText = "Send a message";
 
