@@ -51,6 +51,79 @@ function renderWithoutUser() {
 
 gnl.auth.listenForStageChange(renderWithUser, renderWithoutUser, true);
 
+function noop() {}
+
+function createSendAMessageForm(id, toDisplayName, fromEmailAddress) {
+  var sendAMessageContainer = document.getElementById("modalSendAMessageBody"),
+    sendAMessageForm = document.createElement("form"),
+    nameRow = document.createElement("div"),
+    nameInputGroup = document.createElement("div"),
+    nameLabel = document.createElement("label"),
+    nameInput = document.createElement("input"),
+    messageRow = document.createElement("div"),
+    messageInputGroup = document.createElement("div"),
+    messageLabel = document.createElement("label"),
+    messageInput = document.createElement("textarea"),
+    noteSmall = document.createElement("small"),
+    submitForm = document.getElementById("modalSendAMessageSubmit");
+
+  sendAMessageContainer.innerHTML = "";
+  sendAMessageContainer.appendChild(sendAMessageForm);
+
+  sendAMessageForm.appendChild(nameRow);
+
+  nameRow.className = "row";
+  nameRow.appendChild(nameInputGroup);
+
+  nameInputGroup.className = "input-group col-xs-12 col-lg-12";
+  nameInputGroup.appendChild(nameLabel);
+  nameInputGroup.appendChild(nameInput);
+
+  nameLabel.className = "col-xs-4 col-lg-3 col-form-label";
+  nameLabel.innerText = "To";
+
+  nameInput.className = "form-control py-2 border";
+  nameInput.value = toDisplayName;
+  nameInput.readOnly = true;
+
+  sendAMessageForm.appendChild(messageRow);
+
+  messageRow.className = "row";
+  messageRow.appendChild(messageInputGroup);
+
+  messageInputGroup.className = "input-group col-xs-12 col-lg-12";
+  messageInputGroup.appendChild(messageLabel);
+  messageInputGroup.appendChild(messageInput);
+
+  messageLabel.className = "col-xs-4 col-lg-3 col-form-label";
+  messageLabel.innerText = "Message";
+
+  messageInput.className = "form-control py-2 border";
+  messageInput.rows = 5;
+
+  sendAMessageForm.appendChild(noteSmall);
+
+  noteSmall.innerText = `The GlobalNL member receiving this message will be provided with your email address and will be able to respond to you at ${fromEmailAddress}`;
+
+  submitForm.onclick = function () {
+    submitForm.onclick = noop;
+
+    $('#modalSendAMessage').modal('hide')
+
+    var sendMessageToUser = firebase.functions().httpsCallable('sendMessageToUser');
+    sendMessageToUser({
+      toUserId: id,
+      message: messageInput.value
+    })
+      .then(function (result) {
+        console.log(result);
+      })
+      .catch(function (reason) {
+        console.error("Send message failed", reason);
+      })
+  };
+}
+
 /*****************************************************
  * Register event callbacks & implement element callbacks
  ******************************************************/
@@ -284,155 +357,174 @@ function loadMembers(querySnapshot) {
       // copied_account set if old account migrated over - need to manually delete these
       //if(!doc.data().copied_account){
       // Build argument's for memberElement
+      var data = doc.data(),
+        firstName = data.first_name,
+        lastName = data.last_name;
+
       var memberFields = {
         public_uid: doc.id,
-        firstName: doc.data().first_name,
-        lastName: doc.data().last_name,
-        currentAddress: getLocationString(doc.data().current_address),
-        industry: doc.data().industry,
-        hometown: getLocationString(doc.data().hometown_address),
-        bio: doc.data().bio || "",
-        linkedin_profile: doc.data().linkedin_profile
+        firstName: firstName,
+        lastName: lastName,
+        currentAddress: getLocationString(data.current_address),
+        industry: data.industry,
+        hometown: getLocationString(data.hometown_address),
+        bio: data.bio || "",
+        linkedin_profile: data.linkedin_profile
       };
 
       // Build element and inject
+      var linkSendAMessage = document.createElement("a");
+      linkSendAMessage.setAttribute("data-toggle", "modal");
+      linkSendAMessage.setAttribute("data-target", "#modalSendAMessage");
+      linkSendAMessage.href = "#";
+      linkSendAMessage.onclick = function() {
+        firebase
+          .firestore()
+          .collection("private_data")
+          .doc(firebase.auth().currentUser.uid)
+          .get()
+          .then(function (privateData) {
+            const email = privateData.data().email;
+            createSendAMessageForm(doc.id, data.display_name || `${firstName} ${lastName}`, email);
+          });
+      };
+      linkSendAMessage.innerText = "Send a message";
+
+      var spanSendAMessage = document.createElement("span");
+      spanSendAMessage.className = "fas fa-globalnl fa-envelope";
+
+      var headerSendAMessage = document.createElement("h5");
+      headerSendAMessage.className = "card-title card-title-bottom";
+      headerSendAMessage.appendChild(spanSendAMessage);
+      headerSendAMessage.appendChild(linkSendAMessage);
+
       var memberDomString;
       if (
-        doc.data().linkedin_profile &&
-        doc.data().linkedin_profile.length > 30 &&
+        data.linkedin_profile &&
+        data.linkedin_profile.length > 30 &&
         LinkedInEnable &&
         memberFields.bio
       ) {
         memberDomString = `<div class="col-auto p-1 card-col">
 <div id="${memberFields.public_uid}" class="card card-gnl">
-	<div class="card-header card-header-gnl"><span class="fas fa-gnl-head fa-portrait"></span>${
-    memberFields.firstName
-  } ${memberFields.lastName}</div>
+	<div class="card-header card-header-gnl"><span class="fas fa-gnl-head fa-portrait"></span>${firstName} ${lastName}</div>
 	<div class="card-body card-body-gnl">
-	<h5 class="card-title"><span class="fas fa-globalnl fa-map-marker-alt"></span>${
-    memberFields.currentAddress
-  }</h5>
-	<h5 class="card-title"><span class="fas fa-globalnl fa-briefcase"></span>${
-    memberFields.industry
-  }</h5>
-	<h5 class="card-title"><span class="fas fa-globalnl fa-anchor"></span>${
-    memberFields.hometown
-  }</h5>
-	<h5 class="card-title card-title-bottom"><span class="fas fa-globalnl fa-info-circle"></span>${
-    memberFields.bio
-  }</h5>
-	<div class="linkedin_profile_card">
-	<script type="IN/MemberProfile" data-id="${
-    memberFields.linkedin_profile
-  }" data-format="inline" data-related="false"></script>
-	</div>
+    <h5 class="card-title"><span class="fas fa-globalnl fa-map-marker-alt"></span>${
+      memberFields.currentAddress
+    }</h5>
+    <h5 class="card-title"><span class="fas fa-globalnl fa-briefcase"></span>${
+      memberFields.industry
+    }</h5>
+    <h5 class="card-title"><span class="fas fa-globalnl fa-anchor"></span>${
+      memberFields.hometown
+    }</h5>
+    <h5 class="card-title"><span class="fas fa-globalnl fa-info-circle"></span>${
+      memberFields.bio
+    }</h5>
+    <div class="linkedin_profile_card">
+      <script type="IN/MemberProfile" data-id="${
+        memberFields.linkedin_profile
+      }" data-format="inline" data-related="false"></script>
+    </div>
   </div>
 </div>
 </div>`;
         console.log(
           "Loaded profile: " +
-            doc.data().first_name +
+            firstName +
             "  -  " +
-            doc.data().linkedin_profile +
+            data.linkedin_profile +
             "  -  " +
             doc.id
         );
       } else if (
-        doc.data().linkedin_profile &&
-        doc.data().linkedin_profile.length > 30 &&
+        data.linkedin_profile &&
+        data.linkedin_profile.length > 30 &&
         LinkedInEnable
       ) {
         memberDomString = `<div class="col-auto p-1 card-col">
 <div id="${memberFields.public_uid}" class="card card-gnl">
-	<div class="card-header card-header-gnl"><span class="fas fa-gnl-head fa-portrait"></span>${
-    memberFields.firstName
-  } ${memberFields.lastName}</div>
+	<div class="card-header card-header-gnl"><span class="fas fa-gnl-head fa-portrait"></span>${firstName} ${lastName}</div>
 	<div class="card-body card-body-gnl">
-	<h5 class="card-title"><span class="fas fa-globalnl fa-map-marker-alt"></span>${
-    memberFields.currentAddress
-  }</h5>
-	<h5 class="card-title"><span class="fas fa-globalnl fa-briefcase"></span>${
-    memberFields.industry
-  }</h5>
-	<h5 class="card-title card-title-bottom"><span class="fas fa-globalnl fa-anchor"></span>${
-    memberFields.hometown
-  }</h5>
-	<div class="linkedin_profile_card">
-	<script type="IN/MemberProfile" data-id="${
-    memberFields.linkedin_profile
-  }" data-format="inline" data-related="false"></script>
-	</div>
+    <h5 class="card-title"><span class="fas fa-globalnl fa-map-marker-alt"></span>${
+      memberFields.currentAddress
+    }</h5>
+    <h5 class="card-title"><span class="fas fa-globalnl fa-briefcase"></span>${
+      memberFields.industry
+    }</h5>
+    <h5 class="card-title"><span class="fas fa-globalnl fa-anchor"></span>${
+      memberFields.hometown
+    }</h5>
+    <div class="linkedin_profile_card">
+      <script type="IN/MemberProfile" data-id="${
+        memberFields.linkedin_profile
+      }" data-format="inline" data-related="false"></script>
+    </div>
   </div>
 </div>
 </div>`;
         console.log(
           "Loaded profile: " +
-            doc.data().first_name +
+            firstName +
             "  -  " +
-            doc.data().linkedin_profile +
+            data.linkedin_profile +
             "  -  " +
             doc.id
         );
       } else if (memberFields.bio) {
         memberDomString = `<div class="col-auto p-1 card-col">
 <div id="{[0](public_uid)}" class="card card-gnl">
-	<div class="card-header card-header-gnl"><span class="fas fa-gnl-head fa-portrait"></span>${
-    memberFields.firstName
-  } ${memberFields.lastName}</div>
+	<div class="card-header card-header-gnl"><span class="fas fa-gnl-head fa-portrait"></span>${firstName} ${lastName}</div>
 	<div class="card-body card-body-gnl">
-	<h5 class="card-title"><span class="fas fa-globalnl fa-map-marker-alt"></span>${
-    memberFields.currentAddress
-  }</h5>
-	<h5 class="card-title"><span class="fas fa-globalnl fa-briefcase"></span>${
-    memberFields.industry
-  }</h5>
-	<h5 class="card-title"><span class="fas fa-globalnl fa-anchor"></span>${
-    memberFields.hometown
-  }</h5>
-	<h5 class="card-title card-title-bottom"><span class="fas fa-globalnl fa-info-circle"></span>${
-    memberFields.bio
-  }</h5>
+    <h5 class="card-title"><span class="fas fa-globalnl fa-map-marker-alt"></span>${
+      memberFields.currentAddress
+    }</h5>
+    <h5 class="card-title"><span class="fas fa-globalnl fa-briefcase"></span>${
+      memberFields.industry
+    }</h5>
+    <h5 class="card-title"><span class="fas fa-globalnl fa-anchor"></span>${
+      memberFields.hometown
+    }</h5>
+    <h5 class="card-title"><span class="fas fa-globalnl fa-info-circle"></span>${
+      memberFields.bio
+    }</h5>
   </div>
 </div>
 </div>`;
         console.log(
           "Loaded profile: " +
-            doc.data().first_name +
+            firstName +
             "  -  No LinkedIn  -  " +
             doc.id
         );
       } else {
         memberDomString = `<div class="col-auto p-1 card-col">
 <div id="{[0](public_uid)}" class="card card-gnl">
-	<div class="card-header card-header-gnl"><span class="fas fa-gnl-head fa-portrait"></span>${
-    memberFields.firstName
-  } ${memberFields.lastName}</div>
+	<div class="card-header card-header-gnl"><span class="fas fa-gnl-head fa-portrait"></span>${firstName} ${lastName}</div>
 	<div class="card-body card-body-gnl">
-	<h5 class="card-title"><span class="fas fa-globalnl fa-map-marker-alt"></span>${
-    memberFields.currentAddress
-  }</h5>
-	<h5 class="card-title"><span class="fas fa-globalnl fa-briefcase"></span>${
-    memberFields.industry
-  }</h5>
-	<h5 class="card-title card-title-bottom"><span class="fas fa-globalnl fa-anchor"></span>${
-    memberFields.hometown
-  }</h5>
+    <h5 class="card-title"><span class="fas fa-globalnl fa-map-marker-alt"></span>${
+      memberFields.currentAddress
+    }</h5>
+    <h5 class="card-title"><span class="fas fa-globalnl fa-briefcase"></span>${
+      memberFields.industry
+    }</h5>
+    <h5 class="card-title"><span class="fas fa-globalnl fa-anchor"></span>${
+      memberFields.hometown
+    }</h5>
   </div>
 </div>
 </div>`;
         console.log(
           "Loaded profile: " +
-            doc.data().first_name +
+            firstName +
             "  -  No LinkedIn  -  " +
             doc.id
         );
       }
-      var memObj = $.parseHTML(memberDomString);
+
+      var memObj = $($.parseHTML(memberDomString));
+      memObj.find(".card-body-gnl > .card-title:last").after($(headerSendAMessage));
       $("#members-list").append(memObj);
-      //}
-      //else{
-      //	console.log("Duplicate profile: " + doc.data().first_name + "  -  " + doc.id);
-      //}
     });
 
     if (LinkedInEnable) {
@@ -444,12 +536,10 @@ function loadMembers(querySnapshot) {
     last_read_doc = 0;
   }
   $("#preloader").hide();
-} // end loadMembers
+}
 
 /* Searching
-
 	Need to clean this up...
-
 */
 
 function memberSearch() {

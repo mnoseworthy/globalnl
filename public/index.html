@@ -30,7 +30,6 @@
 	</head>
 
 	<body>
-
 	  <header>
       <!-- Fixed navbar -->
       <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
@@ -212,17 +211,33 @@
 	
 	</div>
 	<!-- container -->
-	
 
-	
 	<footer class="footer">
       <div class="container">
 	  <span class="fa fas-globe"></span>
         <span class="text-muted">Global NL — <i>A Global Community</i></span>
       </div>
-    </footer>
-		
-	
+	</footer>
+
+  <!-- Send a Message Modal -->
+  <div class="modal fade" id="modalSendAMessage" tabindex="-1" role="dialog" aria-labelledby="modalSendAMessageTitle" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalSendAMessageTitle">Send a message</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body" id="modalSendAMessageBody"></div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" id="modalSendAMessageSubmit">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 	<!-- jQuery -->
 	<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 
@@ -232,7 +247,8 @@
 	<!-- include firestore now -->
 	<script src="/__/firebase/5.3.0/firebase-app.js"></script>
 	<script src="/__/firebase/5.3.0/firebase-auth.js"></script>
-	<script src="/__/firebase/5.3.0/firebase-firestore.js"></script>
+  <script src="/__/firebase/5.3.0/firebase-firestore.js"></script>
+  <script src="/__/firebase/5.3.0/firebase-functions.js"></script>
 	<script src="/__/firebase/init.js"></script>
 	
 	<!-- LinkedIn Badges -->
