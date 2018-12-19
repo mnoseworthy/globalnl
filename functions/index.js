@@ -110,7 +110,8 @@ exports.sendMessageToUser = functions.https.onCall((data, context) => {
           toUserMemberDoc,
           toUserPrivateDataDoc
         ]) => {
-          const fromDisplayName = fromUserMemberDoc.data().display_name,
+          const fromUserMemberData = fromUserMemberDoc.data(),
+            fromDisplayName = fromUserMemberData.display_name || `${fromUserMemberData.first_name} ${fromUserMemberData.last_name}`,
             mailOptions = {
               from: `${fromDisplayName} <connect@globalnl.com>`,
               to: `${toUserMemberDoc.data().display_name} <${
@@ -119,8 +120,8 @@ exports.sendMessageToUser = functions.https.onCall((data, context) => {
               subject: `${fromDisplayName} sent you a message on GlobalNL`,
               text: `${message}
 ---
-You are receiving this because a member contacted you through the GlobalNL members list.
-Reply to this email directly to respond to this message.`,
+You are receiving this because a member contacted you through the GlobalNL members portal at http://members.globalnl.com
+Reply to this email to respond, your email address will be viewable by the recipient.`,
               "h:Reply-To": `${fromUserPrivateData.email}`
             };
 

@@ -53,7 +53,7 @@ gnl.auth.listenForStageChange(renderWithUser, renderWithoutUser, true);
 
 function noop() {}
 
-function createSendAMessageForm(id, displayName) {
+function createSendAMessageForm(id, toDisplayName, fromEmailAddress) {
   var sendAMessageContainer = document.getElementById("modalSendAMessageBody"),
     sendAMessageForm = document.createElement("form"),
     nameRow = document.createElement("div"),
@@ -64,6 +64,7 @@ function createSendAMessageForm(id, displayName) {
     messageInputGroup = document.createElement("div"),
     messageLabel = document.createElement("label"),
     messageInput = document.createElement("textarea"),
+    noteSmall = document.createElement("small"),
     submitForm = document.getElementById("modalSendAMessageSubmit");
 
   sendAMessageContainer.innerHTML = "";
@@ -82,7 +83,7 @@ function createSendAMessageForm(id, displayName) {
   nameLabel.innerText = "To";
 
   nameInput.className = "form-control py-2 border";
-  nameInput.value = displayName;
+  nameInput.value = toDisplayName;
   nameInput.readOnly = true;
 
   sendAMessageForm.appendChild(messageRow);
@@ -99,6 +100,10 @@ function createSendAMessageForm(id, displayName) {
 
   messageInput.className = "form-control py-2 border";
   messageInput.rows = 5;
+
+  sendAMessageForm.appendChild(noteSmall);
+
+  noteSmall.innerText = `The GlobalNL member receiving this message will be provided with your email address and will be able to respond to you at ${fromEmailAddress}`;
 
   submitForm.onclick = function () {
     submitForm.onclick = noop;
@@ -373,7 +378,15 @@ function loadMembers(querySnapshot) {
       linkSendAMessage.setAttribute("data-target", "#modalSendAMessage");
       linkSendAMessage.href = "#";
       linkSendAMessage.onclick = function() {
-        createSendAMessageForm(doc.id, data.display_name);
+        firebase
+          .firestore()
+          .collection("private_data")
+          .doc(firebase.auth().currentUser.uid)
+          .get()
+          .then(function (privateData) {
+            const email = privateData.data().email;
+            createSendAMessageForm(doc.id, data.display_name || `${firstName} ${lastName}`, email);
+          });
       };
       linkSendAMessage.innerText = "Send a message";
 
