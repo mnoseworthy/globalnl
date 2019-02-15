@@ -72,6 +72,7 @@ function initAutocomplete() {
     locationArray,
     "autocomplete_current",
     "current_address",
+    true,
     function currentAddress() {
       $("#autocomplete_current").val();
     }
@@ -80,6 +81,7 @@ function initAutocomplete() {
     locationArray,
     "autocomplete_hometown",
     "hometown_address",
+    true,
     function hometownAddress() {
       $("#autocomplete_hometown").val();
     }

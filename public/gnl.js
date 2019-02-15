@@ -109,6 +109,7 @@ window.gnl = (function() {
     form,
     autocompleteId,
     fieldName,
+    includeShortNames,
     getFormAddress
   ) {
     // Register our autocomplete elements, see URL for more information
@@ -122,9 +123,9 @@ window.gnl = (function() {
         // Get place object from google api
         const place = autocomplete.getPlace();
         if (place) {
-          form[fieldName] = parsePlace(place);
+          form[fieldName] = parsePlace(place, includeShortNames);
           // Optionally include form address
-          if (formAddress) {
+          if (getFormAddress) {
             form["form_address"] = getFormAddress();
           }
         }
@@ -135,7 +136,7 @@ window.gnl = (function() {
   };
 
   // Iterate over object and look for the keys in locationData
-  location.parse = function(place, includeShortNames) {
+  function parsePlace(place, includeShortNames) {
     // Look for these keys in the place object returned by google API
     // if found, their values are filled and written to our new member object
     const locationData = {
@@ -158,8 +159,8 @@ window.gnl = (function() {
 
     if (includeShortNames) {
       parsed.administrative_area_level_1 = null;
-      country_short = null;
-      locality_short = null;
+      parsed.country_short = null;
+      parsed.locality_short = null;
     }
 
     for (let i = 0; i < place.address_components.length; i++) {
@@ -179,7 +180,7 @@ window.gnl = (function() {
     parsed.lng = place.geometry.location.lng();
 
     return parsed;
-  };
+  }
 
   return {
     auth: auth,

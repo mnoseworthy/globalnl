@@ -1001,11 +1001,13 @@ function initAutocomplete() {
   gnl.location.bindAutocomplete(
     formDynamic,
     "autocomplete_current",
-    "current_address"
+    "current_address",
+    false
   );
   gnl.location.bindAutocomplete(
     formDynamic,
     "autocomplete_hometown",
-    "hometown_address"
+    "hometown_address",
+    false
   );
 }
