@@ -169,22 +169,9 @@ body {
 
 .linkedin_profile_card {
   margin-top: 0px;
-  margin-bottom: 0px; /* Was 6px for old LinkedIn badges */
+  margin-bottom: -6px;
   margin-left: 0px;
   margin-right: 0px;
-  border-top: 1px solid rgba(0,0,0,.125);
-}
-
-.LI-badge-container {
-	width: 100% !important;
-	-webkit-box-shadow:none !important;
-	-moz-box-shadow:none !important;
-	box-shadow:none !important;	
-}
-
-.LI-profile-pic {
-	width: 70px !important;
-	height: 70px !important;
 }
 
 .fa-globalnl {
