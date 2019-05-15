@@ -422,9 +422,7 @@ function loadMembers(querySnapshot) {
       memberFields.bio
     }</h5>
     <div class="linkedin_profile_card">
-      <script type="IN/MemberProfile" data-id="${
-        memberFields.linkedin_profile
-      }" data-format="inline" data-related="false"></script>
+      <div class="LI-profile-badge"  data-version="v1" data-size="medium" data-locale="en_US" data-type="horizontal" data-theme="light" data-vanity="${memberFields.linkedin_profile.match(/(?<=\/in\/)([^\/]*)/m)[0]}"><a class="LI-simple-link" href='${memberFields.linkedin_profile}?trk=profile-badge'>${firstName} ${lastName}</a></div>
     </div>
   </div>
 </div>
@@ -456,9 +454,7 @@ function loadMembers(querySnapshot) {
       memberFields.hometown
     }</h5>
     <div class="linkedin_profile_card">
-      <script type="IN/MemberProfile" data-id="${
-        memberFields.linkedin_profile
-      }" data-format="inline" data-related="false"></script>
+      <div class="LI-profile-badge"  data-version="v1" data-size="medium" data-locale="en_US" data-type="horizontal" data-theme="light" data-vanity="${memberFields.linkedin_profile.match(/(?<=\/in\/)([^\/]*)/m)[0]}"><a class="LI-simple-link" href='${memberFields.linkedin_profile}?trk=profile-badge'>${firstName} ${lastName}</a></div>
     </div>
   </div>
 </div>
@@ -528,7 +524,9 @@ function loadMembers(querySnapshot) {
     });
 
     if (LinkedInEnable) {
-      IN.parse();
+      //IN.parse();
+	  window.LIRenderAll();
+	  $('.LI-view-profile').html('View LinkedIn Profile'); 
       console.log("Parse LinkedIn badges...");
     }
     if (querySnapshot.docs.length === 15) scrollQueryComplete = true;
