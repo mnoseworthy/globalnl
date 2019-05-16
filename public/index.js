@@ -1,6 +1,15 @@
 /******************************************************
  * Global variables
  ******************************************************/
+ 
+window.LIBadgeCallback = (function() {
+    var cached_function = window.LIBadgeCallback;
+    return function() {      
+        var result = cached_function.apply(this, arguments);
+        $('.LI-view-profile').html('View LinkedIn Profile');
+        return result;
+    };
+})();
 
 // Disable LinkedIn banners via toggle button
 var LinkedInEnable = true;
@@ -422,7 +431,9 @@ function loadMembers(querySnapshot) {
       memberFields.bio
     }</h5>
     <div class="linkedin_profile_card">
-      <div class="LI-profile-badge"  data-version="v1" data-size="medium" data-locale="en_US" data-type="horizontal" data-theme="light" data-vanity="${memberFields.linkedin_profile.match(/(?<=\/in\/)([^\/]*)/m)[0]}"><a class="LI-simple-link" href='${memberFields.linkedin_profile}?trk=profile-badge'>${firstName} ${lastName}</a></div>
+      <div class="LI-profile-badge"  data-version="v1" data-size="medium" data-locale="en_US" data-type="horizontal" data-theme="light"
+	  data-vanity="${memberFields.linkedin_profile.substring(memberFields.linkedin_profile.indexOf('/in/')+4).replace('/','')}">
+	  <a class="LI-simple-link" href='${memberFields.linkedin_profile}?trk=profile-badge'>View LinkedIn Profile</a></div>
     </div>
   </div>
 </div>
@@ -454,7 +465,10 @@ function loadMembers(querySnapshot) {
       memberFields.hometown
     }</h5>
     <div class="linkedin_profile_card">
-      <div class="LI-profile-badge"  data-version="v1" data-size="medium" data-locale="en_US" data-type="horizontal" data-theme="light" data-vanity="${memberFields.linkedin_profile.match(/(?<=\/in\/)([^\/]*)/m)[0]}"><a class="LI-simple-link" href='${memberFields.linkedin_profile}?trk=profile-badge'>${firstName} ${lastName}</a></div>
+      <div class="LI-profile-badge"  data-version="v1" data-size="medium" data-locale="en_US" data-type="horizontal" data-theme="light"
+	  data-vanity="${memberFields.linkedin_profile.substring(memberFields.linkedin_profile.indexOf('/in/')+4).replace('/','')}">
+	  <a class="LI-simple-link" href='${memberFields.linkedin_profile}?trk=profile-badge'>View LinkedIn Profile</a></div>
+    </div>
     </div>
   </div>
 </div>
@@ -526,7 +540,6 @@ function loadMembers(querySnapshot) {
     if (LinkedInEnable) {
       //IN.parse();
 	  window.LIRenderAll();
-	  $('.LI-view-profile').html('View LinkedIn Profile'); 
       console.log("Parse LinkedIn badges...");
     }
     if (querySnapshot.docs.length === 15) scrollQueryComplete = true;

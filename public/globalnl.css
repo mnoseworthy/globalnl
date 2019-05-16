@@ -172,7 +172,10 @@ body {
   margin-bottom: 0px; /* Was 6px for old LinkedIn badges */
   margin-left: 0px;
   margin-right: 0px;
-  border-top: 1px solid rgba(0,0,0,.125);
+}
+
+.LI-profile-badge {
+	border-top: 1px solid rgba(0,0,0,.125);
 }
 
 .LI-badge-container {
