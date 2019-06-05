@@ -38,7 +38,8 @@ var db = admin.firestore();
 const settings = { timestampsInSnapshots: true };
 db.settings(settings);
 
-const OAUTH_SCOPES = ["r_basicprofile", "r_emailaddress"];
+//const OAUTH_SCOPES = ["r_liteprofile"];
+const OAUTH_SCOPES = ["r_liteprofile", "r_emailaddress"];
 
 var member = {};
 var private_data = {};
@@ -203,12 +204,13 @@ exports.token = functions.https.onRequest((req, res) => {
           }
           //console.log('Received Access Token:', results.access_token);
           const linkedin = Linkedin.init(results.access_token);
+		  linkedin.people.email((error,userEmail) => {
           linkedin.people.me((error, userResults) => {
             if (error) {
               throw error;
             }
-            //console.log('Auth code exchange result received:', userResults);
-
+            //console.log(userResults);
+			console.log(userEmail.elements[0]['handle~']['emailAddress']);
             // We have a LinkedIn access token and the user identity now.
             //results.access_token;
             // The UID we'll assign to the user is 1In_ plus the internal LinkedIn user reference which is unique for our API key (one)
@@ -217,29 +219,26 @@ exports.token = functions.https.onRequest((req, res) => {
             console.log(userResults);
 
             member = {
-              first_name:
-                userResults.firstName.charAt(0).toUpperCase() +
-                  userResults.firstName.substr(1).toLowerCase() || "",
-              last_name:
-                userResults.lastName.charAt(0).toUpperCase() +
-                  userResults.lastName.substr(1).toLowerCase() || "",
-              display_name: userResults.formattedName || "",
-              headline: userResults.headline || "",
-              industry: userResults.industry || "",
-              linkedin_profile: userResults.publicProfileUrl || "",
-              photoURL: userResults.pictureUrl || "",
-              current_address: {
-                LinkedInLocation: userResults.location.name || ""
-              },
-              copied_account: false
+              first_name: userResults.firstName.localized[Object.keys(userResults.firstName.localized)[0]] || "",
+              last_name: userResults.lastName.localized[Object.keys(userResults.lastName.localized)[0]] || "",
+              //display_name: userResults.formattedName || "",
+              //headline: userResults.headline || "",
+              //industry: userResults.industry || "",
+              //linkedin_profile: userResults.publicProfileUrl || "",
+              //photoURL: userResults.pictureUrl || "",
+              //current_address: {
+              //  LinkedInLocation: userResults.location.name || ""
+              //},
+              copied_account: false,
+			  linkedInChange: true
             };
-            //console.log(member);
+			console.log(member);
             // Create a Firebase account and get the Custom Auth Token.
             return createFirebaseAccount(
               "00LI_" + userResults.id,
-              userResults.formattedName,
-              userResults.pictureUrl,
-              userResults.emailAddress
+              member.first_name + ' ' + member.last_name,
+              '',//userResults.pictureUrl,
+              userEmail.elements[0]['handle~']['emailAddress']
             ).then(firebaseToken => {
               // Serve an HTML page that signs the user in and updates the user profile.
               return res.jsonp({
@@ -247,6 +246,7 @@ exports.token = functions.https.onRequest((req, res) => {
               });
             });
           });
+		});
         }
       );
     });
@@ -275,7 +275,7 @@ function createFirebaseAccount(uid, displayName, photoURL, email) {
     .auth()
     .updateUser(uid, {
       displayName: displayName,
-      photoURL: photoURL,
+      //photoURL: photoURL,
       email: email,
       emailVerified: true
     })
@@ -290,7 +290,7 @@ function createFirebaseAccount(uid, displayName, photoURL, email) {
           .createUser({
             uid: uid,
             displayName: displayName,
-            photoURL: photoURL,
+            //photoURL: photoURL,
             email: email,
             emailVerified: true
           })

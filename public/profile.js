@@ -131,6 +131,8 @@ $("#profile_form").submit(function(event) {
   //}
 
   member.bio = $("#bio").val();
+  
+  member.linkedin_profile = $("#linkedin").val();
 
   var private_data = {};
 
@@ -225,6 +227,8 @@ function initApp() {
           $("#MUN_grad_year_box").val(userData["MUN_grad_year"]);
 
         if (userData["bio"] != null) $("#bio").text(userData["bio"]);
+		
+		if (userData["linkedin_profile"] != null) $("#linkedin").val(userData["linkedin_profile"]);
 
         // Privacy
         if (userData["privacy"] === "public") {
