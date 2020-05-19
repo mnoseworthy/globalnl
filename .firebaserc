@@ -1,7 +1,6 @@
 {
   "projects": {
-    "default": "globalnl-database",
-    "staging": "globalnl-database-test",
-    "members": "globalnl-members"
+    "default": "globalnl-members",
+    "staging": "globalnl-database-test"
   }
 }
