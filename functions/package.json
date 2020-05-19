@@ -8,7 +8,7 @@
     "firebase-functions": "^2.2.0",
     "geofire": "^4.1.2",
     "mailgun-js": "^0.22.0",
-    "node-linkedin": "^0.5.4",
+    "node-linkedin": "github:captainjackrana/node-linkedin",
     "nodemailer": "^4.6.8",
     "nodemailer-postmark-transport": "^1.4.1"
   },
@@ -24,5 +24,8 @@
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log"
   },
-  "private": true
+  "private": true,
+  "engines": {
+    "node": "8"
+  }
 }

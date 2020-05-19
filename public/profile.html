@@ -35,10 +35,12 @@
 <header>
       <!-- Fixed navbar -->
       <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+<!--
 		<a class="navbar-brand" href="http://www.globalnl.com/">
 		<img src="/assets/GlobalNL-Logo-Icon-White.png" width="30" height="30" class="d-inline-block align-top" alt="">
 		Global NL
 		</a>
+-->
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -139,6 +141,44 @@
 				</div>
 			</div>
 			
+			<!--Drop down for Industry choice-->
+			<div class="row">
+				<div class="input-group col-xs-12 col-lg-10">
+					<label class="col-xs-4 col-lg-5 col-form-label">Industry</label>
+						<span class="input-group-prepend">
+						<button class="btn btn-outline-secondary border-right-0 border btn-gnl" type="button">
+							<i class="fa fa-industry"></i>
+						</button>
+					  </span>
+						<select id="industry" class="form-control">
+							<option></option>
+							<option>Accommodation and Food Services</option>
+							<option>Administrative and Support</option>
+							<option>Agriculture and Forestry</option></option>
+							<option>Arts, Entertainment and Recreation</option>
+							<option>Construction</option>
+							<option>Education</option>
+							<option>Finance and Insurance</option>
+							<option>Fisheries and Aquaculture</option>
+							<option>Health Care and Social Assistance</option>
+							<option>Manufacturing</option>
+							<option>Mining and Quarrying</option>
+							<option>Oil & Gas</option>
+							<option>Professional, Scientific and Technical Services</option>
+							<option>Public Administration</option>
+							<option>Real Estate and Rental and Leasing</option>
+							<option>Retail</option>
+							<option>Technology</option>
+							<option>Transportation and Warehousing</option>
+							<option>Utilities</option>
+							<option>Waste Management and Remediation Services</option>
+							<option>Wholesale Trade</option>
+							<option>Other</option>
+						</select>
+				</div>
+			</div>
+
+			<!--Drop down for MUN alumni-->
 			<div class="row">
 				<div class="input-group col-xs-12 col-lg-10">
 					<label class="col-xs-4 col-lg-5 col-form-label">Memorial University Alumni</label>
@@ -148,8 +188,8 @@
 						</button>
 					  </span>
 					<select name="status" id="MUN" class="form-control py-2 border-left-0 border selectpicker" onclick="changeMUN();" required>
-						<option value="" selected disabled hidden>Are you a MUN graduate?</option>
-						<option value="Yes">Yes - MUN Grad</option>
+						<option value="" selected disabled hidden>Are you a MUN student/graduate?</option>
+						<option value="Yes">Yes - MUN Student/Graduate</option>
 						<option>No</option>
 					</select>
 				</div>
@@ -219,7 +259,7 @@
 				 <label class="col-xs-4 col-lg-5 col-form-label" ></label>
 				 <div class="form-check col-xs-6 col-lg-7">
                   <input class="form-check-input" type="checkbox" id="mentor">
-				  <label class="form-check-label" for="mentor">I want to help <b>mentor and support</b> NL affiliated companies, organizations and individuals</label>
+				  <label class="form-check-label" for="mentor">I want to help <b>mentor</b> NL affiliated companies, organizations and individuals</label>
                  </div>
 				 <label class="col-xs-4 col-lg-5 col-form-label" ></label>
 				 <div class="form-check col-xs-6 col-lg-7">
@@ -258,8 +298,16 @@
               </div>
 			</div>
 
+				<!-- MUN Privacy Disclaimer -->
+				<div class="row" id="MUN_Privacy" style="padding-top:30px; padding-bottom: 30px;">
+					<div class="input-group col-xs-12 col-lg-12" style="text-align: center;">
+						<i style="font-size: x-small;">Memorial University and the Offices of Alumni Engagement and Development occasionally contact alumni by mail, e-mail and phone with information regarding alumni events, benefits and services.GlobalNL members who indicate they are alumni of Memorial University consent to their profile card being shared with Memorial University Alumni Engagement.</i>
+						<a cLass="munAlumniLink"style="font-size: x-small; margin-left: auto; margin-right: auto;" href="https://www.mun.ca/alumni/globalnl.php" target="___blank">View more information about the GlobalNL and Memorial partnership</a>
+					</div>
+				</div>
+
             <!-- Button -->
-            <div class="text-center">
+            <div class="text-center" style="margin-left: auto; margin-right: auto;">
               <input type="submit" class="btn btn-primary" value="Save">
 			  <input id="cancelButton" type="button" class="btn btn-secondary" value="Cancel Changes">
             </div>

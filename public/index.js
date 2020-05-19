@@ -370,6 +370,13 @@ function loadMembers(querySnapshot) {
         firstName = data.first_name,
         lastName = data.last_name;
 
+      //This is to correct the fact that some of the profiles are missing the http 
+      var pattern1 = /linkedin.com/;
+      var pattern2 = /^((http|https):\/\/)/;
+      if(pattern1.test(data.linkedin_profile) && !pattern2.test(data.linkedin_profile)){
+            data.linkedin_profile = "http://" + data.linkedin_profile;
+      }
+
       var memberFields = {
         public_uid: doc.id,
         firstName: firstName,
@@ -378,7 +385,8 @@ function loadMembers(querySnapshot) {
         industry: data.industry,
         hometown: getLocationString(data.hometown_address),
         bio: data.bio || "",
-        linkedin_profile: data.linkedin_profile
+        linkedin_profile: data.linkedin_profile,
+        munAlumni: data.MUN
       };
 
       // Build element and inject
@@ -407,6 +415,8 @@ function loadMembers(querySnapshot) {
       headerSendAMessage.appendChild(spanSendAMessage);
       headerSendAMessage.appendChild(linkSendAMessage);
 
+      //Variable storing whether the memeber is a mun alumni or not 
+      var vis = memberFields.munAlumni === "Yes" ? "visible" : "hidden";
       var memberDomString;
       if (
         data.linkedin_profile &&
@@ -416,7 +426,10 @@ function loadMembers(querySnapshot) {
       ) {
         memberDomString = `<div class="col-auto p-1 card-col">
 <div id="${memberFields.public_uid}" class="card card-gnl">
+	<div>
 	<div class="card-header card-header-gnl"><span class="fas fa-gnl-head fa-portrait"></span>${firstName} ${lastName}</div>
+	<div class="munLogoAdder" style="position: absolute; right: 10px; top: 5px; visibility: ${vis};"><img src="assets/MUN-Logo-RGB-small.jpg" alt="MUN LOGO"></div>
+	</div>
 	<div class="card-body card-body-gnl">
     <h5 class="card-title"><span class="fas fa-globalnl fa-map-marker-alt"></span>${
       memberFields.currentAddress
@@ -453,7 +466,10 @@ function loadMembers(querySnapshot) {
       ) {
         memberDomString = `<div class="col-auto p-1 card-col">
 <div id="${memberFields.public_uid}" class="card card-gnl">
+	<div>
 	<div class="card-header card-header-gnl"><span class="fas fa-gnl-head fa-portrait"></span>${firstName} ${lastName}</div>
+	<div class="munLogoAdder" style="position: absolute; right: 10px; top: 5px; visibility: ${vis};"><img src="assets/MUN-Logo-RGB-small.jpg" alt="MUN LOGO"></div>
+	</div>
 	<div class="card-body card-body-gnl">
     <h5 class="card-title"><span class="fas fa-globalnl fa-map-marker-alt"></span>${
       memberFields.currentAddress
@@ -484,7 +500,10 @@ function loadMembers(querySnapshot) {
       } else if (memberFields.bio) {
         memberDomString = `<div class="col-auto p-1 card-col">
 <div id="{[0](public_uid)}" class="card card-gnl">
+	<div>
 	<div class="card-header card-header-gnl"><span class="fas fa-gnl-head fa-portrait"></span>${firstName} ${lastName}</div>
+	<div class="munLogoAdder" style="position: absolute; right: 10px; top: 5px; visibility: ${vis};"><img src="assets/MUN-Logo-RGB-small.jpg" alt="MUN LOGO"></div>
+	</div>
 	<div class="card-body card-body-gnl">
     <h5 class="card-title"><span class="fas fa-globalnl fa-map-marker-alt"></span>${
       memberFields.currentAddress
@@ -510,7 +529,10 @@ function loadMembers(querySnapshot) {
       } else {
         memberDomString = `<div class="col-auto p-1 card-col">
 <div id="{[0](public_uid)}" class="card card-gnl">
+	<div>
 	<div class="card-header card-header-gnl"><span class="fas fa-gnl-head fa-portrait"></span>${firstName} ${lastName}</div>
+	<div class="munLogoAdder" style="position: absolute; right: 10px; top: 5px; visibility: ${vis};"><img src="assets/MUN-Logo-RGB-small.jpg" alt="MUN LOGO"></div>
+	</div>
 	<div class="card-body card-body-gnl">
     <h5 class="card-title"><span class="fas fa-globalnl fa-map-marker-alt"></span>${
       memberFields.currentAddress

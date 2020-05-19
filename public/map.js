@@ -126,12 +126,21 @@ function loadMembersOnMap(ne, sw) {
             let homeTown = memberData.hometown_address
               ? memberData.hometown_address.locality || ""
               : "";
+              //This is to correct the fact that some of the profiles are missing the http 
+              var url = memberData.linkedin_profile;
+              var pattern1 = /linkedin.com/;
+              var pattern2 = /^((http|https):\/\/)/;
+              if(pattern1.test(url) && !pattern2.test(url)){
+                url = "http://" + url;
+              }
+            //This to make the member's profile name clickable, opening their LinkedIn profile
             var contentString = `<span class="fas fa-gnl-map fa-portrait"></span><b>${
               memberData.first_name
             } ${memberData.last_name}</b><br/>
 <span class="fas fa-gnl-map fa-map-marker-alt"></span>${currentTown}<br/>					
 <span class="fas fa-gnl-map fa-briefcase"></span>${memberData.industry}<br/>
-<span class="fas fa-gnl-map fa-anchor"></span>${homeTown}`;
+<span class="fas fa-gnl-map fa-anchor"></span>${homeTown}<br/>
+<span class="fab fa-gnl-map fa-linkedin-in"></span><a href="${url}" target="___blank">View LinkedIn Profile</a>`;
             var marker = new google.maps.Marker({
               position: memLoc,
               title: name,

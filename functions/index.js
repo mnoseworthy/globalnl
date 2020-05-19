@@ -186,14 +186,15 @@ exports.token = functions.https.onRequest((req, res) => {
   try {
     return cookieParser()(req, res, () => {
       if (!req.cookies.state) {
-        throw new Error(
-          "State cookie not set or expired. Maybe you took too long to authorize. Please try again."
-        );
+        //throw new Error(
+          console.log("Warning: State cookie not set or expired in token function. Continuing for now.")
+        //);
       }
-      //console.log('Received verification state:', req.cookies.state);
-      Linkedin.auth.authorize(OAUTH_SCOPES, req.cookies.state); // Makes sure the state parameter is set
-      //console.log('Received auth code:', req.query.code);
-      //console.log('Received state:', req.query.state);
+      else{
+      console.log('Received state via cookie:', req.cookies.state);
+      console.log('Received state via query: ', req.query.state);
+      Linkedin.auth.authorize(OAUTH_SCOPES, req.query.state); // Makes sure the state parameter is set
+      console.log('Received auth code:', req.query.code);
       Linkedin.auth.getAccessToken(
         res,
         req.query.code,
@@ -249,7 +250,7 @@ exports.token = functions.https.onRequest((req, res) => {
 		});
         }
       );
-    });
+    }});
   } catch (error) {
     console.log("Error in cookie loading etc", error.toString());
     return res.jsonp({
