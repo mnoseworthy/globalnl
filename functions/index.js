@@ -29,7 +29,7 @@ var mailgun = require("mailgun-js")({
 // Firebase Setup
 const admin = require("firebase-admin");
 
-var serviceAccount = require("./globalnl-members-service-account.json");
+var serviceAccount = require('./' + process.env.GCLOUD_PROJECT + '-service-account.json'); //Automated version
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: `https://${process.env.GCLOUD_PROJECT}.firebaseio.com`
@@ -144,11 +144,20 @@ Reply to this email to respond, your email address will be viewable by the recip
 function linkedInClient() {
   // LinkedIn OAuth 2 setup
   // TODO: Configure the `linkedin.client_id` and `linkedin.client_secret` Google Cloud environment variables.
-  return require("node-linkedin")(
-    functions.config().linkedin.client_id,
-    functions.config().linkedin.client_secret,
-    `https://members.globalnl.com/login.html`
-  );
+  // Determines which project is being used and sets callback url accordingly
+let callbackUrl = `https://members.globalnl.com/login.html`;
+ if(process.env.GCLOUD_PROJECT == 'globalnl-members'){
+ }
+ else if(process.env.GCLOUD_PROJECT == 'globalnl-database-test'){
+   callbackUrl = `https://memberstest.globalnl.com/login.html`;
+ }
+ else{
+   console.log('Unexpected Firebase Project ID for LinkedIn callback URL: ' + process.env.GCLOUD_PROJECT);
+ }
+ return require("node-linkedin")(
+   functions.config().linkedin.client_id,
+   functions.config().linkedin.client_secret,
+   callbackUrl);
   //`https://globalnl-members.firebaseapp.com/login.html`);
   //`https://memberstest.globalnl.com/login.html`);
 }
