@@ -5,8 +5,9 @@
     "cookie-parser": "^1.4.4",
     "firebase": "^5.3.1",
     "firebase-admin": "^5.13.1",
-    "firebase-functions": "^2.2.0",
+    "firebase-functions": "^3.6.1",
     "geofire": "^4.1.2",
+    "mailchimp-api-v3": "^1.14.0",
     "mailgun-js": "^0.22.0",
     "node-linkedin": "github:captainjackrana/node-linkedin",
     "nodemailer": "^4.6.8",
@@ -26,6 +27,6 @@
   },
   "private": true,
   "engines": {
-    "node": "8"
+    "node": "10"
   }
 }

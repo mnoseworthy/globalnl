@@ -5,3 +5,4 @@ globalnl-database-export.js
 .vscode
 .firebase
 node_modules
+debug.js
