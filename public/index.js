@@ -338,9 +338,8 @@ function initLoad() {
     });
 
   fbi
-    .orderBy("last_name")
+    .orderBy("random")
     .where("copied_account", "==", false)
-    .startAt("A")
     .limit(members_per_page)
     .get()
     .then(function(querySnapshot) {
@@ -955,7 +954,7 @@ function memberSearch() {
     }
   } else {
     fbi
-      .orderBy("last_name")
+      .orderBy("random")
       .where("copied_account", "==", false)
       .startAfter(last_read_doc)
       .limit(members_per_page)

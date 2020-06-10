@@ -221,6 +221,10 @@ body {
   /*width: 43px;*/
 }
 
+.btn:not(:disabled):not(.disabled) {
+    cursor: default;
+}
+
 /* LinkedIn On/Off toggle button */
 
 /* The switch - the box around the slider */

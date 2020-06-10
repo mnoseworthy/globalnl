@@ -445,3 +445,60 @@ function sendWelcomeEmail(email, displayName) {
       return console.log("New member signup email notification sent to GlobalNL: " + displayName + " (" + email + ")");
     });
 }
+
+// Randomizes default member view
+exports.dbSet = functions.pubsub.schedule('11 * * * *')
+  .timeZone('America/New_York') // Users can choose timezone - default is America/Los_Angeles
+  .onRun((context) => {
+    console.log('Testing function');
+    let count = 0;
+    let batchNum = 0;
+    let promiseArray = [];
+    let alpha = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
+    let date = new Date();
+    let currentHour = date.getHours();
+    let startLetter = alpha[currentHour];
+    let endLetter = alpha[currentHour + 1];
+    if (currentHour == 23) {
+      endLetter = 'Z';
+    }
+    let randUpdate = db.collection("members")
+      .orderBy("last_name")
+      //.where("copied_account", "==", false)
+      .startAt(startLetter)
+      .endAt(endLetter)
+      .limit(500).get()
+      .then(snapshot => {
+        console.log("Returned " + snapshot._size + " member records between " + startLetter + " and " + endLetter);
+        let limit = 50;
+        // Get a new write batch
+        let batch = [];
+        batch[0] = db.batch();
+        snapshot.forEach(doc => {
+          //console.log("batch: " + (batchNum + 1) + " limit: " + limit + " count: " + count + " member: " + doc.data().first_name + ' ' + doc.data().last_name);
+          count = count + 1;
+          if (limit == 0) {
+            promiseArray.push(batch[batchNum].commit().then(function() {
+              console.log("Database update complete for batch # " + (batchNum + 1) + " (mid)");
+            }));
+            batchNum = batchNum + 1;
+            batch[batchNum] = db.batch();
+            limit = 50;
+          }
+          batch[batchNum].update(db.collection("members").doc(doc.id), {
+            random: Math.ceil(Math.random(1000) * 1000)
+          });
+          limit = limit - 1;
+        });
+        promiseArray.push(batch[batchNum].commit().then(function() {
+          console.log("Database update complete for batch # " + (batchNum + 1) + " (end)");
+        }));
+      })
+      .catch(err => {
+        console.log('Error getting documents ', err);
+      });
+    //console.log("Completed function with " + count + " records processed.");
+    return Promise.all(promiseArray).then(() => {
+      console.log("Completing function for records between " + startLetter + " and " + endLetter);
+    });
+});

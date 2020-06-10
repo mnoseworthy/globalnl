@@ -1,7 +1,7 @@
 const firebase = require("firebase-admin");
 
-var serviceAccountSource = require("./globalnl-database-service-account.json"); // source DB key
-var serviceAccountDestination = require("./globalnl-members-service-account.json"); // destiny DB key
+var serviceAccountSource = require("./globalnl-members-service-account.json"); // source DB key
+var serviceAccountDestination = require("./globalnl-database-test-service-account"); // destination DB key
 
 const sourceAdmin = firebase.initializeApp({
   credential: firebase.credential.cert(serviceAccountSource)
@@ -21,23 +21,18 @@ const destinationAdmin = firebase.initializeApp(
   own subcollection, messages.
 */
 const schema = {
-  //members: {
-  //   current_address: {},
-  //  hometown_address: {}
-  //   },
+  members: {},
   moderators: {},
-  private_data: {
-    interests: {}
-  }
+  private_data: {}
 };
 
 var source = sourceAdmin.firestore();
 var destination = destinationAdmin.firestore();
 
-const copy = (sourceDBrep, destinationDBref, schema) => {
+const copy = (sourceDBref, destinationDBref, schema) => {
   return Promise.all(
     Object.keys(schema).map(collection => {
-      return sourceDBrep
+      return sourceDBref
         .collection(collection)
         .get()
         .then(data => {
