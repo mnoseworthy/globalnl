@@ -165,6 +165,7 @@ body {
 .btn-gnl {
   border-top-left-radius: 4px !important;
   border-bottom-left-radius: 4px !important;
+  cursor: default !important;
 }
 
 .linkedin_profile_card {
@@ -221,9 +222,6 @@ body {
   /*width: 43px;*/
 }
 
-.btn:not(:disabled):not(.disabled) {
-    cursor: default;
-}
 
 /* LinkedIn On/Off toggle button */
 
@@ -305,5 +303,56 @@ input:checked + .slider:before {
 @media (min-width: 992px) {
   .col-form-label {
     text-align: right;
+  }
+}
+
+/* Modal background */
+.modal {
+  display: none; /* Hidden by default */
+  p /* IMPORTANT: Hides icons behind the modal. Any sort of position breaks it but it works with p for some reason */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal content */
+.modal-content {
+  background-color: #fefefe;
+  margin: 15% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+}
+
+/* Modal close button */
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+/* Highlighting modal close button */
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* For images in the modal */
+.modal-image {
+  width: 100%;
+}
+
+/* Moves open button for modal in on smaller screens */
+@media (max-width: 992px) {
+  .modal-btn-phone {
+    margin-left: 5%
   }
 }

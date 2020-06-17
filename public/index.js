@@ -339,7 +339,7 @@ function initLoad() {
 
   fbi
     .orderBy("random")
-    .where("copied_account", "==", false)
+    //.where("copied_account", "==", false)
     .limit(members_per_page)
     .get()
     .then(function(querySnapshot) {
@@ -363,7 +363,7 @@ function loadMembers(querySnapshot) {
       // doc.data() is never undefined for query doc snapshots
 
       // copied_account set if old account migrated over - need to manually delete these
-      //if(!doc.data().copied_account){
+      //if(!doc.data().){
       // Build argument's for memberElement
       var data = doc.data(),
         firstName = data.first_name,
@@ -582,7 +582,7 @@ function memberSearch() {
       console.log("First name and last name entered");
       fbi
         .startAfter(last_read_doc)
-        .where("copied_account", "==", false)
+        //.where("copied_account", "==", false)
         .where("last_name", "==", formStatic["name"]["last"])
         .where("first_name", "==", formStatic["name"]["first"])
         .limit(members_per_page)
@@ -594,7 +594,7 @@ function memberSearch() {
       console.log("Last name only entered");
       fbi
         .startAfter(last_read_doc)
-        .where("copied_account", "==", false)
+        //.where("copied_account", "==", false)
         .where("last_name", "==", formStatic["name"]["last"])
         .limit(members_per_page)
         .get()
@@ -606,7 +606,7 @@ function memberSearch() {
       fbi
         .orderBy("last_name")
         .startAfter(last_read_doc)
-        .where("copied_account", "==", false)
+        //.where("copied_account", "==", false)
         .where("first_name", "==", formStatic["name"]["first"])
         .limit(members_per_page)
         .get()
@@ -622,7 +622,7 @@ function memberSearch() {
     } else if (formStatic["name"]["first"] && formStatic["name"]["last"]) {
       console.log("First name and last name entered");
       fbi
-        .where("copied_account", "==", false)
+        //.where("copied_account", "==", false)
         .where("last_name", "==", formStatic["name"]["last"])
         .where("first_name", "==", formStatic["name"]["first"])
         .limit(members_per_page)
@@ -633,7 +633,7 @@ function memberSearch() {
     } else if (formStatic["name"]["last"]) {
       console.log("Last name only entered");
       fbi
-        .where("copied_account", "==", false)
+        //.where("copied_account", "==", false)
         .where("last_name", "==", formStatic["name"]["last"])
         .limit(members_per_page)
         .get()
@@ -644,7 +644,7 @@ function memberSearch() {
       console.log("First name only entered");
       fbi
         .orderBy("last_name")
-        .where("copied_account", "==", false)
+        //.where("copied_account", "==", false)
         .where("first_name", "==", formStatic["name"]["first"])
         .limit(members_per_page)
         .get()
@@ -660,9 +660,9 @@ function memberSearch() {
     } else if (formStatic["location"]["city"]) {
       console.log("Town entered");
       fbi
-        .orderBy("last_name")
+        .orderBy("random")
         .startAfter(last_read_doc)
-        .where("copied_account", "==", false)
+        //.where("copied_account", "==", false)
         .where("current_address.locality", "==", formStatic["location"]["city"])
         .where(
           "current_address.administrative_area_level_1",
@@ -682,9 +682,9 @@ function memberSearch() {
     } else if (formStatic["location"]["prov"]) {
       console.log("Province/State entered");
       fbi
-        .orderBy("last_name")
+        .orderBy("random")
         .startAfter(last_read_doc)
-        .where("copied_account", "==", false)
+        //.where("copied_account", "==", false)
         .where(
           "current_address.administrative_area_level_1",
           "==",
@@ -703,9 +703,9 @@ function memberSearch() {
     } else if (formStatic["location"]["country"]) {
       console.log("Country entered");
       fbi
-        .orderBy("last_name")
+        .orderBy("random")
         .startAfter(last_read_doc)
-        .where("copied_account", "==", false)
+        //.where("copied_account", "==", false)
         .where(
           "current_address.country",
           "==",
@@ -725,8 +725,8 @@ function memberSearch() {
     } else if (formStatic["location"]["city"]) {
       console.log("Town entered");
       fbi
-        .orderBy("last_name")
-        .where("copied_account", "==", false)
+        .orderBy("random")
+        //.where("copied_account", "==", false)
         .where("current_address.locality", "==", formStatic["location"]["city"])
         .where(
           "current_address.administrative_area_level_1",
@@ -747,8 +747,8 @@ function memberSearch() {
     } else if (formStatic["location"]["prov"]) {
       console.log("Province/State entered");
       fbi
-        .orderBy("last_name")
-        .where("copied_account", "==", false)
+        .orderBy("random")
+        //.where("copied_account", "==", false)
         .where(
           "current_address.administrative_area_level_1",
           "==",
@@ -768,8 +768,8 @@ function memberSearch() {
     } else if (formStatic["location"]["country"]) {
       console.log("Country entered");
       fbi
-        .orderBy("last_name")
-        .where("copied_account", "==", false)
+        .orderBy("random")
+        //.where("copied_account", "==", false)
         .where(
           "current_address.country",
           "==",
@@ -790,9 +790,9 @@ function memberSearch() {
     } else {
       console.log("Industry entered");
       fbi
-        .orderBy("last_name")
+        .orderBy("random")
         .startAfter(last_read_doc)
-        .where("copied_account", "==", false)
+        //.where("copied_account", "==", false)
         .where("industry", "==", formStatic["industry"])
         .limit(members_per_page)
         .get()
@@ -806,8 +806,8 @@ function memberSearch() {
     } else {
       console.log("Industry entered");
       fbi
-        .orderBy("last_name")
-        .where("copied_account", "==", false)
+        .orderBy("random")
+        //.where("copied_account", "==", false)
         .where("industry", "==", formStatic["industry"])
         .limit(members_per_page)
         .get()
@@ -846,9 +846,9 @@ function memberSearch() {
     } else if (formStatic["hometown"]["prov"]) {
       console.log("Province/State entered");
       fbi
-        .orderBy("last_name")
+        .orderBy("random")
         .startAfter(last_read_doc)
-        .where("copied_account", "==", false)
+        //.where("copied_account", "==", false)
         .where(
           "hometown_address.administrative_area_level_1",
           "==",
@@ -867,9 +867,9 @@ function memberSearch() {
     } else if (formStatic["hometown"]["country"]) {
       console.log("Country entered");
       fbi
-        .orderBy("last_name")
+        .orderBy("random")
         .startAfter(last_read_doc)
-        .where("copied_account", "==", false)
+        //.where("copied_account", "==", false)
         .where(
           "hometown_address.country",
           "==",
@@ -889,8 +889,8 @@ function memberSearch() {
     } else if (formStatic["hometown"]["city"]) {
       console.log("Town entered");
       fbi
-        .orderBy("last_name")
-        .where("copied_account", "==", false)
+        .orderBy("random")
+        //.where("copied_account", "==", false)
         .where(
           "hometown_address.locality",
           "==",
@@ -915,8 +915,8 @@ function memberSearch() {
     } else if (formStatic["hometown"]["prov"]) {
       console.log("Province/State entered");
       fbi
-        .orderBy("last_name")
-        .where("copied_account", "==", false)
+        .orderBy("random")
+        //.where("copied_account", "==", false)
         .where(
           "hometown_address.administrative_area_level_1",
           "==",
@@ -936,8 +936,8 @@ function memberSearch() {
     } else if (formStatic["hometown"]["country"]) {
       console.log("Country entered");
       fbi
-        .orderBy("last_name")
-        .where("copied_account", "==", false)
+        .orderBy("random")
+        //.where("copied_account", "==", false)
         .where(
           "hometown_address.country",
           "==",
@@ -955,7 +955,7 @@ function memberSearch() {
   } else {
     fbi
       .orderBy("random")
-      .where("copied_account", "==", false)
+      //.where("copied_account", "==", false)
       .startAfter(last_read_doc)
       .limit(members_per_page)
       .get()
