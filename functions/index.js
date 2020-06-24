@@ -464,7 +464,6 @@ exports.dbSet = functions.pubsub.schedule('11 * * * *')
     }
     let randUpdate = db.collection("members")
       .orderBy("last_name")
-      //.where("copied_account", "==", false)
       .startAt(startLetter)
       .endAt(endLetter)
       .limit(500).get()

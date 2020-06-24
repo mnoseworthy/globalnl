@@ -64,6 +64,9 @@ body {
   #linkedin_nav {
     display: none;
   }
+  #adminEditToggle {
+    display: none;
+  }
   #display_name_label {
     display: none;
   }
@@ -307,10 +310,8 @@ input:checked + .slider:before {
 }
 
 /* Modal background */
-.modal {
+.gnl-modal {
   display: none; /* Hidden by default */
-  p /* IMPORTANT: Hides icons behind the modal. Any sort of position breaks it but it works with p for some reason */
-  z-index: 1; /* Sit on top */
   left: 0;
   top: 0;
   width: 100%; /* Full width */
@@ -350,9 +351,13 @@ input:checked + .slider:before {
   width: 100%;
 }
 
-/* Moves open button for modal in on smaller screens */
-@media (max-width: 992px) {
-  .modal-btn-phone {
-    margin-left: 5%
-  }
+
+.adminButton {
+  display: none;
+  margin-left: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+#adminEditToggle {
+  display: none;
 }

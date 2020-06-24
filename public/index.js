@@ -51,6 +51,7 @@ function renderWithUser(user) {
       LinkedInEnable = false;
     }
   });
+  showAdminToggle();
 }
 
 function renderWithoutUser() {
@@ -423,8 +424,9 @@ function loadMembers(querySnapshot) {
         LinkedInEnable &&
         memberFields.bio
       ) {
+        showAdminButton();
         memberDomString = `<div class="col-auto p-1 card-col">
-<div id="${memberFields.public_uid}" class="card card-gnl">
+<div class="card card-gnl">
 	<div>
 	<div class="card-header card-header-gnl"><span class="fas fa-gnl-head fa-portrait"></span>${firstName} ${lastName}</div>
 	<div class="munLogoAdder" style="position: absolute; right: 10px; top: 5px; visibility: ${vis};"><img src="assets/MUN-Logo-RGB-small.jpg" alt="MUN LOGO"></div>
@@ -439,9 +441,11 @@ function loadMembers(querySnapshot) {
     <h5 class="card-title"><span class="fas fa-globalnl fa-anchor"></span>${
       memberFields.hometown
     }</h5>
-    <h5 class="card-title"><span class="fas fa-globalnl fa-info-circle"></span>${
-      memberFields.bio
-    }</h5>
+    <h5 class="card-title"><table><tr>
+    <td class="fas fa-globalnl fa-info-circle"></td>
+    <td style="padding-right:0.5rem"> ${memberFields.bio}</td>
+    </tr></table></h5>
+    <button id="${memberFields.public_uid}" type="button" class="btn btn-light adminButton" onclick="adminRedirect();"> Edit Profile as Administrator </button>
     <div class="linkedin_profile_card">
       <div class="LI-profile-badge"  data-version="v1" data-size="medium" data-locale="en_US" data-type="horizontal" data-theme="light"
 	  data-vanity="${memberFields.linkedin_profile.substring(memberFields.linkedin_profile.indexOf('/in/')+4).replace('/','')}">
@@ -463,8 +467,9 @@ function loadMembers(querySnapshot) {
         data.linkedin_profile.length > 30 &&
         LinkedInEnable
       ) {
+        showAdminButton();
         memberDomString = `<div class="col-auto p-1 card-col">
-<div id="${memberFields.public_uid}" class="card card-gnl">
+<div class="card card-gnl">
 	<div>
 	<div class="card-header card-header-gnl"><span class="fas fa-gnl-head fa-portrait"></span>${firstName} ${lastName}</div>
 	<div class="munLogoAdder" style="position: absolute; right: 10px; top: 5px; visibility: ${vis};"><img src="assets/MUN-Logo-RGB-small.jpg" alt="MUN LOGO"></div>
@@ -479,6 +484,7 @@ function loadMembers(querySnapshot) {
     <h5 class="card-title"><span class="fas fa-globalnl fa-anchor"></span>${
       memberFields.hometown
     }</h5>
+    <button id="${memberFields.public_uid}" type="button" class="btn btn-light adminButton" onclick="adminRedirect();"> Edit Profile as Administrator </button>
     <div class="linkedin_profile_card">
       <div class="LI-profile-badge"  data-version="v1" data-size="medium" data-locale="en_US" data-type="horizontal" data-theme="light"
 	  data-vanity="${memberFields.linkedin_profile.substring(memberFields.linkedin_profile.indexOf('/in/')+4).replace('/','')}">
@@ -497,8 +503,9 @@ function loadMembers(querySnapshot) {
             doc.id
         );
       } else if (memberFields.bio) {
+        showAdminButton();
         memberDomString = `<div class="col-auto p-1 card-col">
-<div id="{[0](public_uid)}" class="card card-gnl">
+<div class="card card-gnl">
 	<div>
 	<div class="card-header card-header-gnl"><span class="fas fa-gnl-head fa-portrait"></span>${firstName} ${lastName}</div>
 	<div class="munLogoAdder" style="position: absolute; right: 10px; top: 5px; visibility: ${vis};"><img src="assets/MUN-Logo-RGB-small.jpg" alt="MUN LOGO"></div>
@@ -513,9 +520,11 @@ function loadMembers(querySnapshot) {
     <h5 class="card-title"><span class="fas fa-globalnl fa-anchor"></span>${
       memberFields.hometown
     }</h5>
-    <h5 class="card-title"><span class="fas fa-globalnl fa-info-circle"></span>${
-      memberFields.bio
-    }</h5>
+    <h5 class="card-title"><table><tr>
+    <td class="fas fa-globalnl fa-info-circle"></td>
+    <td style="padding-right:0.5rem"> ${memberFields.bio} </td>
+    </tr></table></h5>
+    <button id="${memberFields.public_uid}" type="button" class="btn btn-light adminButton" onclick="adminRedirect();"> Edit Profile as Administrator </button>
   </div>
 </div>
 </div>`;
@@ -526,8 +535,9 @@ function loadMembers(querySnapshot) {
             doc.id
         );
       } else {
+        showAdminButton();
         memberDomString = `<div class="col-auto p-1 card-col">
-<div id="{[0](public_uid)}" class="card card-gnl">
+<div class="card card-gnl">
 	<div>
 	<div class="card-header card-header-gnl"><span class="fas fa-gnl-head fa-portrait"></span>${firstName} ${lastName}</div>
 	<div class="munLogoAdder" style="position: absolute; right: 10px; top: 5px; visibility: ${vis};"><img src="assets/MUN-Logo-RGB-small.jpg" alt="MUN LOGO"></div>
@@ -542,6 +552,7 @@ function loadMembers(querySnapshot) {
     <h5 class="card-title"><span class="fas fa-globalnl fa-anchor"></span>${
       memberFields.hometown
     }</h5>
+    <button id="${memberFields.public_uid}" type="button" class="btn btn-light adminButton" onclick="adminRedirect();"> Edit Profile as Administrator </button>
   </div>
 </div>
 </div>`;
@@ -582,7 +593,6 @@ function memberSearch() {
       console.log("First name and last name entered");
       fbi
         .startAfter(last_read_doc)
-        //.where("copied_account", "==", false)
         .where("last_name", "==", formStatic["name"]["last"])
         .where("first_name", "==", formStatic["name"]["first"])
         .limit(members_per_page)
@@ -594,7 +604,6 @@ function memberSearch() {
       console.log("Last name only entered");
       fbi
         .startAfter(last_read_doc)
-        //.where("copied_account", "==", false)
         .where("last_name", "==", formStatic["name"]["last"])
         .limit(members_per_page)
         .get()
@@ -606,7 +615,6 @@ function memberSearch() {
       fbi
         .orderBy("last_name")
         .startAfter(last_read_doc)
-        //.where("copied_account", "==", false)
         .where("first_name", "==", formStatic["name"]["first"])
         .limit(members_per_page)
         .get()
@@ -622,7 +630,6 @@ function memberSearch() {
     } else if (formStatic["name"]["first"] && formStatic["name"]["last"]) {
       console.log("First name and last name entered");
       fbi
-        //.where("copied_account", "==", false)
         .where("last_name", "==", formStatic["name"]["last"])
         .where("first_name", "==", formStatic["name"]["first"])
         .limit(members_per_page)
@@ -633,7 +640,6 @@ function memberSearch() {
     } else if (formStatic["name"]["last"]) {
       console.log("Last name only entered");
       fbi
-        //.where("copied_account", "==", false)
         .where("last_name", "==", formStatic["name"]["last"])
         .limit(members_per_page)
         .get()
@@ -644,7 +650,6 @@ function memberSearch() {
       console.log("First name only entered");
       fbi
         .orderBy("last_name")
-        //.where("copied_account", "==", false)
         .where("first_name", "==", formStatic["name"]["first"])
         .limit(members_per_page)
         .get()
@@ -662,7 +667,6 @@ function memberSearch() {
       fbi
         .orderBy("random")
         .startAfter(last_read_doc)
-        //.where("copied_account", "==", false)
         .where("current_address.locality", "==", formStatic["location"]["city"])
         .where(
           "current_address.administrative_area_level_1",
@@ -684,7 +688,6 @@ function memberSearch() {
       fbi
         .orderBy("random")
         .startAfter(last_read_doc)
-        //.where("copied_account", "==", false)
         .where(
           "current_address.administrative_area_level_1",
           "==",
@@ -705,7 +708,6 @@ function memberSearch() {
       fbi
         .orderBy("random")
         .startAfter(last_read_doc)
-        //.where("copied_account", "==", false)
         .where(
           "current_address.country",
           "==",
@@ -726,7 +728,6 @@ function memberSearch() {
       console.log("Town entered");
       fbi
         .orderBy("random")
-        //.where("copied_account", "==", false)
         .where("current_address.locality", "==", formStatic["location"]["city"])
         .where(
           "current_address.administrative_area_level_1",
@@ -748,7 +749,6 @@ function memberSearch() {
       console.log("Province/State entered");
       fbi
         .orderBy("random")
-        //.where("copied_account", "==", false)
         .where(
           "current_address.administrative_area_level_1",
           "==",
@@ -769,7 +769,6 @@ function memberSearch() {
       console.log("Country entered");
       fbi
         .orderBy("random")
-        //.where("copied_account", "==", false)
         .where(
           "current_address.country",
           "==",
@@ -792,7 +791,6 @@ function memberSearch() {
       fbi
         .orderBy("random")
         .startAfter(last_read_doc)
-        //.where("copied_account", "==", false)
         .where("industry", "==", formStatic["industry"])
         .limit(members_per_page)
         .get()
@@ -807,7 +805,6 @@ function memberSearch() {
       console.log("Industry entered");
       fbi
         .orderBy("random")
-        //.where("copied_account", "==", false)
         .where("industry", "==", formStatic["industry"])
         .limit(members_per_page)
         .get()
@@ -821,7 +818,7 @@ function memberSearch() {
     } else if (formStatic["hometown"]["city"]) {
       console.log("Town entered");
       fbi
-        .orderBy("last_name")
+        .orderBy("random")
         .startAfter(last_read_doc)
         .where(
           "hometown_address.locality",
@@ -848,7 +845,6 @@ function memberSearch() {
       fbi
         .orderBy("random")
         .startAfter(last_read_doc)
-        //.where("copied_account", "==", false)
         .where(
           "hometown_address.administrative_area_level_1",
           "==",
@@ -869,7 +865,6 @@ function memberSearch() {
       fbi
         .orderBy("random")
         .startAfter(last_read_doc)
-        //.where("copied_account", "==", false)
         .where(
           "hometown_address.country",
           "==",
@@ -890,7 +885,6 @@ function memberSearch() {
       console.log("Town entered");
       fbi
         .orderBy("random")
-        //.where("copied_account", "==", false)
         .where(
           "hometown_address.locality",
           "==",
@@ -916,7 +910,6 @@ function memberSearch() {
       console.log("Province/State entered");
       fbi
         .orderBy("random")
-        //.where("copied_account", "==", false)
         .where(
           "hometown_address.administrative_area_level_1",
           "==",
@@ -937,7 +930,6 @@ function memberSearch() {
       console.log("Country entered");
       fbi
         .orderBy("random")
-        //.where("copied_account", "==", false)
         .where(
           "hometown_address.country",
           "==",
@@ -955,7 +947,6 @@ function memberSearch() {
   } else {
     fbi
       .orderBy("random")
-      //.where("copied_account", "==", false)
       .startAfter(last_read_doc)
       .limit(members_per_page)
       .get()
@@ -1043,3 +1034,48 @@ function initAutocomplete() {
     false
   );
 }
+
+// determines whether to show the admin button based on the admin toggle status
+function showAdminButton() {
+  // checks toggle status in sessionStorage for reload situations
+  //Keeps edit buttons shown if page is refreshed, search is made, etc.
+  if ((sessionStorage.getItem("adminToggle")) == "true") {
+    $("#adminToggleState").prop("checked", true); // sets the toggle to be on after refresh if it was on before
+    $('.adminButton').show();
+  }
+  // checks toggle status when it is changed and adjusts buttons accordingly
+  $("#adminToggleState").change(function() {
+    if ($("#adminToggleState:checked").val() == "on") {
+      sessionStorage.setItem("adminToggle", true);
+      $('.adminButton').show();
+    }
+    else {
+      sessionStorage.setItem("adminToggle", false);
+      $('.adminButton').hide();
+    }
+  });
+}
+
+// redirect to edit profile page from the admin buttons
+function adminRedirect() {
+  sessionStorage.setItem("uid", event.target.id);
+  window.open("/profile.html", "_blank");
+}
+
+// Shows toggle for admins to see edit profile buttons
+function showAdminToggle() {
+  firebase.firestore().collection("moderators").doc(firebase.auth().currentUser.uid).get().then(doc => {
+    // Show the admin toggle if moderator=true for the user
+    if (doc.data().moderator) {
+      $("#adminEditToggle").show();
+    }
+  })
+  .catch(error => {
+    console.log("User is not an admin");
+  });
+}
+
+// Reloads members with/without edit button when toggle is switched
+$("#adminToggleState").click(function() {
+  loadMembers(querySnapshot);
+});

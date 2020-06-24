@@ -105,7 +105,6 @@ function loadMembersOnMap(ne, sw) {
   // Oddly enough, you can't filter over different fields... so we take whatever is
   // between the latitude lines and filter out the longitude locally
   fbi
-    .where("copied_account", "==", false)
     .where("current_address.lat", "<", ne.lat)
     .where("current_address.lat", ">", sw.lat)
     .get()

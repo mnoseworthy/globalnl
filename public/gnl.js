@@ -44,6 +44,15 @@ window.gnl = (function() {
       </label>
     </a>
   </li>
+  <li id="adminEditToggle" class="nav-item">
+    <a class="nav-link" style="padding:8px 8px 0px 0px;">
+      <span style="vertical-align:top; margin-top:5px;" class="fas fa-globalnl fa-edit"></span>
+      <label class="switch">
+        <input id="adminToggleState" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+    </a>
+  </li>
   `;
 
   const loggedInUserBar = `
@@ -51,7 +60,7 @@ window.gnl = (function() {
     <a class="nav-link" href="#"><span class="fas fa-globalnl fa-user"></span><span id="login_name"></span></a>
   </li>
   <li class="nav-item">
-    <a class="nav-link" href="profile.html"><span class="fas fa-globalnl fa-edit"></span><span>Edit profile</span></a>
+    <a class="nav-link" href="profile.html" onclick="adminUidReset();"><span class="fas fa-globalnl fa-user-edit"></span><span>Edit profile</span></a>
   </li>
   <li id="button_logout" class="nav-item">
     <a class="nav-link" href="#"><span class="fas fa-globalnl fa-sign-out-alt"></span><span>Logout</span></a>
@@ -188,3 +197,8 @@ window.gnl = (function() {
     location: location
   };
 })();
+
+// Allows an admin to get to their own profile after editing others
+function adminUidReset() {
+  sessionStorage.removeItem("uid");
+}

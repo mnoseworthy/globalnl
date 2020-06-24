@@ -230,7 +230,9 @@
 					<input name="linkedin" id="linkedin" class="form-control py-2 border-left-0 border" placeholder="https://www.linkedin.com/in/YOUR-PROFILE-URL/" required>
 				</div>
 				<!-- Open The LinkedIn Link Modal -->
-				<button type="button" class="btn btn-primary modal-btn-phone" id="LImodal_btn">Get my link</button>
+				<div class="input-group col-xs-2 col-lg-2">
+					<button type="button" class="btn btn-primary" id="LImodal_btn">Get my link</button>
+				</div>
 			</div>
   </div>
 </div>
@@ -300,14 +302,15 @@
 				<!-- MUN Privacy Disclaimer -->
 				<div class="row" id="MUN_Privacy" style="padding-top:30px; padding-bottom: 30px;">
 					<div class="input-group col-xs-12 col-lg-12" style="text-align: center;">
-						<i style="font-size: x-small;">Memorial University and the Offices of Alumni Engagement and Development occasionally contact alumni by mail, e-mail and phone with information regarding alumni events, benefits and services.GlobalNL members who indicate they are alumni of Memorial University consent to their profile card being shared with Memorial University Alumni Engagement.</i>
+						<i style="font-size: x-small;">Memorial University and the Offices of Alumni Engagement and Development occasionally contact alumni by mail, e-mail and phone with information regarding alumni events, benefits and services.
+							<br>GlobalNL members who indicate they are alumni of Memorial University consent to their profile card being shared with Memorial University Alumni Engagement.</i>
 						<a cLass="munAlumniLink"style="font-size: x-small; margin-left: auto; margin-right: auto;" href="https://www.mun.ca/alumni/globalnl.php" target="___blank">View more information about the GlobalNL and Memorial partnership</a>
 					</div>
 				</div>
 
             <!-- Button -->
             <div class="text-center" style="margin-left: auto; margin-right: auto;">
-              <input id="submitButton" type="submit" class="btn btn-primary" value="Save">
+              <button id="submitButton" type="button" class="btn btn-primary"> Save </button>
 			  			<input id="cancelButton" type="button" class="btn btn-secondary" value="Cancel Changes">
             </div>
 
@@ -316,7 +319,7 @@
     </div>
   </div>
 	<!-- LI link modal window -->
-	<div id="LImodal" class="modal">
+	<div id="LImodal" class="modal gnl-modal">
 		<div class="modal-dialog modal-dialog-centered modal-lg" role="document" style="max-width:800px">
 			<div class="modal-content" style="width:auto; max-width:800px">
 				<div class="modal-header">
@@ -326,7 +329,8 @@
 					</button>
 				</div>
 				<div class="modal-body">
-					<a>  Click the "View My Profile" button below to open LinkedIn in a new window, copy your profile URL as shown in the screenshot, and then return here to paste. </a>
+					<p>  Click the "View My Profile" button below to open LinkedIn in a new window.
+					<br> Copy your profile URL and then return here to paste it in the form - as shown step-by-step below. </p>
 					<hr>
 					<img src="assets/LI_Link.gif" class="modal-image"></img>
 					<hr>
