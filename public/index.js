@@ -1,10 +1,10 @@
 /******************************************************
  * Global variables
  ******************************************************/
- 
+
 window.LIBadgeCallback = (function() {
     var cached_function = window.LIBadgeCallback;
-    return function() {      
+    return function() {
         var result = cached_function.apply(this, arguments);
         $('.LI-view-profile').html('View LinkedIn Profile');
         return result;
@@ -340,7 +340,6 @@ function initLoad() {
 
   fbi
     .orderBy("random")
-    //.where("copied_account", "==", false)
     .limit(members_per_page)
     .get()
     .then(function(querySnapshot) {
@@ -370,12 +369,6 @@ function loadMembers(querySnapshot) {
         firstName = data.first_name,
         lastName = data.last_name;
 
-      //This is to correct the fact that some of the profiles are missing the http 
-      var pattern1 = /linkedin.com/;
-      var pattern2 = /^((http|https):\/\/)/;
-      if(pattern1.test(data.linkedin_profile) && !pattern2.test(data.linkedin_profile)){
-            data.linkedin_profile = "http://" + data.linkedin_profile;
-      }
 
       var memberFields = {
         public_uid: doc.id,
@@ -415,9 +408,15 @@ function loadMembers(querySnapshot) {
       headerSendAMessage.appendChild(spanSendAMessage);
       headerSendAMessage.appendChild(linkSendAMessage);
 
-      //Variable storing whether the memeber is a mun alumni or not 
+      //Variable storing whether the memeber is a mun alumni or not
       var vis = memberFields.munAlumni === "Yes" ? "visible" : "hidden";
       var memberDomString;
+
+      // adding spaces between multiple industries on profiles
+      if (memberFields.industry) {
+        var cardIndustry = memberFields.industry.toString().replace(",", ", ");
+      }
+
       if (
         data.linkedin_profile &&
         data.linkedin_profile.length > 30 &&
@@ -436,7 +435,7 @@ function loadMembers(querySnapshot) {
       memberFields.currentAddress
     }</h5>
     <h5 class="card-title"><span class="fas fa-globalnl fa-briefcase"></span>${
-      memberFields.industry
+      cardIndustry
     }</h5>
     <h5 class="card-title"><span class="fas fa-globalnl fa-anchor"></span>${
       memberFields.hometown
@@ -479,7 +478,7 @@ function loadMembers(querySnapshot) {
       memberFields.currentAddress
     }</h5>
     <h5 class="card-title"><span class="fas fa-globalnl fa-briefcase"></span>${
-      memberFields.industry
+      cardIndustry
     }</h5>
     <h5 class="card-title"><span class="fas fa-globalnl fa-anchor"></span>${
       memberFields.hometown
@@ -515,7 +514,7 @@ function loadMembers(querySnapshot) {
       memberFields.currentAddress
     }</h5>
     <h5 class="card-title"><span class="fas fa-globalnl fa-briefcase"></span>${
-      memberFields.industry
+      cardIndustry
     }</h5>
     <h5 class="card-title"><span class="fas fa-globalnl fa-anchor"></span>${
       memberFields.hometown
@@ -547,7 +546,7 @@ function loadMembers(querySnapshot) {
       memberFields.currentAddress
     }</h5>
     <h5 class="card-title"><span class="fas fa-globalnl fa-briefcase"></span>${
-      memberFields.industry
+      cardIndustry
     }</h5>
     <h5 class="card-title"><span class="fas fa-globalnl fa-anchor"></span>${
       memberFields.hometown
@@ -791,7 +790,7 @@ function memberSearch() {
       fbi
         .orderBy("random")
         .startAfter(last_read_doc)
-        .where("industry", "==", formStatic["industry"])
+        .where("industry", "array-contains", formStatic["industry"])
         .limit(members_per_page)
         .get()
         .then(function(querySnapshot) {
@@ -805,7 +804,7 @@ function memberSearch() {
       console.log("Industry entered");
       fbi
         .orderBy("random")
-        .where("industry", "==", formStatic["industry"])
+        .where("industry", "array-contains", formStatic["industry"])
         .limit(members_per_page)
         .get()
         .then(function(querySnapshot) {
@@ -947,7 +946,7 @@ function memberSearch() {
   } else {
     fbi
       .orderBy("random")
-      .startAfter(last_read_doc)
+      .startAt(last_read_doc)
       .limit(members_per_page)
       .get()
       .then(function(querySnapshot) {
@@ -1079,3 +1078,23 @@ function showAdminToggle() {
 $("#adminToggleState").click(function() {
   loadMembers(querySnapshot);
 });
+
+function dbMigration() {
+  firebase.firestore().collection("members").get().then(function(querySnapshot) {
+    querySnapshot.forEach(function(doc) {
+      let industry = doc.data().industry;
+      if (industry) {
+        if (typeof industry == "string") {
+          firebase.firestore().collection("members").doc(doc.id).update({
+            industry: [industry]
+          });
+        }
+      }
+      else {
+        firebase.firestore().collection("members").doc(doc.id).update({
+          industry: []
+        });
+      }
+    });
+  });
+}

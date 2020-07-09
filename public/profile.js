@@ -30,6 +30,10 @@ function renderWithUser(user) {
     if (doc.data().moderator && sessionStorage.getItem("uid") != null) {
       // Use the uid set in session storage by the admin button to edit the desired profile
       uid = sessionStorage.getItem("uid");
+      // change the profile page title when admin is editing another profile
+      if (document.title == "Global NL - Member Profile") {   // check the page to prevent the title from changing on DBTable too
+        document.title = "Global NL - Member Profile (Admin Edit)"
+      }
     }
   })
   // Catch error caused by the doc not existing in moderators collection
@@ -132,6 +136,7 @@ $("#submitButton").click(function(event) {
   member.MUN = $("#MUN").val();
   member.privacy = $("input[name=privacy]:checked").val();
   member.date_updated = Date.now();
+  member.random = 0; // Push new/updated profiles to the top of the directory
   // Conditional reads
   if (member.MUN == "Yes") {
     member["MUN_grad_year"] = parseInt($("#MUN_grad_year_box").val());
@@ -159,8 +164,25 @@ $("#submitButton").click(function(event) {
   member.bio = $("#bio").val();
   //To store industry to database
   member.industry = $("#industry").val();
-  
-  member.linkedin_profile = $("#linkedin").val();
+
+  //member.linkedin_profile = $("#linkedin").val();
+  var url = $("#linkedin").val();
+  if(/www.linkedin.com\/in\//.test(url)){
+    if (!/http/.test(url)) {
+      url = "https://" + url;
+    }
+    member.linkedin_profile = url;
+  }
+  else {
+    $("#alertbox").html(
+      "Invalid LinkedIn profile link. Please enter your link in this format:<br>www.linkedin.com/in/YOUR-PROFILE-URL/"
+    );
+    $("#alertbox").show();
+    window.scrollTo(0, 0);
+    $("#linkedin").toggleClass("linkedinBorder");
+    setTimeout(() => { $("#linkedin").toggleClass("linkedinBorder"); }, 2000)
+    return
+  }
 
   var private_data = {};
 
@@ -232,10 +254,6 @@ function initApp() {
           );
           $("#alertbox").show();
           $("#cancelButton").hide();
-          // assign a random number to new users so they show up in the directory immediately
-          firebase.firestore().collection("members").doc(doc.id).update({
-            random: Math.ceil(Math.random(1000) * 1000)
-          });
         } else if (userData["date_updated"] == "-1") {
           //Can change this to so many days back later
           $("#alertbox").html(
@@ -266,7 +284,18 @@ function initApp() {
             );
           locationArray["hometown_address"] = userData["hometown_address"];
         }
-        if (userData["industry"] != null) $("#industry").val(userData["industry"]); //Case to deal with if any of the fields are empty
+        if (userData["industry"] != null) { //Case to deal with if any of the fields are empty
+          $("#industry").val(userData["industry"]);
+          $("#industry").select2({
+            tags: true,
+            placeholder: "Select all you have experience within"
+          });
+        }
+        else {
+          $("#industry").select2({
+            placeholder: "Select all you have experience within"
+          });
+        }
         if (userData["MUN"] != null) $("#MUN").val(userData["MUN"]);
         if (userData["MUN"] === "Yes") $("#grad_year").show();
         if (userData["MUN_grad_year"] != null)

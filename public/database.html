@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta http-equiv="Content-Security-Policy" content="script-src * 'unsafe-inline'">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+	<link rel="icon" href="favicon.ico" type="image/x-icon" />
+
+
+  <title>Global NL - Database Report</title>
+
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+		<!-- Font-Awesome: -->
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
+
+  		<!-- Bootstrap CSS -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.min.css">
+
+	<link rel="stylesheet" href="//cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css">
+	<link rel="stylesheet" href="//cdn.datatables.net/buttons/1.6.2/css/buttons.dataTables.min.css">
+
+  		<!-- Custom CSS -->
+	<link rel="stylesheet" href="globalnl.css">
+
+	<style>
+    tr.odd{
+      background-color: #d3d3d3 !important;
+    }
+	</style>
+</head>
+
+<body>
+
+  <header>
+      <!-- Fixed navbar -->
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarCollapse">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="index.html"><span class="fas fa-globalnl fa-book"></span>Member Directory</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="map.html"><span class="fas fa-globalnl fa-globe"></span>Member Map</a>
+          </li>
+        </ul>
+    		<ul id="userNavBar" class="nav navbar-nav navbar-right">
+          <li class="nav-item"><a class="nav-link" href="#" onClick="gnl.auth.loginLinkedIn();gnl.navBar.toggle();return false;"><span class="fas fa-globalnl fa-user"></span><span>Sign in</span></a></li>
+    		</ul>
+    </nav>
+  </header>
+
+	<div id="loginPage" class="container">
+	<div class="">
+			<div class="Absolute-Center is-Responsive">
+			  <div class="text-center">
+			  <h1 class="w-100">
+				Sign in </h1>
+			   <p class="w-100">
+			   to continue to the Global NL Members Portal
+			  </p>
+			  </div>
+			  <img class="mx-auto d-block" alt="Sign in with LinkedIn" id="sign-in-button" onClick="gnl.auth.loginLinkedIn();return false;"
+			  src="assets/Sign-In-Small---Default.png" onmouseover="this.src='assets/Sign-In-Small---Hover.png'" onmouseout="this.src='assets/Sign-In-Small---Default.png'"/>
+        <div class="w-100 m-2"></div>
+      <div id="loginPage_text" class="text-center">
+			  <small class="font-italic text-muted">
+			  Global NL uses LinkedIn to provide a secure<br/>experience for our commmunity of members
+			  </small>
+      </div>
+			</div>
+		</div>
+	</div>
+
+	<div id="mainPage" style="padding-top: 4rem">
+	    <button id="fillTable" class="btn btn-primary" onclick="fillTable();" style="margin: 15px;"> Load Database Report </button>
+
+	    <table id="DBTable" class="stripe" style="width: 100%">
+	        <thead id="DBTitles" style="display: none;">
+	            <tr>
+	                <th>Name</th>
+	                <th>Email</th>
+	                <th>MUN</th>
+	                <th>MUN Grad Year</th>
+	                <th>LinkedIn Profile</th>
+									<th>uid</th>
+	            </tr>
+	        </thead>
+	        <tbody>
+	        <!-- query data goes here -->
+	        </tbody>
+	      </table>
+	</div>
+
+
+  	<footer class="footer">
+      <div class="container">
+        <span class="text-muted">Global NL — <i>A Global Community</i></span>
+      </div>
+    </footer>
+
+
+  	<!-- jQuery -->
+	<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+
+	<!-- Bootstrap -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/js/bootstrap.min.js"></script>
+
+
+	<!-- include firestore now -->
+
+	<script src="/__/firebase/5.3.0/firebase-app.js"></script>
+	<script src="/__/firebase/5.3.0/firebase-auth.js"></script>
+	<script src="/__/firebase/5.3.0/firebase-firestore.js"></script>
+	<script src="/__/firebase/init.js"></script>
+
+	<script src="//cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+	<script src="//cdn.datatables.net/buttons/1.6.2/js/dataTables.buttons.min.js"></script>
+	<script src="//cdn.datatables.net/buttons/1.6.2/js/buttons.html5.min.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/jszip/3.5.0/jszip.js"></script>
+
+	<script type="text/javascript" src="gnl.js"></script>
+  <script src="database.js"></script>
+
+</body>
+</html>

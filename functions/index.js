@@ -189,6 +189,10 @@ function linkedInClient() {
 exports.redirect = functions.https.onRequest((req, res) => {
   const Linkedin = linkedInClient();
 
+  const { headers } = req;
+  const userAgent = headers["user-agent"];
+  console.log(userAgent);
+
   cookieParser()(req, res, () => {
     const state = req.cookies.state || crypto.randomBytes(20).toString("hex");
     //console.log('Setting verification state:', state);
@@ -200,6 +204,7 @@ exports.redirect = functions.https.onRequest((req, res) => {
     });
     Linkedin.auth.authorize(res, OAUTH_SCOPES, state.toString());
   });
+  console.log("redirect complete");
 });
 
 /**
@@ -213,14 +218,6 @@ exports.token = functions.https.onRequest((req, res) => {
   //res.setHeader('Cache-Control', 'private');
 
   try {
-    return cookieParser()(req, res, () => {
-      if (!req.cookies.state) {
-        //throw new Error(
-          console.log("Warning: State cookie not set or expired in token function. Continuing for now.")
-        //);
-      }
-      else{
-      console.log('Received state via cookie:', req.cookies.state);
       console.log('Received state via query: ', req.query.state);
       Linkedin.auth.authorize(OAUTH_SCOPES, req.query.state); // Makes sure the state parameter is set
       console.log('Received auth code:', req.query.code);
@@ -232,42 +229,28 @@ exports.token = functions.https.onRequest((req, res) => {
           if (error) {
             throw error;
           }
-          //console.log('Received Access Token:', results.access_token);
           const linkedin = Linkedin.init(results.access_token);
 		  linkedin.people.email((error,userEmail) => {
+        if (error) {
+          throw error;
+        }
           linkedin.people.me((error, userResults) => {
             if (error) {
               throw error;
             }
-            //console.log(userResults);
-			console.log(userEmail.elements[0]['handle~']['emailAddress']);
             // We have a LinkedIn access token and the user identity now.
-            //results.access_token;
-            // The UID we'll assign to the user is 1In_ plus the internal LinkedIn user reference which is unique for our API key (one)
-            // userResults.id
-
-            console.log(userResults);
 
             member = {
               first_name: userResults.firstName.localized[Object.keys(userResults.firstName.localized)[0]] || "",
               last_name: userResults.lastName.localized[Object.keys(userResults.lastName.localized)[0]] || "",
-              //display_name: userResults.formattedName || "",
-              //headline: userResults.headline || "",
-              //industry: userResults.industry || "",
-              //linkedin_profile: userResults.publicProfileUrl || "",
-              //photoURL: userResults.pictureUrl || "",
-              //current_address: {
-              //  LinkedInLocation: userResults.location.name || ""
-              //},
-              copied_account: false,
-			  linkedInChange: true
+              photoURL: userResults.profilePicture['displayImage~'].elements[0].identifiers[0].identifier || "",
             };
-			console.log(member);
+
             // Create a Firebase account and get the Custom Auth Token.
             return createFirebaseAccount(
               "00LI_" + userResults.id,
               member.first_name + ' ' + member.last_name,
-              '',//userResults.pictureUrl,
+              member.photoURL,//userResults.pictureUrl,
               userEmail.elements[0]['handle~']['emailAddress']
             ).then(firebaseToken => {
               // Serve an HTML page that signs the user in and updates the user profile.
@@ -279,9 +262,9 @@ exports.token = functions.https.onRequest((req, res) => {
 		});
         }
       );
-    }});
+//    }
   } catch (error) {
-    console.log("Error in cookie loading etc", error.toString());
+    console.log("Error in token function, LinkedIn requests, Firebase Account update/creation", error.toString());
     return res.jsonp({
       error: error.toString
     });
@@ -305,86 +288,29 @@ function createFirebaseAccount(uid, displayName, photoURL, email) {
     .auth()
     .updateUser(uid, {
       displayName: displayName,
-      //photoURL: photoURL,
+      photoURL: photoURL,
       email: email,
       emailVerified: true
     })
     .catch(error => {
       // If user does not exists we create it.
+      console.log(error);
       if (error.code === "auth/user-not-found") {
         console.log("Attempting to create a new account for: ", email);
-        //var uidOld;
         // Create user account
         const createUserTask = admin
           .auth()
           .createUser({
             uid: uid,
             displayName: displayName,
-            //photoURL: photoURL,
+            photoURL: photoURL,
             email: email,
             emailVerified: true
           })
           .catch(function(error) {
             console.log("Error in createUserTask: ", error);
           });
-
-        // See if user by same email exists in database. If so
-        // a) Save their interests/comments from retrieved private_data record
-        // b) Search for members record and save addresses
-        // c) Set flags on old members record
-        const searchExistingUserTask = db
-          .collection("private_data")
-          .where("email", "==", email)
-          .get()
-          .then(querySnapshot => {
-            if (querySnapshot.docs.length > 0) {
-              console.log(
-                "Found existing user for ",
-                email,
-                " ==> ",
-                querySnapshot.docs[0].id
-              );
-              member.uid_old = querySnapshot.docs[0].id;
-              if (querySnapshot.docs[0].data().interests != undefined)
-                private_data.interests = querySnapshot.docs[0].data().interests;
-              if (querySnapshot.docs[0].data().comments != undefined)
-                private_data.comments = querySnapshot.docs[0].data().comments;
-              return db
-                .collection("members")
-                .doc(querySnapshot.docs[0].id)
-                .get();
-            }
-            console.log("Unable to find existing user for ", email);
-            return false;
-          })
-          .then(doc => {
-            if (doc && doc.exists) {
-              console.log("Found existing member record for ", email);
-              if (doc.data().current_address != undefined)
-                member.current_address = doc.data().current_address;
-              if (doc.data().hometown_address != undefined)
-                member.hometown_address = doc.data().hometown_address;
-              if (doc.data().privacy != undefined)
-                member.privacy = doc.data().privacy;
-              member.date_updated = "-1"; //Set to -1 to trigger profile form update
-              return db
-                .collection("members")
-                .doc(doc.id)
-                .set(
-                  {
-                    copied_account: true,
-                    uid_new: uid
-                  },
-                  { merge: true }
-                );
-            }
-            console.log("Didn't find existing member record for ", email);
-            return true;
-          })
-          .catch(function(error) {
-            console.log("Error in searchExistingUserTask: ", error);
-          });
-        return Promise.all([createUserTask, searchExistingUserTask]).then(
+        return Promise.all([createUserTask]).then(
           () => {
             return false;
           }
@@ -392,39 +318,39 @@ function createFirebaseAccount(uid, displayName, photoURL, email) {
       } // END IF
       throw error;
     }) // END Catch
-    .then(() => {
-      const token = admin.auth().createCustomToken(uid);
+      .then(() => {
+        const token = admin.auth().createCustomToken(uid);
+        
+        console.log("About to write member database record: ", uid);
 
-      console.log("About to write member database record: ", uid);
+        private_data.email = email || "";
 
-      private_data.email = email || "";
+        console.log(private_data);
+        console.log(member);
 
-      console.log(private_data);
-      console.log(member);
-
-      const privateDatabaseTask = db
-        .collection("private_data")
-        .doc(uid)
-        .set(private_data, { merge: true })
-        .catch(function(error) {
-          console.log(error);
-          console.log("Error writing private database properties for ", uid);
+        const privateDatabaseTask = db
+          .collection("private_data")
+          .doc(uid)
+          .set(private_data, { merge: true })
+          .catch(function(error) {
+            console.log(error);
+            console.log("Error writing private database properties for ", uid);
+          });
+        const memberDatabaseTask = db
+          .collection("members")
+          .doc(uid)
+          .set(member, { merge: true })
+          .catch(function(error) {
+            console.log(error);
+            console.log("Error writing public database properties for ", uid);
+          });
+          return Promise.all([token, memberDatabaseTask, privateDatabaseTask]).then(
+            () => {
+              // Create a Firebase custom auth token.
+              return token;
+            }
+          );
         });
-      const memberDatabaseTask = db
-        .collection("members")
-        .doc(uid)
-        .set(member, { merge: true })
-        .catch(function(error) {
-          console.log(error);
-          console.log("Error writing public database properties for ", uid);
-        });
-      return Promise.all([token, memberDatabaseTask, privateDatabaseTask]).then(
-        () => {
-          // Create a Firebase custom auth token.
-          return token;
-        }
-      );
-    });
   return userTokenTask; //holds value of token
 }
 

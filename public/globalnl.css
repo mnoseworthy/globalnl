@@ -309,6 +309,10 @@ input:checked + .slider:before {
   }
 }
 
+.linkedinBorder {
+  background-color: yellow;
+}
+
 /* Modal background */
 .gnl-modal {
   display: none; /* Hidden by default */
@@ -325,9 +329,9 @@ input:checked + .slider:before {
 .modal-content {
   background-color: #fefefe;
   margin: 15% auto;
-  padding: 20px;
+  padding: 15px;
   border: 1px solid #888;
-  width: 80%;
+  width: 100%;
 }
 
 /* Modal close button */
@@ -360,4 +364,24 @@ input:checked + .slider:before {
 
 #adminEditToggle {
   display: none;
+}
+
+.select2-selection {
+  border-left: 0 !important;
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  border-color: rgb(222, 226, 230) !important;
+  padding-bottom: 7px !important;
+  width: 100%;
+}
+@media (min-width: 992px) and (max-width: 1199px) {
+  .select2-container {
+    width: 302.875px !important;
+  }
+}
+.select2-container {
+  flex: 1 1 auto;
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: auto;
 }
