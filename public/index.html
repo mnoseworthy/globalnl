@@ -102,10 +102,13 @@
 				<a href="#name" class="nav-link" data-toggle="tab" role="tab" aria-controls="name"><span class="fas fa-portrait"></span></a>
 			</li>
 			<li class="nav-item">
-				<a href="#location" class="nav-link active" data-toggle="tab" role="tab" aria-controls="location"><span class="fas fa-map-marker-alt"></span></a>
+				<a href="#company" class="nav-link active" data-toggle="tab" role="tab" aria-controls="company"><span class="fas fa-building"></span></a>
 			</li>
 			<li class="nav-item">
-				<a href="#industry" class="nav-link" data-toggle="tab" role="tab" aria-controls="industry"><span class="fas fa-briefcase"></span></a>
+				<a href="#industry" class="nav-link" data-toggle="tab" role="tab" aria-controls="industry"><span class="fas fa-industry"></span></a>
+			</li>
+			<li class="nav-item">
+				<a href="#location" class="nav-link" data-toggle="tab" role="tab" aria-controls="location"><span class="fas fa-map-marker-alt"></span></a>
 			</li>
 			<li class="nav-item">
 				<a href="#roots" class="nav-link" data-toggle="tab" role="tab" aria-controls="roots"><span class="fas fa-anchor"></span></a>
@@ -130,23 +133,22 @@
 				</form>
 
 			</div>
-			<div class="tab-pane fade show active" id="location" role="tabpanel">
-				<h1>Search members by current location</h1>
-				<form autocomplete="off" id="form_location">
+
+			<div class="tab-pane fade show active" id="company" role="tabpanel">
+				<h1>Search members by company</h1>
+				<form autocomplete="off" id="form_company">
 				<div class="form-row">
 					 <!-- <label class="col-md-4 control-label">Current Location</label> -->
 					 <div class="form-group col-xs-8">
-					<input id="autocomplete_current" name="cl" placeholder="Location" class="form-control" type="text">
-					<small class="form-text text-muted">Find members by their current Town, City, Province, State or Country</small>
+					<input id="inputcompany" name="com" placeholder="Company" class="form-control" type="text">
+					<small class="form-text text-muted">Find members by their current company</small>
 					</div>
 				</div>
-				<button type="submit" id="form_location_search_button" class="btn btn-primary ml-1">Search</button>
-				<button type="button" id="form_location_clear_button" class="btn btn-secondary clear_button">Clear Search</button>
+				<button type="submit" id="form_company_search_button" class="btn btn-primary ml-1">Search</button>
+				<button type="button" id="form_company_clear_button" class="btn btn-secondary clear_button">Clear Search</button>
 				</form>
-
-
-
 			</div>
+
 			<div class="tab-pane fade" id="industry" role="tabpanel">
 				<h1>Search members by industry</h1>
 				<form autocomplete="off" id="form_industry">
@@ -184,6 +186,21 @@
 					<button type="button" id="form_industry_clear_button" class="btn btn-secondary clear_button">Clear Search</button>
 				</form>
 			</div>
+			<div class="tab-pane fade" id="location" role="tabpanel">
+				<h1>Search members by current location</h1>
+				<form autocomplete="off" id="form_location">
+				<div class="form-row">
+					 <!-- <label class="col-md-4 control-label">Current Location</label> -->
+					 <div class="form-group col-xs-8">
+					<input id="autocomplete_current" name="cl" placeholder="Location" class="form-control" type="text">
+					<small class="form-text text-muted">Find members by their current Town, City, Province, State or Country</small>
+					</div>
+				</div>
+				<button type="submit" id="form_location_search_button" class="btn btn-primary ml-1">Search</button>
+				<button type="button" id="form_location_clear_button" class="btn btn-secondary clear_button">Clear Search</button>
+				</form>
+			</div>
+
 			<div class="tab-pane fade" id="roots" role="tabpanel">
 				<h1>Search members by NL roots</h1>
 				<form autocomplete="off" id="form_hometown">

@@ -137,6 +137,7 @@ $("#submitButton").click(function(event) {
   member.privacy = $("input[name=privacy]:checked").val();
   member.date_updated = Date.now();
   member.random = 0; // Push new/updated profiles to the top of the directory
+  member.badge_transfer = "incomplete"; // marking new users to be updated with badge data
   // Conditional reads
   if (member.MUN == "Yes") {
     member["MUN_grad_year"] = parseInt($("#MUN_grad_year_box").val());

@@ -377,17 +377,19 @@ exports.dbSet = functions.pubsub.schedule('11 * * * *')
   .timeZone('America/New_York') // Users can choose timezone - default is America/Los_Angeles
   .onRun((context) => {
     console.log('Testing function');
-    let count = 0;
-    let batchNum = 0;
-    let promiseArray = [];
-    let alpha = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
-    let date = new Date();
-    let currentHour = date.getHours();
-    let startLetter = alpha[currentHour];
-    let endLetter = alpha[currentHour + 1];
-    if (currentHour == 23) {
-      endLetter = 'Z';
-    }
+    let count = 0; //counts number of members that are iterated through (not really used, can probably remove)
+    let batchNum = 0; // used to index batches in the batch array
+    let promiseArray = []; // needed for the promise.all
+    let alpha = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]; // all letters
+    let date = new Date(); // creates new date object
+    let currentHour = date.getHours(); // returns the hour from the date (from 0 to 23)
+    let startLetter = alpha[currentHour]; // uses current hour as an index to get the start letter
+    let endLetter = alpha[currentHour + 1]; // gets end letter in same way
+    if (currentHour == 23) { // condition to account for end letters that would get missed as 23 hours won't hit all letters
+      endLetter = 'Z'; // at hour 23, startletter=W and endletter=Z to hit all letters in a day
+    } // there aren't too many entries at those letters so it works without limit issues
+
+    // gets users from database with last names between the two letters, limited to 500 users (no issues there yet anyway)
     let randUpdate = db.collection("members")
       .orderBy("last_name")
       .startAt(startLetter)
@@ -395,34 +397,39 @@ exports.dbSet = functions.pubsub.schedule('11 * * * *')
       .limit(500).get()
       .then(snapshot => {
         console.log("Returned " + snapshot._size + " member records between " + startLetter + " and " + endLetter);
+        // used to set limit for number of users for a single batch
         let limit = 50;
         // Get a new write batch
         let batch = [];
         batch[0] = db.batch();
         snapshot.forEach(doc => {
-          //console.log("batch: " + (batchNum + 1) + " limit: " + limit + " count: " + count + " member: " + doc.data().first_name + ' ' + doc.data().last_name);
           count = count + 1;
+          // condition to reset the limit and batch when the limit is hit
           if (limit == 0) {
+            // commits the batch and pushes it to the promise array
             promiseArray.push(batch[batchNum].commit().then(function() {
               console.log("Database update complete for batch # " + (batchNum + 1) + " (mid)");
             }));
-            batchNum = batchNum + 1;
-            batch[batchNum] = db.batch();
-            limit = 50;
+            batchNum = batchNum + 1; // increases the batch number to be used as an index for the batch array
+            batch[batchNum] = db.batch(); // starts a new batch in the next position of the batch array
+            limit = 50; // resets the limit
           }
+          // adds the random update to the batch
           batch[batchNum].update(db.collection("members").doc(doc.id), {
-            random: Math.ceil(Math.random(1000) * 1000)
+            random: Math.ceil(Math.random(1000) * 1000) // the random number is set with some math functions
           });
-          limit = limit - 1;
+          limit = limit - 1; // decrease the limit after the batch update is created
         });
+        // commits the last batch and pushes it to the promise array after all users have been interated through
         promiseArray.push(batch[batchNum].commit().then(function() {
           console.log("Database update complete for batch # " + (batchNum + 1) + " (end)");
         }));
       })
+      // catches and logs any errors
       .catch(err => {
         console.log('Error getting documents ', err);
       });
-    //console.log("Completed function with " + count + " records processed.");
+    // returns a promise to ensure the function is completed
     return Promise.all(promiseArray).then(() => {
       console.log("Completing function for records between " + startLetter + " and " + endLetter);
     });

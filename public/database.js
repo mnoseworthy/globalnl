@@ -26,15 +26,30 @@ function fillTable() {
       $("table tbody").append("<tr><td>" + memberdata[member].dbName + "</td><td>" +
         memberdata[member].dbEmail + "</td><td>" + memberdata[member].dbMUN + "</td><td>" +
         memberdata[member].dbMUNGrad + "</td><td>" + memberdata[member].dbLIProfile + "</td><td>" +
-        memberdata[member].dbUid + "</td></tr>");
+        memberdata[member].dbUid + "</td><td><button id='"+ memberdata[member].dbUid +
+        "'class='btn btn-primary' onclick='adminRedirect();'>Edit Profile</button></td><td><button onclick='databaseRedirect(&quot;" +
+        memberdata[member].dbUid + "&quot;);' class='btn btn-secondary'>Go to Database</button></td></tr>");
+
     }
     $("#fillTable").hide();
     $("#DBTitles").show();
     $('#DBTable').DataTable({
       dom: 'Bfrtip',
       buttons: [
-        'copy', 'excel'
-      ],
+            {
+                extend: 'copyHtml5',
+                exportOptions: {
+                    columns: [ 0, 1, 2, 3, 4, 5 ]
+                }
+            },
+            {
+                extend: 'excelHtml5',
+                exportOptions: {
+                    columns: [ 0, 1, 2, 3, 4, 5 ]
+                }
+            }
+        ],
+
       paging: false,
       language: {
         info: "_TOTAL_ members",
@@ -68,3 +83,18 @@ function renderWithoutUser(user) {
 }
 
 gnl.auth.listenForStageChange(renderWithUser, renderWithoutUser, false);
+
+function adminRedirect() {
+  sessionStorage.setItem("uid", event.target.id);
+  window.open("/profile.html", "_blank");
+}
+
+function databaseRedirect(uid) {
+  if (window.location.href == "https://members.globalnl.com/database.html") {
+    window.open("https://console.firebase.google.com/u/0/project/globalnl-members/database/firestore/data~2Fmembers~2F" + uid, "_blank");
+  }
+  else if (window.location.href == "https://memberstest.globalnl.com/database.html") {
+      window.open("https://console.firebase.google.com/u/0/project/globalnl-database-test/database/firestore/data~2Fmembers~2F" + uid, "_blank");
+  }
+}
+

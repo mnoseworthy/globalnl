@@ -57,15 +57,12 @@ body {
 }
 
 /* Fix double up on navbar */
-@media only screen and (max-width: 970px) and (min-width: 768px) {
+@media only screen and (max-width: 1112px) and (min-width: 768px) {
   #login_name_nav {
     display: none;
   }
-  #linkedin_nav {
-    display: none;
-  }
   #adminEditToggle {
-    display: none;
+    display: none !important;
   }
   #display_name_label {
     display: none;
@@ -133,7 +130,14 @@ body {
   font-weight: 700;
   font-size: 1.2rem;
   margin-bottom: 0;
-  padding: 0.5rem 1rem;
+  padding: 1rem;
+  display: flex;
+}
+
+.card-header-headline {
+  font-weight: 500;
+  font-size: 0.9rem;
+  width: 192px;
 }
 
 .card-header-bio {
@@ -156,6 +160,9 @@ body {
   margin-left: 0.5rem;
   margin-right: 0.5rem;
   margin-bottom: 0px;
+}
+.card-title-undercompany {
+  margin-top: 0.5rem;
 }
 .card-title-bottom {
   margin-bottom: 0.9rem;
@@ -209,11 +216,17 @@ body {
 
 .fa-gnl-head {
   padding-right: 10px;
+  width: 5rem;
 }
 
 .fa-gnlsearch {
   font-size: 1.5rem;
   text-align: center;
+}
+
+.gnl-user-photo {
+  width: 100%;
+  border-radius: 50%;
 }
 
 .form-row {
@@ -222,7 +235,7 @@ body {
 }
 
 .input-group-prepend {
-  /*width: 43px;*/
+  width: 38px;
 }
 
 

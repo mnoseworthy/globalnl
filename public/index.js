@@ -2,17 +2,6 @@
  * Global variables
  ******************************************************/
 
-window.LIBadgeCallback = (function() {
-    var cached_function = window.LIBadgeCallback;
-    return function() {
-        var result = cached_function.apply(this, arguments);
-        $('.LI-view-profile').html('View LinkedIn Profile');
-        return result;
-    };
-})();
-
-// Disable LinkedIn banners via toggle button
-var LinkedInEnable = true;
 
 // Object with last returned database query to use for pagination
 var last_read_doc = 0;
@@ -33,6 +22,7 @@ searchButtonStates["name"] = false;
 searchButtonStates["location"] = false;
 searchButtonStates["industry"] = false;
 searchButtonStates["hometown"] = false;
+searchButtonStates["company"] = false;
 
 // Firebase
 const settings = { timestampsInSnapshots: true };
@@ -44,13 +34,6 @@ function renderWithUser(user) {
   $("#members-list").empty();
   $("#mainPage").show();
   initLoad();
-  $("#linkedin_toggle").change(function() {
-    if ($("#linkedin_toggle:checked").val() == "on") {
-      LinkedInEnable = true;
-    } else {
-      LinkedInEnable = false;
-    }
-  });
   showAdminToggle();
 }
 
@@ -185,9 +168,44 @@ function initApp() {
           .toLowerCase();
       last_read_doc = 0;
       searchButtonStates["name"] = true;
-      searchButtonStates["location"] = false;
+      searchButtonStates["company"] = false;
       searchButtonStates["industry"] = false;
+      searchButtonStates["location"] = false;
       searchButtonStates["hometown"] = false;
+      memberSearch();
+    }
+  });
+
+  $("#form_company").submit(function(event) {
+    event.preventDefault();
+    if ($("#inputcompany").val()) {
+      console.log("Searching by company...");
+      $("#members-list").empty();
+      $("#preloader").show();
+      formStatic["company"] = $("#inputcompany").val();
+      last_read_doc = 0;
+      searchButtonStates["name"] = false;
+      searchButtonStates["company"] = true;
+      searchButtonStates["industry"] = false;
+      searchButtonStates["location"] = false;
+      searchButtonStates["hometown"] = false;
+      memberSearch();
+    }
+  });
+
+  $("#form_industry").submit(function(event) {
+    event.preventDefault();
+    if ($("#inputIndustry").val()) {
+      console.log("Searching by industry...");
+      $("#members-list").empty();
+      $("#preloader").show();
+      formStatic["industry"] = $("#inputIndustry").val();
+      last_read_doc = 0;
+      searchButtonStates["industry"] = true;
+      searchButtonStates["name"] = false;
+      searchButtonStates["location"] = false;
+      searchButtonStates["hometown"] = false;
+      searchButtonStates["company"] = false;
       memberSearch();
     }
   });
@@ -210,22 +228,7 @@ function initApp() {
       searchButtonStates["name"] = false;
       searchButtonStates["industry"] = false;
       searchButtonStates["hometown"] = false;
-      memberSearch();
-    }
-  });
-
-  $("#form_industry").submit(function(event) {
-    event.preventDefault();
-    if ($("#inputIndustry").val()) {
-      console.log("Searching by industry...");
-      $("#members-list").empty();
-      $("#preloader").show();
-      formStatic["industry"] = $("#inputIndustry").val();
-      last_read_doc = 0;
-      searchButtonStates["industry"] = true;
-      searchButtonStates["name"] = false;
-      searchButtonStates["location"] = false;
-      searchButtonStates["hometown"] = false;
+      searchButtonStates["company"] = false;
       memberSearch();
     }
   });
@@ -248,6 +251,7 @@ function initApp() {
       searchButtonStates["name"] = false;
       searchButtonStates["location"] = false;
       searchButtonStates["industry"] = false;
+      searchButtonStates["company"] = false;
       memberSearch();
     }
   });
@@ -271,6 +275,7 @@ function initApp() {
     searchButtonStates["location"] = false;
     searchButtonStates["industry"] = false;
     searchButtonStates["hometown"] = false;
+    searchButtonStates["company"] = false;
     last_read_doc = 0;
     $("#members-list").empty();
     memberSearch();
@@ -368,6 +373,7 @@ function loadMembers(querySnapshot) {
       var data = doc.data(),
         firstName = data.first_name,
         lastName = data.last_name;
+        photoURL = data.photoURL || "https://static-exp1.licdn.com/scds/common/u/images/themes/katy/ghosts/person/ghost_person_200x200_v1.png";
 
 
       var memberFields = {
@@ -379,7 +385,11 @@ function loadMembers(querySnapshot) {
         hometown: getLocationString(data.hometown_address),
         bio: data.bio || "",
         linkedin_profile: data.linkedin_profile,
-        munAlumni: data.MUN
+        munAlumni: data.MUN,
+        photoURL: photoURL,
+        headline: data.headline || "",
+        company: data.company,
+        companyLogo: data.company_logo
       };
 
       // Build element and inject
@@ -418,24 +428,35 @@ function loadMembers(querySnapshot) {
       }
 
       if (
-        data.linkedin_profile &&
-        data.linkedin_profile.length > 30 &&
-        LinkedInEnable &&
-        memberFields.bio
+        memberFields.company &&
+        memberFields.companyLogo &&
+        memberFields.bio &&
+        memberFields.linkedin_profile
       ) {
         showAdminButton();
         memberDomString = `<div class="col-auto p-1 card-col">
 <div class="card card-gnl">
 	<div>
-	<div class="card-header card-header-gnl"><span class="fas fa-gnl-head fa-portrait"></span>${firstName} ${lastName}</div>
-	<div class="munLogoAdder" style="position: absolute; right: 10px; top: 5px; visibility: ${vis};"><img src="assets/MUN-Logo-RGB-small.jpg" alt="MUN LOGO"></div>
+	<div class="card-header card-header-gnl">
+  <span class="fas fa-gnl-head">
+  <img src="${photoURL}" class="gnl-user-photo"></span>
+  <div style="width: 195px">
+  ${firstName} ${lastName}
+  <div class="card-header-headline">
+  ${memberFields.headline}</div>
+  </div>
+  </div>
+	<div class="munLogoAdder" style="position: absolute; right: 10px; top: 5px; visibility: ${vis};"><img src="assets/MUN_Logo_Pantone_Border_Small.jpg" alt="MUN LOGO"></div>
 	</div>
 	<div class="card-body card-body-gnl">
+    <h5 class="card-title"><span class="fas fa-globalnl"><img style="width: 100%" src="${memberFields.companyLogo}"></span>${
+      memberFields.company
+    }</h5>
+    <h5 class="card-title card-title-undercompany"><span class="fas fa-globalnl fa-industry"></span>${
+      cardIndustry
+    }</h5>
     <h5 class="card-title"><span class="fas fa-globalnl fa-map-marker-alt"></span>${
       memberFields.currentAddress
-    }</h5>
-    <h5 class="card-title"><span class="fas fa-globalnl fa-briefcase"></span>${
-      cardIndustry
     }</h5>
     <h5 class="card-title"><span class="fas fa-globalnl fa-anchor"></span>${
       memberFields.hometown
@@ -444,12 +465,10 @@ function loadMembers(querySnapshot) {
     <td class="fas fa-globalnl fa-info-circle"></td>
     <td style="padding-right:0.5rem"> ${memberFields.bio}</td>
     </tr></table></h5>
+    <h5 class="card-title"><span class="fab fa-globalnl fa-linkedin-in" style="margin-right: 0rem"></span>
+    <a href="${memberFields.linkedin_profile}" target="___blank">View LinkedIn Profile</a>
+    </h5>
     <button id="${memberFields.public_uid}" type="button" class="btn btn-light adminButton" onclick="adminRedirect();"> Edit Profile as Administrator </button>
-    <div class="linkedin_profile_card">
-      <div class="LI-profile-badge"  data-version="v1" data-size="medium" data-locale="en_US" data-type="horizontal" data-theme="light"
-	  data-vanity="${memberFields.linkedin_profile.substring(memberFields.linkedin_profile.indexOf('/in/')+4).replace('/','')}">
-	  <a class="LI-simple-link" href='${memberFields.linkedin_profile}?trk=profile-badge'>View LinkedIn Profile</a></div>
-    </div>
   </div>
 </div>
 </div>`;
@@ -461,35 +480,44 @@ function loadMembers(querySnapshot) {
             "  -  " +
             doc.id
         );
-      } else if (
-        data.linkedin_profile &&
-        data.linkedin_profile.length > 30 &&
-        LinkedInEnable
+      }
+      else if (
+        memberFields.company &&
+        memberFields.companyLogo &&
+        memberFields.linkedin_profile
       ) {
         showAdminButton();
         memberDomString = `<div class="col-auto p-1 card-col">
 <div class="card card-gnl">
 	<div>
-	<div class="card-header card-header-gnl"><span class="fas fa-gnl-head fa-portrait"></span>${firstName} ${lastName}</div>
-	<div class="munLogoAdder" style="position: absolute; right: 10px; top: 5px; visibility: ${vis};"><img src="assets/MUN-Logo-RGB-small.jpg" alt="MUN LOGO"></div>
+	<div class="card-header card-header-gnl">
+  <span class="fas fa-gnl-head">
+  <img src="${photoURL}" class="gnl-user-photo"></span>
+  <div style="width: 195px">
+  ${firstName} ${lastName}
+  <div class="card-header-headline">
+  ${memberFields.headline}</div>
+  </div>
+  </div>
+	<div class="munLogoAdder" style="position: absolute; right: 10px; top: 5px; visibility: ${vis};"><img src="assets/MUN_Logo_Pantone_Border_Small.jpg" alt="MUN LOGO"></div>
 	</div>
 	<div class="card-body card-body-gnl">
+    <h5 class="card-title"><span class="fas fa-globalnl"><img style="width: 100%" src="${memberFields.companyLogo}"></span>${
+      memberFields.company
+    }</h5>
+    <h5 class="card-title card-title-undercompany"><span class="fas fa-globalnl fa-industry"></span>${
+      cardIndustry
+    }</h5>
     <h5 class="card-title"><span class="fas fa-globalnl fa-map-marker-alt"></span>${
       memberFields.currentAddress
-    }</h5>
-    <h5 class="card-title"><span class="fas fa-globalnl fa-briefcase"></span>${
-      cardIndustry
     }</h5>
     <h5 class="card-title"><span class="fas fa-globalnl fa-anchor"></span>${
       memberFields.hometown
     }</h5>
+    <h5 class="card-title"><span class="fab fa-globalnl fa-linkedin-in" style="margin-right: 0rem"></span>
+    <a href="${memberFields.linkedin_profile}" target="___blank">View LinkedIn Profile</a>
+    </h5>
     <button id="${memberFields.public_uid}" type="button" class="btn btn-light adminButton" onclick="adminRedirect();"> Edit Profile as Administrator </button>
-    <div class="linkedin_profile_card">
-      <div class="LI-profile-badge"  data-version="v1" data-size="medium" data-locale="en_US" data-type="horizontal" data-theme="light"
-	  data-vanity="${memberFields.linkedin_profile.substring(memberFields.linkedin_profile.indexOf('/in/')+4).replace('/','')}">
-	  <a class="LI-simple-link" href='${memberFields.linkedin_profile}?trk=profile-badge'>View LinkedIn Profile</a></div>
-    </div>
-    </div>
   </div>
 </div>
 </div>`;
@@ -501,52 +529,165 @@ function loadMembers(querySnapshot) {
             "  -  " +
             doc.id
         );
-      } else if (memberFields.bio) {
+      }
+      else if (
+        memberFields.bio &&
+        memberFields.linkedin_profile
+      ) {
         showAdminButton();
         memberDomString = `<div class="col-auto p-1 card-col">
-<div class="card card-gnl">
-	<div>
-	<div class="card-header card-header-gnl"><span class="fas fa-gnl-head fa-portrait"></span>${firstName} ${lastName}</div>
-	<div class="munLogoAdder" style="position: absolute; right: 10px; top: 5px; visibility: ${vis};"><img src="assets/MUN-Logo-RGB-small.jpg" alt="MUN LOGO"></div>
-	</div>
-	<div class="card-body card-body-gnl">
-    <h5 class="card-title"><span class="fas fa-globalnl fa-map-marker-alt"></span>${
-      memberFields.currentAddress
-    }</h5>
-    <h5 class="card-title"><span class="fas fa-globalnl fa-briefcase"></span>${
+      <div class="card card-gnl">
+      <div>
+      <div class="card-header card-header-gnl">
+      <span class="fas fa-gnl-head">
+      <img src="${photoURL}" class="gnl-user-photo"></span>
+      <div style="width: 195px">
+      ${firstName} ${lastName}
+      <div class="card-header-headline">
+      ${memberFields.headline}</div>
+      </div>
+      </div>
+      <div class="munLogoAdder" style="position: absolute; right: 10px; top: 5px; visibility: ${vis};"><img src="assets/MUN_Logo_Pantone_Border_Small.jpg" alt="MUN LOGO"></div>
+      </div>
+      <div class="card-body card-body-gnl">
+      <h5 class="card-title"><span class="fas fa-globalnl fa-industry"></span>${
       cardIndustry
-    }</h5>
-    <h5 class="card-title"><span class="fas fa-globalnl fa-anchor"></span>${
+      }</h5>
+      <h5 class="card-title"><span class="fas fa-globalnl fa-map-marker-alt"></span>${
+      memberFields.currentAddress
+      }</h5>
+      <h5 class="card-title"><span class="fas fa-globalnl fa-anchor"></span>${
       memberFields.hometown
-    }</h5>
-    <h5 class="card-title"><table><tr>
-    <td class="fas fa-globalnl fa-info-circle"></td>
-    <td style="padding-right:0.5rem"> ${memberFields.bio} </td>
-    </tr></table></h5>
-    <button id="${memberFields.public_uid}" type="button" class="btn btn-light adminButton" onclick="adminRedirect();"> Edit Profile as Administrator </button>
-  </div>
-</div>
-</div>`;
+      }</h5>
+      <h5 class="card-title"><table><tr>
+      <td class="fas fa-globalnl fa-info-circle"></td>
+      <td style="padding-right:0.5rem"> ${memberFields.bio}</td>
+      </tr></table></h5>
+      <h5 class="card-title"><span class="fab fa-globalnl fa-linkedin-in" style="margin-right: 0rem"></span>
+      <a href="${memberFields.linkedin_profile}" target="___blank">View LinkedIn Profile</a>
+      </h5>
+      <button id="${memberFields.public_uid}" type="button" class="btn btn-light adminButton" onclick="adminRedirect();"> Edit Profile as Administrator </button>
+      </div>
+      </div>
+      </div>`;
         console.log(
           "Loaded profile: " +
             firstName +
-            "  -  No LinkedIn  -  " +
+            "  -  " +
+            data.linkedin_profile +
+            "  -  " +
             doc.id
         );
-      } else {
+      }
+      else if (
+        memberFields.linkedin_profile
+      ) {
+        showAdminButton();
+        memberDomString = `<div class="col-auto p-1 card-col">
+      <div class="card card-gnl">
+      <div>
+      <div class="card-header card-header-gnl">
+      <span class="fas fa-gnl-head">
+      <img src="${photoURL}" class="gnl-user-photo"></span>
+      <div style="width: 195px">
+      ${firstName} ${lastName}
+      <div class="card-header-headline">
+      ${memberFields.headline}</div>
+      </div>
+      </div>
+      <div class="munLogoAdder" style="position: absolute; right: 10px; top: 5px; visibility: ${vis};"><img src="assets/MUN_Logo_Pantone_Border_Small.jpg" alt="MUN LOGO"></div>
+      </div>
+      <div class="card-body card-body-gnl">
+      <h5 class="card-title"><span class="fas fa-globalnl fa-industry"></span>${
+      cardIndustry
+      }</h5>
+      <h5 class="card-title"><span class="fas fa-globalnl fa-map-marker-alt"></span>${
+      memberFields.currentAddress
+      }</h5>
+      <h5 class="card-title"><span class="fas fa-globalnl fa-anchor"></span>${
+      memberFields.hometown
+      }</h5>
+      <h5 class="card-title"><span class="fab fa-globalnl fa-linkedin-in" style="margin-right: 0rem"></span>
+      <a href="${memberFields.linkedin_profile}" target="___blank">View LinkedIn Profile</a>
+      </h5>
+      <button id="${memberFields.public_uid}" type="button" class="btn btn-light adminButton" onclick="adminRedirect();"> Edit Profile as Administrator </button>
+      </div>
+      </div>
+      </div>`;
+        console.log(
+          "Loaded profile: " +
+            firstName +
+            "  -  " +
+            data.linkedin_profile +
+            "  -  " +
+            doc.id
+        );
+      }
+      else if (
+        memberFields.bio
+      ) {
+        showAdminButton();
+        memberDomString = `<div class="col-auto p-1 card-col">
+      <div class="card card-gnl">
+      <div>
+      <div class="card-header card-header-gnl">
+      <span class="fas fa-gnl-head">
+      <img src="${photoURL}" class="gnl-user-photo"></span>
+      <div style="width: 195px">
+      ${firstName} ${lastName}
+      <div class="card-header-headline">
+      ${memberFields.headline}</div>
+      </div>
+      </div>
+      <div class="munLogoAdder" style="position: absolute; right: 10px; top: 5px; visibility: ${vis};"><img src="assets/MUN_Logo_Pantone_Border_Small.jpg" alt="MUN LOGO"></div>
+      </div>
+      <div class="card-body card-body-gnl">
+      <h5 class="card-title"><span class="fas fa-globalnl fa-industry"></span>${
+      cardIndustry
+      }</h5>
+      <h5 class="card-title"><span class="fas fa-globalnl fa-map-marker-alt"></span>${
+      memberFields.currentAddress
+      }</h5>
+      <h5 class="card-title"><span class="fas fa-globalnl fa-anchor"></span>${
+      memberFields.hometown
+      }</h5>
+      <h5 class="card-title"><table><tr>
+      <td class="fas fa-globalnl fa-info-circle"></td>
+      <td style="padding-right:0.5rem"> ${memberFields.bio}</td>
+      </tr></table></h5>
+      <button id="${memberFields.public_uid}" type="button" class="btn btn-light adminButton" onclick="adminRedirect();"> Edit Profile as Administrator </button>
+      </div>
+      </div>
+      </div>`;
+        console.log(
+          "Loaded profile: " +
+            firstName +
+            "  - no LinkedIn profile - " +
+            doc.id
+        );
+      }
+      else {
         showAdminButton();
         memberDomString = `<div class="col-auto p-1 card-col">
 <div class="card card-gnl">
 	<div>
-	<div class="card-header card-header-gnl"><span class="fas fa-gnl-head fa-portrait"></span>${firstName} ${lastName}</div>
-	<div class="munLogoAdder" style="position: absolute; right: 10px; top: 5px; visibility: ${vis};"><img src="assets/MUN-Logo-RGB-small.jpg" alt="MUN LOGO"></div>
+	<div class="card-header card-header-gnl">
+  <span class="fas fa-gnl-head">
+  <img src="${photoURL}" class="gnl-user-photo"></span>
+  <div style="width: 195px">
+  ${firstName} ${lastName}
+  <div class="card-header-headline">
+  ${memberFields.headline}</div>
+  </div>
+  </div>
+	<div class="munLogoAdder" style="position: absolute; right: 10px; top: 5px; visibility: ${vis};"><img src="assets/MUN_Logo_Pantone_Border_Small.jpg" alt="MUN LOGO"></div>
 	</div>
 	<div class="card-body card-body-gnl">
+    <h5 class="card-title"><span class="fas fa-globalnl fa-industry"></span>${
+      cardIndustry
+    }</h5>
     <h5 class="card-title"><span class="fas fa-globalnl fa-map-marker-alt"></span>${
       memberFields.currentAddress
-    }</h5>
-    <h5 class="card-title"><span class="fas fa-globalnl fa-briefcase"></span>${
-      cardIndustry
     }</h5>
     <h5 class="card-title"><span class="fas fa-globalnl fa-anchor"></span>${
       memberFields.hometown
@@ -558,7 +699,7 @@ function loadMembers(querySnapshot) {
         console.log(
           "Loaded profile: " +
             firstName +
-            "  -  No LinkedIn  -  " +
+            "  - no LinkedIn profile - " +
             doc.id
         );
       }
@@ -568,11 +709,6 @@ function loadMembers(querySnapshot) {
       $("#members-list").append(memObj);
     });
 
-    if (LinkedInEnable) {
-      //IN.parse();
-	  window.LIRenderAll();
-      console.log("Parse LinkedIn badges...");
-    }
     if (querySnapshot.docs.length === 15) scrollQueryComplete = true;
   } else {
     last_read_doc = 0;
@@ -658,7 +794,23 @@ function memberSearch() {
     } else {
       console.log("Error");
     }
-  } else if (searchButtonStates["location"] && last_read_doc) {
+  } else if (searchButtonStates["company"]) {
+    if (formStatic["company"] == null) {
+      alert("Please enter a company");
+    }
+    else if (formStatic["company"]) {
+      console.log("Company entered");
+      fbi
+        .orderBy("random")
+        .startAfter(last_read_doc)
+        .where("company", "==", formStatic["company"])
+        .limit(members_per_page)
+        .get()
+        .then(function(querySnapshot) {
+          loadMembers(querySnapshot);
+        });
+    }
+    }  else if (searchButtonStates["location"] && last_read_doc) {
     if (formStatic["location"] == null) {
       alert("Please enter a Current Location");
     } else if (formStatic["location"]["city"]) {
@@ -1098,3 +1250,24 @@ function dbMigration() {
     });
   });
 }
+
+function profileLinkFix() {
+  firebase.firestore().collection("members").get().then((querySnapshot) => {
+    querySnapshot.forEach((doc) => {
+      let url = doc.data().linkedin_profile;
+      if(/www.linkedin.com\/in\//.test(url)){
+        if (!/http/.test(url)) {
+          url = "https://" + url;
+          firebase.firestore().collection("members").doc(doc.id).update({
+            linkedin_profile: url
+          });
+          console.log(doc.id + " Link updated to " + url);
+        }
+      }
+      else {
+        console.log(doc.id + " has an invalid profile link: " + url);
+      }
+    });
+  });
+}
+

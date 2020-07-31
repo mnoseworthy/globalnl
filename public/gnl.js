@@ -35,15 +35,6 @@ window.gnl = (function() {
   `;
 
   const linkedInToggleUserBar = `
-  <li class="nav-item" id="linkedin_nav">
-    <a class="nav-link" style="padding:8px 8px 0px 0px;" href="#">
-      <span style="vertical-align:top; margin-top:5px;" class="fab fa-globalnl fa-linkedin-in"></span>
-      <label class="switch">
-        <input id="linkedin_toggle" checked type="checkbox">
-        <span class="slider round"></span>
-      </label>
-    </a>
-  </li>
   <li id="adminEditToggle" class="nav-item">
     <div class="dropdown">
       <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -65,7 +56,11 @@ window.gnl = (function() {
 
   const loggedInUserBar = `
   <li class="nav-item" id="login_name_nav">
-    <a class="nav-link" href="#"><span class="fas fa-globalnl fa-user"></span><span id="login_name"></span></a>
+    <a class="nav-link" href="#">
+    <span class="fas fa-globalnl">
+      <img id="user_photo" class="gnl-user-photo">
+    </span>
+    <span id="login_name"></span></a>
   </li>
   <li class="nav-item">
     <a class="nav-link" href="profile.html" onclick="adminUidReset();"><span class="fas fa-globalnl fa-user-edit"></span><span>Edit profile</span></a>
@@ -91,6 +86,7 @@ window.gnl = (function() {
 
         // Load user information at top of page for desktop
         $("#login_name").html(user.displayName);
+        $("#user_photo").attr("src", user.photoURL);
         $("#button_logout").click(function(evt) {
           // Cancel the default action
           evt.preventDefault();

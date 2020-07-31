@@ -49,7 +49,7 @@ const copy = (sourceDBref, destinationDBref, schema) => {
                 .set(data)
                 .then(data => {
                   return copy(
-                    sourceDBrep.collection(collection).doc(doc.id),
+                    sourceDBref.collection(collection).doc(doc.id),
                     destinationDBref.collection(collection).doc(doc.id),
                     schema[collection]
                   );
