@@ -16,6 +16,7 @@
 
   <title>Global NL - Member Profile</title>
 
+	<script type='text/javascript' src='https://platform.linkedin.com/badges/js/profile.js' async defer></script>
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <!-- <script src="https://use.fontawesome.com/b58b304000.js"></script> -->
   
@@ -217,7 +218,7 @@
 							<i class="fa fa-info-circle"></i>
 						</button>
 					  </span>
-                  <textarea name="bio" id="bio" class="form-control py-2 border-left-0 border" placeholder="Tell us a little bit about yourself to share with other members. Professional background? Hobbies? Favourite thing about NL?" rows="4" cols="50"></textarea>
+                  <textarea name="bio" id="bio" class="form-control py-2 border-left-0 border" placeholder="Tell us a little bit about yourself to share with other members. Professional background? Hobbies? Favourite thing about NL?" rows="4" cols="50" maxlength="1200"></textarea>
             </div>
 			</div>
 
@@ -236,12 +237,21 @@
 					<button type="button" class="btn btn-primary" id="LImodal_btn">Get my link</button>
 				</div>
 			</div>
-  </div>
+			
+			<div class="row">
+				<div class="input-group col-xs-12 col-lg-10">
+					<label class="col-xs-4 col-lg-5 col-form-label" >LinkedIn Profile Preview</label>
+					<span id="LIbadge" class="select2-container border">
+						<img id="badgeLoading" src="assets/preloader.gif"/>
+						<!-- LI badge html goes here -->
+					</span>
+				</div>
+			</div>
 </div>
 </div>
 </div>
-		  
-		  
+</div>
+
 
 			<br/>
 		
@@ -279,7 +289,7 @@
 
 			<div class="row">
             <div class="input-group col-xs-12 col-lg-10">
-              <label class="col-xs-4 col-lg-5 col-form-label" >Comments for Global NL</label>
+              <label class="col-xs-4 col-lg-5 col-form-label">Comments for Global NL</label>
                   <textarea name="comments" id="comments" class="form-control py-2 border" style="border-top-left-radius: 4px; border-bottom-left-radius: 4px;" placeholder="Anything else on your mind?" rows="4" cols="50"></textarea>
             </div>
 			</div>

@@ -244,6 +244,7 @@ exports.token = functions.https.onRequest((req, res) => {
               first_name: userResults.firstName.localized[Object.keys(userResults.firstName.localized)[0]] || "",
               last_name: userResults.lastName.localized[Object.keys(userResults.lastName.localized)[0]] || "",
               photoURL: userResults.profilePicture['displayImage~'].elements[0].identifiers[0].identifier || "",
+              date_signedin: Date.now()
             };
 
             // Create a Firebase account and get the Custom Auth Token.

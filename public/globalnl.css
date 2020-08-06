@@ -387,6 +387,8 @@ input:checked + .slider:before {
   padding-bottom: 7px !important;
   width: 100%;
 }
+/* LI badge preview uses this class without using select2
+    just because it works for the width */
 @media (min-width: 992px) and (max-width: 1199px) {
   .select2-container {
     width: 302.875px !important;
@@ -397,4 +399,8 @@ input:checked + .slider:before {
     flex-grow: 1;
     flex-shrink: 1;
     flex-basis: auto;
+}
+
+.badge-error-message {
+  text-align: center;
 }
