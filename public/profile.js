@@ -188,7 +188,10 @@ $("#submitButton").click(function(event) {
   //LinkedIn badge info
   if ($(".LI-profile-pic").length>0) member.photoURL = $(".LI-profile-pic").attr("src");
   if ($(".LI-title").length>0) member.headline = $(".LI-title").text();
-  if ($(".LI-field").length>0) member.company = $(".LI-field > a").get(0).innerText;
+  if ($(".LI-field").length>0) {
+    member.company = $(".LI-field > a").get(0).innerText;
+    member.company_lower = member.company.toLowerCase();
+  }
   if ($(".LI-field-icon").length>0) member.company_logo = $(".LI-field-icon").attr("src");
 
   var private_data = {};

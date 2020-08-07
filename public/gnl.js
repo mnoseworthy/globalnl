@@ -49,6 +49,7 @@ window.gnl = (function() {
           </label>
         </a>
         <a class="nav-link" href="database.html"><span class="fas fa-globalnl fa-table"></span><span>Database</span></a>
+        <button class="btn btn-primary" style="margin: 0.5rem;" onclick="loadActiveMembers();">Recently Active</button>
       </div>
     </div>
   </li>
