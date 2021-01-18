@@ -392,6 +392,10 @@ function loadMembers(querySnapshot) {
         companyLogo: data.company_logo
       };
 
+      if (memberFields.bio !== null && memberFields.bio !== "") {
+        var bio = memberFields.bio.replace(/\n/g, "<br/>"); // replacing any instances of newline with <br/> to be compatible with html
+        memberFields.bio = bio;
+      }
       // Build element and inject
       var linkSendAMessage = document.createElement("a");
       linkSendAMessage.setAttribute("data-toggle", "modal");
@@ -722,7 +726,8 @@ function loadMembers(querySnapshot) {
       var memObj = $($.parseHTML(memberDomString));
       memObj.find(".card-body-gnl > .card-title:last").after($(headerSendAMessage));
       $("#members-list").append(memObj);
-    });
+    });    
+    showAdminButton();
 
     if (querySnapshot.docs.length === 15) scrollQueryComplete = true;
   } else {

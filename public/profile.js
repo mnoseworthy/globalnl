@@ -168,7 +168,7 @@ $("#submitButton").click(function(event) {
 
   //member.linkedin_profile = $("#linkedin").val();
   var url = $("#linkedin").val();
-  if(/www.linkedin.com\/in\//.test(url)){
+  if(/linkedin.com\/in\//.test(url)){
     if (!/http/.test(url)) {
       url = "https://" + url;
     }

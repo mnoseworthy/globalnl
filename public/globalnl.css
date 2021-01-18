@@ -92,6 +92,12 @@ body {
   box-shadow: none;
 }
 
+/* Hide the grey outline when clicked on icon boxes */
+.btn-outline-secondary:focus, .btn-outline-secondary:active {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 /* Custom page CSS
 -------------------------------------------------- */
 /* Not required for template or sticky footer method. */
