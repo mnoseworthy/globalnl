@@ -3,6 +3,7 @@
  ******************************************************/
 
 var uid;
+var adminEdit = false;
 var memberDocRef;
 var privateDocRef;
 // For storing current location and hometown from Google Maps
@@ -29,6 +30,7 @@ function renderWithUser(user) {
     // Check if moderator=true for the user and if session storage contains a uid
     if (doc.data().moderator && sessionStorage.getItem("uid") != null) {
       // Use the uid set in session storage by the admin button to edit the desired profile
+      adminEdit = true;
       uid = sessionStorage.getItem("uid");
       // change the profile page title when admin is editing another profile
       if (document.title == "Global NL - Member Profile") {   // check the page to prevent the title from changing on DBTable too
@@ -95,6 +97,61 @@ function changeMUN() {
     document.getElementById("MUN_grad_year_box").required = false;
   }
 }
+
+// Promise function, will resolve if the profile picture is uploaded properly on firebase storage
+function uploadPhotoOnFirebaseStorage(url) {
+  // First, download the file:  
+  return new Promise(function (resolve, reject) {
+  var xhr = new XMLHttpRequest();
+  xhr.responseType = 'blob';
+  xhr.onload = function(event) {
+  var blob = xhr.response;
+
+  // Define where to store the picture:
+  var picRef = firebase.storage().ref("images/members/" + uid + "/profile_picture/" + uid + "_profile-picture");
+
+  // Store the picture:
+  picRef.put(blob).then(function(snapshot) {
+  console.log('Profile Picture uploaded!');
+  resolve();
+  })
+  .catch(function(err) {    
+  console.log('Profile Picture upload failed.');
+  reject();
+  });
+  };                    
+  xhr.open('GET', url);
+  xhr.send();
+  });
+}
+
+// Promise function, will resolve if the company logo is uploaded properly on firebase storage
+function uploadCompanyLogoOnFirebaseStorage(url) {
+  // First, download the file:
+  return new Promise(function (resolve, reject) {
+  var xhr = new XMLHttpRequest();
+  xhr.responseType = 'blob';
+  xhr.onload = function(event) {
+  var blob = xhr.response;
+
+  // Define where to store the picture:
+  var picRef = firebase.storage().ref("images/members/" + uid + "/company_logo/" + uid + "_company-logo");
+
+  // Store the picture:
+  picRef.put(blob).then(function(snapshot) {
+  console.log('Company Logo uploaded!');
+  resolve();
+  })
+  .catch(function(err) {    
+  console.log('Company Logo upload failed.');
+  reject();
+  });
+  };                    
+  xhr.open('GET', url);
+  xhr.send();
+  });
+}
+
 // Callback for google maps autocomplete for storing autocompleted location data into
 // the new member objcet
 function initAutocomplete() {
@@ -190,8 +247,8 @@ $("#submitButton").click(function(event) {
   if ($(".LI-title").length>0) member.headline = $(".LI-title").text();
   member.company = '';
   member.company_lower = '';
-  if ($(".LI-field").length>0 && $(".LI-field > a").get(0)) {
-    member.company = $(".LI-field > a").get(0).innerText;
+  if ($(".LI-field").length>0 && $(".LI-field > img")) { // grabbing the first img tag
+    member.company = $(".LI-field > img").attr("alt"); // getting the first img tag's alt attribute, which contains the name of the company
     member.company_lower = member.company.toLowerCase();
   }
   if ($(".LI-field-icon").length>0) member.company_logo = $(".LI-field-icon").attr("src");
@@ -228,10 +285,55 @@ $("#submitButton").click(function(event) {
       console.log("Error writing private database properties for ", uid);
     });
 
-  return Promise.all([memberDatabaseTask, privateDatabaseTask]).then(() => {
-    console.log("Completed both database writes");
-    window.location.replace("index.html");
-  });
+    let uploadPhoto;
+    let uploadCompanyLogo;
+    // only upload profile photo on firebase storage if it is not the default ghost profile photo
+    if (member.photoURL && !/ghost/gi.test(member.photoURL)) {
+      uploadPhoto = uploadPhotoOnFirebaseStorage(member.photoURL);
+    }     
+    // only upload company logo on firebase storage if it is not the default ghost company logo
+    if (member.company_logo && !/ghost/gi.test(member.company_logo)) {
+      uploadCompanyLogo = uploadCompanyLogoOnFirebaseStorage(member.company_logo);
+    }
+
+    setTimeout(() => {
+      return Promise.all([memberDatabaseTask, privateDatabaseTask, uploadPhoto, uploadCompanyLogo]).then(() => {
+        if (adminEdit === false) { // update user account photoURL
+          // Create a reference to the file we want to download
+          var profilePicRef = firebase.storage().ref("images/members/" + uid + "/profile_picture/" + uid + "_profile-picture");
+          // Get the download URL
+          profilePicRef.getDownloadURL()
+          .then((url) => {
+            firebase.auth().currentUser.updateProfile({
+              photoURL: url,
+            })
+            .then(function() {
+              console.log("Successfully updated user account photoURL");            
+              console.log("Completed both database writes");
+              $("#user_photo").val(url); // update the navbar user photo with the updated user account photoURL from firebase storage
+              window.location.replace("index.html");
+            })
+            .catch(function(error) {
+              console.log(error);
+              console.log("Error updating user account photoURL for ", uid);
+            });
+          })
+          .catch((error) => {
+            // A full list of error codes is available at
+            // https://firebase.google.com/docs/storage/web/handle-errors
+            console.log("Profile Pic does not exist in the storage. Default photo will be used for user account photoURL");        
+            console.log("Completed both database writes");
+            window.location.replace("index.html");
+          });
+        } else { // admin edit mode. user acount photoURL for the desired user will be updated once they log in to the member portal
+            console.log("Completed both database writes");
+            window.location.replace("index.html");
+        }
+      })
+      .catch(err => {
+        console.log(err);
+      });
+    }, 2000); // 2s timeout for uploading profile photo and company logo on storage before redirecting to index.html
 });
 
 /********************************

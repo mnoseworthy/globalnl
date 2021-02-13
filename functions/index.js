@@ -39,7 +39,8 @@ var serviceAccount = require(`./${functions.config().project.name}-service-accou
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  databaseURL: `https://${functions.config().project.name}.firebaseio.com`
+  databaseURL: `https://${functions.config().project.name}.firebaseio.com`,
+  storageBucket: `https://${functions.config().project.name}.appspot.com`
 });
 var db = admin.firestore();
 const settings = { timestampsInSnapshots: true };

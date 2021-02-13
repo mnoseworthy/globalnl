@@ -6,10 +6,21 @@
 		<meta http-equiv="Content-Security-Policy" content="script-src * 'unsafe-inline'">
 		<!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
 		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+
+		<meta property="og:site_name" content="Global NL - Member Portal"/>
+		<meta property="og:title" content="Global NL - Member Portal"/>
+		<meta property="og:url" content="https://members.globalnl.com"/>
+		<meta property="og:type" content="website"/>
+		<meta property="og:description" content="Connecting and Empowering People Passionate About Newfoundland & Labrador"/>
+		<meta property="og:image" content="https://members.globalnl.com/assets/GlobalNL-Logo-Words-Blue-Social-Media-Preview.png"/>
+		<meta property="og:image:width" content="1200"/>
+		<meta property="og:image:height" content="600"/>
+
 		<link rel="icon" href="favicon.ico" type="image/x-icon" />
 
 		<title>Global NL - Member Portal</title>
 
+		<script type='text/javascript' src='https://platform.linkedin.com/badges/js/profile.js' async defer></script>
 		<!-- Font-Awesome: -->
 		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
 
@@ -58,7 +69,7 @@
             </li>
             <li class="nav-item">
               <a class="nav-link" href="map.html"><span class="fas fa-globalnl fa-globe"></span>Member Map</a>
-            </li>
+			</li>
           </ul>
 		  <ul id="userNavBar" class="nav navbar-nav navbar-right">
 			<li class="nav-item"><a class="nav-link" href="#" onClick="gnl.auth.loginLinkedIn();gnl.navBar.toggle();return false;"><span class="fas fa-globalnl fa-user"></span><span>Sign in</span></a></li>
@@ -217,6 +228,10 @@
 
 			</div>
 
+			<div id="LIbadge" class="select2-container border">
+				<!-- LI badge html goes here -->
+			</div>
+
 		<!-- tab-content -->
 		</div>
 	<!-- d-flex -->
@@ -276,7 +291,8 @@
 	<!-- include firestore now -->
 	<script src="/__/firebase/5.3.0/firebase-app.js"></script>
 	<script src="/__/firebase/5.3.0/firebase-auth.js"></script>
-  <script src="/__/firebase/5.3.0/firebase-firestore.js"></script>
+  <script src="/__/firebase/5.3.0/firebase-firestore.js"></script>  
+  <script src="/__/firebase/5.3.0/firebase-storage.js"></script>
   <script src="/__/firebase/5.3.0/firebase-functions.js"></script>
 	<script src="/__/firebase/init.js"></script>
 

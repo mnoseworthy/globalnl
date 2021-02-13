@@ -121,7 +121,8 @@ function createSendAMessageForm(id, toDisplayName, fromEmailAddress) {
  * Register event callbacks & implement element callbacks
  ******************************************************/
 // Init auth on load web page event
-$(document).ready(function() {
+$(document).ready(function() {          
+  $("#LIbadge").hide();
   $("#preloader").hide();
   initApp();
 });
@@ -297,7 +298,78 @@ function initLoad() {
       } else {
         if (!doc.data().date_updated || doc.data().date_updated == "-1") {
           window.location.href = "profile.html";
+        } else {
+            var profileLink = doc.data().linkedin_profile;
+            var vanityName = profileLink.substring(profileLink.indexOf('/in/')+4).replace('/','');
+            var photoURL, companyLogo;
+
+            $("#LIbadge").html(`<div class='LI-profile-badge'  data-version='v1' data-size='large' data-locale='en_US' data-type='horizontal' data-theme='light' data-vanity='${vanityName}'><a class='LI-simple-link' style='display: none' href='${profileLink}?trk=profile-badge'>LinkedIn badge</a></div>`);
+            LIRenderAll();                        
+            let uploadPhoto;
+            let uploadCompanyLogo;
+            setTimeout(function(){
+              if (!$(".LI-name").length > 0) {
+                  console.log("Failed to load badge. Database and Storage not updated.");
+              } else {
+                  //LinkedIn badge info
+                  if ($(".LI-profile-pic").length>0) photoURL = $(".LI-profile-pic").attr("src");
+                  
+                  if ($(".LI-field-icon").length>0) companyLogo = $(".LI-field-icon").attr("src");
+
+                  // checking if users photoURL in the database is valid
+                  if (photoURL && doc.data().photoURL !== photoURL && !/ghost/gi.test(photoURL)) { // global, case-insensitive regex test
+                    firebase.firestore().collection("members").doc(doc.id).update({
+                      photoURL: photoURL
+                    });
+                    uploadPhoto = uploadPhotoOnFirebaseStorage(photoURL, doc.id);
+                  } else {
+                    console.log("No need to update photo");
+                  }
+                  // checking if users company_logo in the database is valid
+                  if (companyLogo && doc.data().company_logo !== companyLogo && !/ghost/gi.test(companyLogo)) { // global, case-insensitive regex test
+                    firebase.firestore().collection("members").doc(doc.id).update({
+                      company_logo: companyLogo
+                    });
+                    uploadCompanyLogo = uploadCompanyLogoOnFirebaseStorage(companyLogo, doc.id);    
+                  } else {
+                    console.log("No need to update company logo.");
+                  }
+              }
+            }, 700); // if there are issues with valid profile links not loading the badge, try increasing this timeout            
+            
+            setTimeout(() => {
+              return Promise.all([uploadPhoto, uploadCompanyLogo]).then(() => {
+                console.log("Completed both storage uploads if it was required");                
+                $("#LIbadge").remove();
+                // Create a reference to the file we want to download
+                var profilePicRef = firebase.storage().ref("images/members/" + doc.id + "/profile_picture/" + doc.id + "_profile-picture");
+                // Get the download URL
+                profilePicRef.getDownloadURL()
+                .then((url) => {
+                  firebase.auth().currentUser.updateProfile({
+                    photoURL: url,
+                  })
+                  .then(function() {
+                    console.log("Successfully updated user account photoURL");
+                    $("#user_photo").val(url); // update the navbar user photo with the updated user account photoURL from firebase storage
+                  })
+                  .catch(function(error) {
+                    console.log(error);
+                    console.log("Error updating user account photoURL for ", uid);
+                  });
+                })
+                .catch((error) => {
+                  // A full list of error codes is available at
+                  // https://firebase.google.com/docs/storage/web/handle-errors
+                  console.log("Profile Pic does not exist in the storage. Default photo will be used user account photoURL");
+                });
+              })
+              .catch(err => {
+                console.log(err);
+              });
+            }, 2200);
         }
+
         formDynamic["current_address"] = doc.data().current_address;
         formDynamic["hometown_address"] = doc.data().hometown_address;
 
@@ -360,6 +432,60 @@ function profile() {
   window.location.href = "profile.html";
 }
 
+// Promise function, will resolve if the profile picture is uploaded properly on firebase storage
+function uploadPhotoOnFirebaseStorage(url, uid) {
+  // First, download the file:  
+  return new Promise(function (resolve, reject) {
+  var xhr = new XMLHttpRequest();
+  xhr.responseType = 'blob';
+  xhr.onload = function(event) {
+  var blob = xhr.response;
+
+  // Define where to store the picture:
+  var picRef = firebase.storage().ref("images/members/" + uid + "/profile_picture/" + uid + "_profile-picture");
+
+  // Store the picture:
+  picRef.put(blob).then(function(snapshot) {
+  console.log('Profile Picture uploaded!');
+  resolve();
+  })
+  .catch(function(err) {    
+  console.log('Profile Picture upload failed.');
+  reject();
+  });
+  };                    
+  xhr.open('GET', url);
+  xhr.send();
+  });
+}
+
+// Promise function, will resolve if the company logo is uploaded properly on firebase storage
+function uploadCompanyLogoOnFirebaseStorage(url, uid) {
+  // First, download the file:
+  return new Promise(function (resolve, reject) {
+  var xhr = new XMLHttpRequest();
+  xhr.responseType = 'blob';
+  xhr.onload = function(event) {
+  var blob = xhr.response;
+
+  // Define where to store the picture:
+  var picRef = firebase.storage().ref("images/members/" + uid + "/company_logo/" + uid + "_company-logo");
+
+  // Store the picture:
+  picRef.put(blob).then(function(snapshot) {
+  console.log('Company Logo uploaded!');
+  resolve();
+  })
+  .catch(function(err) {    
+  console.log('Company Logo upload failed.');
+  reject();
+  });
+  };                    
+  xhr.open('GET', url);
+  xhr.send();
+  });
+}
+
 /* load members */
 function loadMembers(querySnapshot) {
   if (querySnapshot.docs.length > 0) {
@@ -372,9 +498,9 @@ function loadMembers(querySnapshot) {
       // Build argument's for memberElement
       var data = doc.data(),
         firstName = data.first_name,
-        lastName = data.last_name;
-        photoURL = "https://static-exp1.licdn.com/scds/common/u/images/themes/katy/ghosts/person/ghost_person_200x200_v1.png";
-
+        lastName = data.last_name,
+        photoURL = "assets/ghost_person_200x200_v1.png",
+        companyLogo = "assets/ghost_company_80x80_v1.png";
 
       var memberFields = {
         public_uid: doc.id,
@@ -386,10 +512,10 @@ function loadMembers(querySnapshot) {
         bio: data.bio || "",
         linkedin_profile: data.linkedin_profile,
         munAlumni: data.MUN,
-        photoURL: data.photoURL,
+        photoURL: "",
         headline: data.headline || "",
         company: data.company,
-        companyLogo: data.company_logo
+        companyLogo: ""
       };
 
       if (memberFields.bio !== null && memberFields.bio !== "") {
@@ -432,23 +558,54 @@ function loadMembers(querySnapshot) {
       }
 
       // checking if users photoURL in the database is valid and then adding it to the card
-      if (memberFields.photoURL && memberFields.photoURL !== "https://static-exp1.licdn.com/scds/common/u/images/themes/katy/ghosts/person/ghost_person_200x200_v1.png") {
-        $.ajax({
-          type: 'GET',
-          url: memberFields.photoURL,
-          async: true,
-          success: function (data) {
-            $(`#${memberFields.public_uid}_photoURL`).attr('src', memberFields.photoURL);
-          },
-          error: function(jqXHR, textStatus, ex) {
-            console.log(textStatus + "," + ex + "," + jqXHR.responseText);
-          }
+      // if (memberFields.photoURL && memberFields.photoURL !== "https://static-exp1.licdn.com/scds/common/u/images/themes/katy/ghosts/person/ghost_person_200x200_v1.png") {
+      //   $.ajax({
+      //     type: 'GET',
+      //     url: memberFields.photoURL,
+      //     async: true,
+      //     success: function (data) {
+      //       $(`#${memberFields.public_uid}_photoURL`).attr('src', memberFields.photoURL);
+      //     },
+      //     error: function(jqXHR, textStatus, ex) {
+      //       console.log(textStatus + "," + ex + "," + jqXHR.responseText);
+      //     }
+      //   });
+      // }
+
+      // Create a reference to the file we want to download
+      var profilePicRef = firebase.storage().ref("images/members/" + memberFields.public_uid + "/profile_picture/" + memberFields.public_uid + "_profile-picture");
+      // Get the download URL
+      profilePicRef.getDownloadURL()
+      .then((url) => {
+        memberFields.photoURL = url;
+        // Insert url into the photoURL <img> tag to "download"
+        $(`#${memberFields.public_uid}_photoURL`).attr('src', memberFields.photoURL);
+      })
+      .catch((error) => {
+        // A full list of error codes is available at
+        // https://firebase.google.com/docs/storage/web/handle-errors
+        console.log("Profile Pic does not exist in the storage. Default photo will be used");
+      });
+
+      if (memberFields.company) {        
+        // Create a reference to the file we want to download
+        var companyLogoRef = firebase.storage().ref("images/members/" + memberFields.public_uid + "/company_logo/" + memberFields.public_uid + "_company-logo");
+        // Get the download URL
+        companyLogoRef.getDownloadURL()
+        .then((url) => {
+          memberFields.companyLogo = url;
+          // Insert url into the companyLogo <img> tag to "download"
+          $(`#${memberFields.public_uid}_companyLogo`).attr('src', memberFields.companyLogo);
+        })
+        .catch((error) => {
+          // A full list of error codes is available at
+          // https://firebase.google.com/docs/storage/web/handle-errors
+          console.log("Company logo does not exist in the storage. Default logo will be used");
         });
       }
 
       if (
         memberFields.company &&
-        memberFields.companyLogo &&
         memberFields.bio &&
         memberFields.linkedin_profile
       ) {
@@ -468,7 +625,7 @@ function loadMembers(querySnapshot) {
 	<div class="munLogoAdder" style="position: absolute; right: 10px; top: 5px; visibility: ${vis};"><img src="assets/MUN_Logo_Pantone_Border_Small.jpg" alt="MUN LOGO"></div>
 	</div>
 	<div class="card-body card-body-gnl">
-    <h5 class="card-title"><span class="fas fa-globalnl"><img style="width: 100%" src="${memberFields.companyLogo}"></span>${
+    <h5 class="card-title"><span class="fas fa-globalnl"><img id="${memberFields.public_uid}_companyLogo" style="width: 100%" src="${companyLogo}"></span>${
       memberFields.company
     }</h5>
     <h5 class="card-title card-title-undercompany"><span class="fas fa-globalnl fa-industry"></span>${
@@ -502,7 +659,6 @@ function loadMembers(querySnapshot) {
       }
       else if (
         memberFields.company &&
-        memberFields.companyLogo &&
         memberFields.linkedin_profile
       ) {
         showAdminButton();
@@ -521,7 +677,7 @@ function loadMembers(querySnapshot) {
 	<div class="munLogoAdder" style="position: absolute; right: 10px; top: 5px; visibility: ${vis};"><img src="assets/MUN_Logo_Pantone_Border_Small.jpg" alt="MUN LOGO"></div>
 	</div>
 	<div class="card-body card-body-gnl">
-    <h5 class="card-title"><span class="fas fa-globalnl"><img style="width: 100%" src="${memberFields.companyLogo}"></span>${
+    <h5 class="card-title"><span class="fas fa-globalnl"><img id="${memberFields.public_uid}_companyLogo" style="width: 100%" src="${companyLogo}"></span>${
       memberFields.company
     }</h5>
     <h5 class="card-title card-title-undercompany"><span class="fas fa-globalnl fa-industry"></span>${
