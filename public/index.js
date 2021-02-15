@@ -296,8 +296,67 @@ function initLoad() {
         console.log("User does not exist in database");
         gnl.auth.logout();
       } else {
-        if (!doc.data().date_updated || doc.data().date_updated == "-1") {
-          window.location.href = "profile.html";
+        if (!doc.data().date_updated || doc.data().date_updated == "-1") { // executes if user still did not update profile information
+          if (!/firebasestorage/g.test(firebase.auth().currentUser.photoURL)) { // true if user account photoURL has not been updated with firebase storage url
+            uploadPhotoOnFirebaseStorage(firebase.auth().currentUser.photoURL, doc.id).then(() => {
+              // Create a reference to the file we want to download
+              var profilePicRef = firebase.storage().ref("images/members/" + doc.id + "/profile_picture/" + doc.id + "_profile-picture");
+              // Get the download URL
+              profilePicRef.getDownloadURL()
+              .then((url) => {
+                firebase.auth().currentUser.updateProfile({ // updating user account photoURL with firebase storage url
+                  photoURL: url,
+                })
+                .then(function() {
+                  console.log("Successfully updated user account photoURL");
+                  $("#user_photo").attr('src', url); // update the navbar user photo with the updated user account photoURL from firebase storage
+                  window.location.href = "profile.html";
+                })
+                .catch(function(error) {
+                  console.log(error);
+                  console.log("Error updating user account photoURL for ", doc.id);
+                });
+              })
+              .catch((error) => {
+                // A full list of error codes is available at
+                // https://firebase.google.com/docs/storage/web/handle-errors
+                console.log("Profile Pic does not exist in the storage. Default photo will be used user account photoURL");
+              });
+            })
+            .catch(err => {
+              console.log(err);
+            });
+          } else if (/firebasestorage/g.test(firebase.auth().currentUser.photoURL)) { // update user account photoURL with new firebase storage url
+              // Create a reference to the file we want to download
+              var profilePicRef = firebase.storage().ref("images/members/" + doc.id + "/profile_picture/" + doc.id + "_profile-picture");
+              // Get the download URL
+              profilePicRef.getDownloadURL()
+              .then((url) => {
+                if (firebase.auth().currentUser.photoURL !== url) {
+                  firebase.auth().currentUser.updateProfile({ // updating user account photoURL with new firebase storage url
+                    photoURL: url,
+                  })
+                  .then(function() {
+                    console.log("Successfully updated user account photoURL");
+                    $("#user_photo").attr('src', url); // update the navbar user photo with the new user account photoURL from firebase storage
+                    window.location.href = "profile.html";
+                  })
+                  .catch(function(error) {
+                    console.log(error);
+                    console.log("Error updating user account photoURL for ", doc.id);
+                  });
+                } else { // firebase storage url is still the same so no need to update user account photoURL 
+                  $("#user_photo").attr('src', url); // set the navbar user photo with the user account photoURL from firebase storage
+                  window.location.href = "profile.html";
+                }
+              })
+              .catch((error) => {
+                // A full list of error codes is available at
+                // https://firebase.google.com/docs/storage/web/handle-errors
+                console.log("Profile Pic does not exist in the storage. Default photo will be used user account photoURL");
+              });
+            }
+
         } else {
             var profileLink = doc.data().linkedin_profile;
             var vanityName = profileLink.substring(profileLink.indexOf('/in/')+4).replace('/','');
@@ -334,40 +393,53 @@ function initLoad() {
                   } else {
                     console.log("No need to update company logo.");
                   }
+
+                  return Promise.all([uploadPhoto, uploadCompanyLogo]).then(() => {
+                    console.log("Completed both storage uploads if it was required");                
+                    $("#LIbadge").remove();
+                    // Create a reference to the file we want to download
+                    var profilePicRef = firebase.storage().ref("images/members/" + doc.id + "/profile_picture/" + doc.id + "_profile-picture");
+                    // Get the download URL
+                    profilePicRef.getDownloadURL()
+                    .then((url) => {
+                      firebase.auth().currentUser.updateProfile({
+                        photoURL: url,
+                      })
+                      .then(function() {
+                        console.log("Successfully updated user account photoURL");
+                        $("#user_photo").attr('src', url); // update the navbar user photo with the updated user account photoURL from firebase storage
+                        $(`#${doc.id}_photoURL`).attr('src', url); // update member display photo icon from firebase storage url
+                        if (doc.data().company) {                     
+                          var companyLogoRef = firebase.storage().ref("images/members/" + doc.id + "/company_logo/" + doc.id + "_company-logo");
+                          // Get the download URL
+                          companyLogoRef.getDownloadURL()
+                          .then((url) => {
+                            // Insert url into the companyLogo <img> tag to "download"
+                            $(`#${doc.id}_companyLogo`).attr('src', url); // update member display company logo from firebase storage url
+                          })
+                          .catch((error) => {
+                            // A full list of error codes is available at
+                            // https://firebase.google.com/docs/storage/web/handle-errors
+                            console.log("Company logo does not exist in the storage. Default logo will be used");
+                          });
+                        }
+                      })
+                      .catch(function(error) {
+                        console.log(error);
+                        console.log("Error updating user account photoURL for ", doc.id);
+                      });
+                    })
+                    .catch((error) => {
+                      // A full list of error codes is available at
+                      // https://firebase.google.com/docs/storage/web/handle-errors
+                      console.log("Profile Pic does not exist in the storage. Default photo will be used user account photoURL");
+                    });
+                  })
+                  .catch(err => {
+                    console.log(err);
+                  });
               }
             }, 700); // if there are issues with valid profile links not loading the badge, try increasing this timeout            
-            
-            setTimeout(() => {
-              return Promise.all([uploadPhoto, uploadCompanyLogo]).then(() => {
-                console.log("Completed both storage uploads if it was required");                
-                $("#LIbadge").remove();
-                // Create a reference to the file we want to download
-                var profilePicRef = firebase.storage().ref("images/members/" + doc.id + "/profile_picture/" + doc.id + "_profile-picture");
-                // Get the download URL
-                profilePicRef.getDownloadURL()
-                .then((url) => {
-                  firebase.auth().currentUser.updateProfile({
-                    photoURL: url,
-                  })
-                  .then(function() {
-                    console.log("Successfully updated user account photoURL");
-                    $("#user_photo").val(url); // update the navbar user photo with the updated user account photoURL from firebase storage
-                  })
-                  .catch(function(error) {
-                    console.log(error);
-                    console.log("Error updating user account photoURL for ", uid);
-                  });
-                })
-                .catch((error) => {
-                  // A full list of error codes is available at
-                  // https://firebase.google.com/docs/storage/web/handle-errors
-                  console.log("Profile Pic does not exist in the storage. Default photo will be used user account photoURL");
-                });
-              })
-              .catch(err => {
-                console.log(err);
-              });
-            }, 2200);
         }
 
         formDynamic["current_address"] = doc.data().current_address;
@@ -434,28 +506,33 @@ function profile() {
 
 // Promise function, will resolve if the profile picture is uploaded properly on firebase storage
 function uploadPhotoOnFirebaseStorage(url, uid) {
-  // First, download the file:  
-  return new Promise(function (resolve, reject) {
-  var xhr = new XMLHttpRequest();
-  xhr.responseType = 'blob';
-  xhr.onload = function(event) {
-  var blob = xhr.response;
+  return new Promise(function (resolve, reject) {    
+    // First, download the file:
+    fetch(url).then(function(response) {
+      return response.blob();
+    })
+    .then(function(blob) {
+      // Define where to store the picture:
+      var picRef = firebase.storage().ref("images/members/" + uid + "/profile_picture/" + uid + "_profile-picture");
 
-  // Define where to store the picture:
-  var picRef = firebase.storage().ref("images/members/" + uid + "/profile_picture/" + uid + "_profile-picture");
-
-  // Store the picture:
-  picRef.put(blob).then(function(snapshot) {
-  console.log('Profile Picture uploaded!');
-  resolve();
-  })
-  .catch(function(err) {    
-  console.log('Profile Picture upload failed.');
-  reject();
-  });
-  };                    
-  xhr.open('GET', url);
-  xhr.send();
+      // Store the picture:
+      picRef.put(blob).then(function(snapshot) {
+        console.log('Profile Picture uploaded!');
+        resolve();
+      })
+      .catch(function(err) {    
+        console.log('Profile Picture upload failed.');
+        reject();
+      });
+    })
+    .catch(function() {
+      // handle any errors
+      console.log("Error getting image blob from URL");
+    })
+    .catch(function() {
+      // handle any errors
+      console.log("Error getting response from URL");
+    });
   });
 }
 
@@ -463,26 +540,31 @@ function uploadPhotoOnFirebaseStorage(url, uid) {
 function uploadCompanyLogoOnFirebaseStorage(url, uid) {
   // First, download the file:
   return new Promise(function (resolve, reject) {
-  var xhr = new XMLHttpRequest();
-  xhr.responseType = 'blob';
-  xhr.onload = function(event) {
-  var blob = xhr.response;
+    fetch(url).then(function(response) {
+      return response.blob();
+    })
+    .then(function(blob) {
+      // Define where to store the picture:
+      var picRef = firebase.storage().ref("images/members/" + uid + "/company_logo/" + uid + "_company-logo");
 
-  // Define where to store the picture:
-  var picRef = firebase.storage().ref("images/members/" + uid + "/company_logo/" + uid + "_company-logo");
-
-  // Store the picture:
-  picRef.put(blob).then(function(snapshot) {
-  console.log('Company Logo uploaded!');
-  resolve();
-  })
-  .catch(function(err) {    
-  console.log('Company Logo upload failed.');
-  reject();
-  });
-  };                    
-  xhr.open('GET', url);
-  xhr.send();
+      // Store the picture:
+      picRef.put(blob).then(function(snapshot) {
+      console.log('Company Logo uploaded!');
+      resolve();
+      })
+      .catch(function(err) {    
+      console.log('Company Logo upload failed.');
+      reject();
+      });
+    })
+    .catch(function() {
+      // handle any errors
+      console.log("Error getting image blob from URL");
+    })
+    .catch(function() {
+      // handle any errors
+      console.log("Error getting response from URL");
+    });
   });
 }
 

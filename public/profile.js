@@ -100,28 +100,33 @@ function changeMUN() {
 
 // Promise function, will resolve if the profile picture is uploaded properly on firebase storage
 function uploadPhotoOnFirebaseStorage(url) {
-  // First, download the file:  
-  return new Promise(function (resolve, reject) {
-  var xhr = new XMLHttpRequest();
-  xhr.responseType = 'blob';
-  xhr.onload = function(event) {
-  var blob = xhr.response;
+  return new Promise(function (resolve, reject) {    
+    // First, download the file:
+    fetch(url).then(function(response) {
+      return response.blob();
+    })
+    .then(function(blob) {
+      // Define where to store the picture:
+      var picRef = firebase.storage().ref("images/members/" + uid + "/profile_picture/" + uid + "_profile-picture");
 
-  // Define where to store the picture:
-  var picRef = firebase.storage().ref("images/members/" + uid + "/profile_picture/" + uid + "_profile-picture");
-
-  // Store the picture:
-  picRef.put(blob).then(function(snapshot) {
-  console.log('Profile Picture uploaded!');
-  resolve();
-  })
-  .catch(function(err) {    
-  console.log('Profile Picture upload failed.');
-  reject();
-  });
-  };                    
-  xhr.open('GET', url);
-  xhr.send();
+      // Store the picture:
+      picRef.put(blob).then(function(snapshot) {
+        console.log('Profile Picture uploaded!');
+        resolve();
+      })
+      .catch(function(err) {    
+        console.log('Profile Picture upload failed.');
+        reject();
+      });
+    })
+    .catch(function() {
+      // handle any errors
+      console.log("Error getting image blob from URL");
+    })
+    .catch(function() {
+      // handle any errors
+      console.log("Error getting response from URL");
+    });
   });
 }
 
@@ -129,26 +134,31 @@ function uploadPhotoOnFirebaseStorage(url) {
 function uploadCompanyLogoOnFirebaseStorage(url) {
   // First, download the file:
   return new Promise(function (resolve, reject) {
-  var xhr = new XMLHttpRequest();
-  xhr.responseType = 'blob';
-  xhr.onload = function(event) {
-  var blob = xhr.response;
+    fetch(url).then(function(response) {
+      return response.blob();
+    })
+    .then(function(blob) {
+      // Define where to store the picture:
+      var picRef = firebase.storage().ref("images/members/" + uid + "/company_logo/" + uid + "_company-logo");
 
-  // Define where to store the picture:
-  var picRef = firebase.storage().ref("images/members/" + uid + "/company_logo/" + uid + "_company-logo");
-
-  // Store the picture:
-  picRef.put(blob).then(function(snapshot) {
-  console.log('Company Logo uploaded!');
-  resolve();
-  })
-  .catch(function(err) {    
-  console.log('Company Logo upload failed.');
-  reject();
-  });
-  };                    
-  xhr.open('GET', url);
-  xhr.send();
+      // Store the picture:
+      picRef.put(blob).then(function(snapshot) {
+      console.log('Company Logo uploaded!');
+      resolve();
+      })
+      .catch(function(err) {    
+      console.log('Company Logo upload failed.');
+      reject();
+      });
+    })
+    .catch(function() {
+      // handle any errors
+      console.log("Error getting image blob from URL");
+    })
+    .catch(function() {
+      // handle any errors
+      console.log("Error getting response from URL");
+    });
   });
 }
 
@@ -295,45 +305,42 @@ $("#submitButton").click(function(event) {
     if (member.company_logo && !/ghost/gi.test(member.company_logo)) {
       uploadCompanyLogo = uploadCompanyLogoOnFirebaseStorage(member.company_logo);
     }
-
-    setTimeout(() => {
-      return Promise.all([memberDatabaseTask, privateDatabaseTask, uploadPhoto, uploadCompanyLogo]).then(() => {
-        if (adminEdit === false) { // update user account photoURL
-          // Create a reference to the file we want to download
-          var profilePicRef = firebase.storage().ref("images/members/" + uid + "/profile_picture/" + uid + "_profile-picture");
-          // Get the download URL
-          profilePicRef.getDownloadURL()
-          .then((url) => {
-            firebase.auth().currentUser.updateProfile({
-              photoURL: url,
-            })
-            .then(function() {
-              console.log("Successfully updated user account photoURL");            
-              console.log("Completed both database writes");
-              $("#user_photo").val(url); // update the navbar user photo with the updated user account photoURL from firebase storage
-              window.location.replace("index.html");
-            })
-            .catch(function(error) {
-              console.log(error);
-              console.log("Error updating user account photoURL for ", uid);
-            });
+    return Promise.all([memberDatabaseTask, privateDatabaseTask, uploadPhoto, uploadCompanyLogo]).then(() => {
+      if (adminEdit === false) { // update user account photoURL
+        // Create a reference to the file we want to download
+        var profilePicRef = firebase.storage().ref("images/members/" + uid + "/profile_picture/" + uid + "_profile-picture");
+        // Get the download URL
+        profilePicRef.getDownloadURL()
+        .then((url) => {
+          firebase.auth().currentUser.updateProfile({
+            photoURL: url,
           })
-          .catch((error) => {
-            // A full list of error codes is available at
-            // https://firebase.google.com/docs/storage/web/handle-errors
-            console.log("Profile Pic does not exist in the storage. Default photo will be used for user account photoURL");        
+          .then(function() {
+            console.log("Successfully updated user account photoURL");            
             console.log("Completed both database writes");
+            $("#user_photo").val(url); // update the navbar user photo with the updated user account photoURL from firebase storage
             window.location.replace("index.html");
+          })
+          .catch(function(error) {
+            console.log(error);
+            console.log("Error updating user account photoURL for ", uid);
           });
-        } else { // admin edit mode. user acount photoURL for the desired user will be updated once they log in to the member portal
-            console.log("Completed both database writes");
-            window.location.replace("index.html");
-        }
-      })
-      .catch(err => {
-        console.log(err);
-      });
-    }, 2000); // 2s timeout for uploading profile photo and company logo on storage before redirecting to index.html
+        })
+        .catch((error) => {
+          // A full list of error codes is available at
+          // https://firebase.google.com/docs/storage/web/handle-errors
+          console.log("Profile Pic does not exist in the storage. Default photo will be used for user account photoURL");        
+          console.log("Completed both database writes");
+          window.location.replace("index.html");
+        });
+      } else { // admin edit mode. user acount photoURL for the desired user will be updated once they log in to the member portal
+          console.log("Completed both database writes");
+          window.location.replace("index.html");
+      }
+    })
+    .catch(err => {
+      console.log(err);
+    });
 });
 
 /********************************
