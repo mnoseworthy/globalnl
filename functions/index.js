@@ -28,6 +28,7 @@ var mailgun = require("mailgun-js")({
 
 //Mailchimp Setup
 const mailchimpKey = functions.config().mailchimp.key;
+const mailchimpListID = functions.config().mailchimp.list_id;
 const Mailchimp = require('mailchimp-api-v3')
 const mailchimp = new Mailchimp(mailchimpKey);
 
@@ -62,7 +63,7 @@ exports.sendWelcomeEmail = functions.auth.user().onCreate(user => {
   var promiseArray = [];
   promiseArray.push(sendWelcomeEmail(email, displayName));
   promiseArray.push(mailchimp.post(
-			'/lists/9efe26440a/members',
+			`/lists/${mailchimpListID}/members`,
 			{
 				email_address: email,
 				status: 'subscribed',

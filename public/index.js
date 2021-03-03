@@ -360,7 +360,7 @@ function initLoad() {
         } else {
             var profileLink = doc.data().linkedin_profile;
             var vanityName = profileLink.substring(profileLink.indexOf('/in/')+4).replace('/','');
-            var photoURL, companyLogo;
+            var photoURL, companyName, companyLogo;
 
             $("#LIbadge").html(`<div class='LI-profile-badge'  data-version='v1' data-size='large' data-locale='en_US' data-type='horizontal' data-theme='light' data-vanity='${vanityName}'><a class='LI-simple-link' style='display: none' href='${profileLink}?trk=profile-badge'>LinkedIn badge</a></div>`);
             LIRenderAll();                        
@@ -389,7 +389,16 @@ function initLoad() {
                     firebase.firestore().collection("members").doc(doc.id).update({
                       company_logo: companyLogo
                     });
-                    uploadCompanyLogo = uploadCompanyLogoOnFirebaseStorage(companyLogo, doc.id);    
+                    uploadCompanyLogo = uploadCompanyLogoOnFirebaseStorage(companyLogo, doc.id);
+                    if ($(".LI-field").length>0 && $(".LI-field > img")) { // grabbing the first img tag
+                      companyName = $(".LI-field > img").attr("alt"); // getting the first img tag's alt attribute, which contains the name of the company
+                      if (companyName && doc.data().company !== companyName) {
+                        firebase.firestore().collection("members").doc(doc.id).update({
+                          company: companyName,
+                          company_lower: companyName.toLowerCase()
+                        });
+                      }
+                    }    
                   } else {
                     console.log("No need to update company logo.");
                   }
