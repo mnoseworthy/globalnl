@@ -20,7 +20,54 @@ firebase.firestore().settings(settings);
  * Register event callbacks & implement element callbacks
  ******************************************************/
 // Start execution when page is done loading
-$(document).ready(function() {});
+$(document).ready(function() {  
+  if (navigator.userAgent.indexOf('gonative') > -1) { // for the mobile app
+    $('#LImodal_btn').text('Update Profile URL'); // changing the modal button text for the mobile app
+    var profileUsername = getUrlParameter('profileURL');
+    if (profileUsername) { // true if user comes back properly from their linkedin page
+    // start loading the linkedin badge
+      $("#linkedin").val('https://www.linkedin.com/in/' + profileUsername);
+      $("#LIbadge").html(`<div class='LI-profile-badge'  data-version='v1' data-size='large' data-locale='en_US' data-type='horizontal' data-theme='light' data-vanity='${profileUsername}'><a class='LI-simple-link' style="display: none" href='https://www.linkedin.com/in/${profileUsername}?trk=profile-badge'>LinkedIn badge</a></div>`);
+      LIRenderAll();
+      $("#badgeLoading").hide();
+      setTimeout(function(){
+        if (!$(".LI-name").length > 0) {
+          $("#LIbadge").html(`<div class="badge-error-message">Error loading LinkedIn profile!</div><div class="badge-error-message">Please check your profile link.</div>`)
+        }
+      }, 1000); // if there are issues with valid profile links not loading the badge, try increasing this timeout
+    }
+
+    // fill up the input forms with anything the users may have typed in before they were redirected to linkedin
+    if (sessionStorage.getItem("currentLocation") != null)
+      $('#autocomplete_current').val(sessionStorage.getItem("currentLocation"));
+    if (sessionStorage.getItem("hometown") != null)
+      $('#autocomplete_hometown').val(sessionStorage.getItem("hometown"));
+    if (sessionStorage.getItem("industry") != null) {
+      $("#industry").val(JSON.parse(sessionStorage.getItem("industry"))).trigger('change'); 
+      $("#industry").select2({
+        tags: true,
+        placeholder: "Select all you have experience within"
+      });
+    }
+    if (sessionStorage.getItem("munStudent") != null) {      
+      $("#MUN").val(sessionStorage.getItem("munStudent"));
+      $("#grad_year").show();
+      if (sessionStorage.getItem("graduateYear") != null)
+        $("#MUN_grad_year_box").val(sessionStorage.getItem("graduateYear"));
+    }
+    if (sessionStorage.getItem("bio") != null)
+      $("#bio").val(sessionStorage.getItem("bio"));
+    if (sessionStorage.getItem("comments") != null)
+      $("#comments").val(sessionStorage.getItem("comments"));
+  }
+});
+
+/* 
+* Following comment out code is used on GoNative application platform to grab user's LinkedIn profile
+  var linkedinURL = document.getElementById('self-profile-logo').href;
+  var pName = linkedinURL.substring(linkedinURL.indexOf('/in/')+4).replace('/','');
+  window.location.replace('https://app.globalnl.com/profile.html?profileURL=' + pName);
+*/
 
 function renderWithUser(user) {
   // Set uid to be the users uid by default
@@ -53,13 +100,38 @@ function renderWithUser(user) {
       .collection("private_data")
       .doc(uid);
     $("#mainPage").show();
-    //$("#display_name").val(user.displayName);
+    //$("#display_name").val(user.displayName);     
+    if (navigator.userAgent.indexOf('gonative') > -1) {
+      if (getUrlParameter('profileURL')) { // user has already returned from linkedin profile so do nothing
+        ;
+    } else { // show LinkedIn Modal for the mobile app for users who have never provided their info upon signing in
+      memberDocRef
+      .get()
+      .then(doc => {
+        if (!doc.exists) {
+          console.log("User does not exist in database");
+          gnl.auth.logout();
+        } else {
+          if (!doc.data().date_updated || doc.data().date_updated == "-1") {        
+            $('#LImodalMobileApp').show();              
+          }
+        }
+      })
+      .catch(err => {
+        console.log("Error getting document", err);
+      });
+    }
+    }
     initApp();
   });
 }
 
-function renderWithoutUser() {
-  $("#mainPage").hide();
+function renderWithoutUser() {   
+  if (navigator.userAgent.indexOf('gonative') > -1) { // for the mobile app     
+    window.location.replace("index.html"); // redirect to index.html when mobile app users are not signed in
+  } else {
+    $("#mainPage").hide();
+  }
 }
 
 gnl.auth.listenForStageChange(renderWithUser, renderWithoutUser, false);
@@ -161,6 +233,23 @@ function uploadCompanyLogoOnFirebaseStorage(url) {
     });
   });
 }
+
+// To get the profileURL parameter when mobile app users come back from their linkedin profile
+function getUrlParameter(sParam) {
+  var sPageURL = window.location.search.substring(1),
+      sURLVariables = sPageURL.split('&'),
+      sParameterName,
+      i;
+
+  for (i = 0; i < sURLVariables.length; i++) {
+      sParameterName = sURLVariables[i].split('=');
+
+      if (sParameterName[0] === sParam) {
+          return typeof sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+      }
+  }
+  return false;
+};
 
 // Callback for google maps autocomplete for storing autocompleted location data into
 // the new member objcet
@@ -279,6 +368,16 @@ $("#submitButton").click(function(event) {
     .set(member, { merge: true })
     .then(function() {
       console.log("Successfully wrote to public database");
+      // removing the mobile app specific session storage items as they should not be needed anymore (submit pressed, info saved in db)
+    if (navigator.userAgent.indexOf('gonative') > -1) { 
+      sessionStorage.removeItem("currentLocation");
+      sessionStorage.removeItem("hometown");
+      sessionStorage.removeItem("industry");
+      sessionStorage.removeItem("munStudent");
+      sessionStorage.removeItem("graduateYear");
+      sessionStorage.removeItem("bio");
+      sessionStorage.removeItem("comments");
+    }
     })
     .catch(function(error) {
       console.log(error);
@@ -413,9 +512,11 @@ function initApp() {
           });
         }
         else {
-          $("#industry").select2({
-            placeholder: "Select all you have experience within"
-          });
+          if (sessionStorage.getItem("industry") == null) {
+            $("#industry").select2({
+              placeholder: "Select all you have experience within"
+            });
+          }
         }
         if (userData["MUN"] != null) $("#MUN").val(userData["MUN"]);
         if (userData["MUN"] === "Yes") $("#grad_year").show();
@@ -540,24 +641,61 @@ $('#linkedin').on("focus", function () {
 // LI link modal stuff
 // Open the modal
 $("#LImodal_btn").click(function() {
-  $('#LImodal').show();
+  if (navigator.userAgent.indexOf('gonative') > -1) {        
+    $('#LImodalMobileApp').show();
+  } else {
+    $('#LImodal').show();
+  }
 });
 // Close the modal with the x
 $("#LImodal_exit").click(function() {
   $('#LImodal').hide();
 });
+
+// Close the mobile modal with the x
+$("#LImodalMobileApp_exit").click(function() {
+  $('#LImodalMobileApp').hide();
+});
+
 // Close the modal when user clicks outside of it
 window.onclick = function(event) {
   if (event.target == $('#LImodal')) {
     $('#LImodal').hide();
+  } else if (event.target == $('#LImodalMobileApp')) {
+    $('#LImodalMobileApp').hide();
   }
 }
+
 // Profile link in the modal
-$("#LI_btnprofile").click(function() {
-  if(confirm('Click OK to open LinkedIn in a new window.\nCopy your profile URL and return here to paste.')){
-    window.open("https://www.linkedin.com/public-profile/settings", "_blank"); // Redirect to the profile
-    $('#LImodal').hide(); //close modal
-    $('#linkedin').focus(); //focus on LI link form
+$("#LI_btnprofile").click(function() {  
+if(confirm('Click OK to open LinkedIn in a new window.\nCopy your profile URL and return here to paste.')){
+  window.open("https://www.linkedin.com/public-profile/settings", "_blank"); // Redirect to the profile
+  $('#LImodal').hide(); //close modal
+  $('#linkedin').focus(); //focus on LI link form
+}
+});
+
+// Profile link in the mobile app modal
+$("#LImodalMobileApp_btnprofile").click(function() {  
+  if (navigator.userAgent.indexOf('gonative') > -1) {
+    // saving the form inputs as sessionStorage so that they can be retrieved when users return from their linkedin profile
+    if ($('#autocomplete_current').val())
+        sessionStorage.setItem("currentLocation", $('#autocomplete_current').val());
+    if ($('#autocomplete_hometown').val())
+      sessionStorage.setItem("hometown", $('#autocomplete_hometown').val());
+    if($("#industry").val() && $("#industry").val().length) // check if not empty industry selection
+      sessionStorage.setItem("industry", JSON.stringify($("#industry").val()));
+    if ($("#MUN").val() == "Yes") {      
+      sessionStorage.setItem("munStudent", $("#MUN").val());
+      if ($("#MUN_grad_year_box").val())
+        sessionStorage.setItem("graduateYear", $("#MUN_grad_year_box").val());
+    }
+    if ($("#bio").val())
+      sessionStorage.setItem("bio", $("#bio").val());    
+    if ($("#comments").val())
+      sessionStorage.setItem("comments", $("#comments").val());
+    $('#LImodalMobileApp').hide(); //close modal  
+    window.location.href = 'https://www.linkedin.com/in/me/'; // redirecting users to their linkedin profiles
   }
 });
 

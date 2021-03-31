@@ -64,6 +64,15 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarCollapse">
           <ul class="navbar-nav mr-auto">
+			<li class="nav-item mobile-app-only">
+                <a class="nav-link" href="mobile.html"><span class="fas fa-globalnl fa-home"></span>Home <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item mobile-app-only">
+                <a class="nav-link" href="#"><span class="fas fa-globalnl fa-podcast"></span>Podcast <span class="sr-only">(current)</span></a>
+            </li>			
+			<li class="nav-item mobile-app-only">
+                <a class="nav-link" href="aboutus.html"><span class="fas fa-globalnl fa-info-circle"></span>About Us <span class="sr-only">(current)</span></a>
+            </li>
             <li class="nav-item active">
               <a class="nav-link" href="#"><span class="fas fa-globalnl fa-book"></span>Member Directory <span class="sr-only">(current)</span></a>
             </li>
@@ -278,6 +287,40 @@
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
           <button type="button" class="btn btn-primary" id="modalSendAMessageSubmit">Send</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Login Prompt Modal -->
+  <div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document" style="max-width:800px">
+      <div class="modal-content" style="width:auto; max-width:800px">
+        <div class="modal-header" style="padding: 0px;border-bottom: 0px;">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body" id="loginModalBody">
+			<div class="text-center">
+				<h1 class="w-100">
+				  Sign in </h1>
+				 <p class="w-100">
+				 to send messages to the Global NL Members
+				</p>
+				</div>
+				<img class="mx-auto d-block" alt="Sign in with LinkedIn" id="sign-in-button-loginModal" onClick="gnl.auth.loginLinkedIn();return false;"
+				src="assets/Sign-In-Small---Default.png" onmouseover="this.src='assets/Sign-In-Small---Hover.png'" onmouseout="this.src='assets/Sign-In-Small---Default.png'"/>
+		  	<div class="w-100 m-2"></div>
+			<div id="loginModal_text" class="text-center">
+					<small class="font-italic text-muted">
+					Global NL uses LinkedIn to provide a secure<br/>experience for our commmunity of members
+					</small>
+			</div>			
+			<hr>
+			<div class="text-center" style="margin-left: auto; margin-right: auto;">
+				<button data-dismiss="modal" type="button" class="btn btn-secondary">Close</button>				
+			</div>
+		</div>
       </div>
     </div>
   </div>

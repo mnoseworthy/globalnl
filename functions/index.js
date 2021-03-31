@@ -23,7 +23,7 @@ const crypto = require("crypto");
 const mailgunKey = functions.config().mailgun.key;
 var mailgun = require("mailgun-js")({
   apiKey: mailgunKey,
-  domain: "mail.globalnl.com"
+  domain: "email.globalnl.com"
 });
 
 //Mailchimp Setup
@@ -162,17 +162,24 @@ Reply to this email to respond, your email address will be viewable by the recip
 
 /**
  * Creates a configured LinkedIn API Client instance.
+ * @param requestFromApp boolean indicating if the request is coming from the mobile application to set callbackUrl accordingly.
  */
-function linkedInClient() {
+function linkedInClient(requestFromApp) {
   // LinkedIn OAuth 2 setup
   // TODO: Configure the `linkedin.client_id` and `linkedin.client_secret` Google Cloud environment variables.
   // Determines which project is being used and sets callback url accordingly
 
-  let callbackUrl = "https://members.globalnl.com/login.html";
+  let callbackUrl = "https://members.globalnl.com/login.html";  
   if (functions.config().project.name == "globalnl-members") {
+    if (requestFromApp)
+      callbackUrl = `https://app.globalnl.com/login.html`;
   }
   else if (functions.config().project.name == "globalnl-database-test") {
-    callbackUrl = `https://memberstest.globalnl.com/login.html`;
+    if (requestFromApp) {
+      callbackUrl = `https://apptest.globalnl.com/login.html`;
+    } else {
+      callbackUrl = `https://memberstest.globalnl.com/login.html`;
+    }
   }
   else {
     console.log("project id is invalid: " + functions.config().project.name);
@@ -188,12 +195,18 @@ function linkedInClient() {
  * Redirects the User to the LinkedIn authentication consent screen. ALso the 'state' cookie is set for later state
  * verification.
  */
-exports.redirect = functions.https.onRequest((req, res) => {
-  const Linkedin = linkedInClient();
-
+exports.redirect = functions.https.onRequest((req, res) => {  
   const { headers } = req;
   const userAgent = headers["user-agent"];
   console.log(userAgent);
+
+  let Linkedin;
+
+  if (userAgent.indexOf('gonative') > -1) { // condition true if app usage is coming from the mobile application
+    Linkedin = linkedInClient(true); // callbackUrl will be set as the mobile app specific Url
+  } else {
+    Linkedin = linkedInClient(false); // callbackUrl will be set as the non-mobile app specific Url
+  }
 
   cookieParser()(req, res, () => {
     const state = req.cookies.state || crypto.randomBytes(20).toString("hex");
@@ -216,61 +229,71 @@ exports.redirect = functions.https.onRequest((req, res) => {
  * 'callback' query parameter.
  */
 exports.token = functions.https.onRequest((req, res) => {
-  const Linkedin = linkedInClient();
-  //res.setHeader('Cache-Control', 'private');
+  const { headers } = req;
+  const userAgent = headers["user-agent"];
+  console.log(userAgent);
+
+  let Linkedin;
+
+  if (userAgent.indexOf('gonative') > -1) { // condition true if app usage is coming from the mobile application       
+    Linkedin = linkedInClient(true); // callbackUrl will be set as the mobile app specific Url
+  } else { 
+    Linkedin = linkedInClient(false); // callbackUrl will be set as the non-mobile app specific Url
+  }
 
   try {
-      console.log('Received state via query: ', req.query.state);
-      Linkedin.auth.authorize(OAUTH_SCOPES, req.query.state); // Makes sure the state parameter is set
-      console.log('Received auth code:', req.query.code);
-      Linkedin.auth.getAccessToken(
-        res,
-        req.query.code,
-        req.query.state,
-        (error, results) => {
-          if (error) {
-            throw error;
-          }
-          const linkedin = Linkedin.init(results.access_token);
-		  linkedin.people.email((error,userEmail) => {
+    console.log('Received state via query: ', req.query.state);
+    Linkedin.auth.authorize(OAUTH_SCOPES, req.query.state); // Makes sure the state parameter is set
+    console.log('Received auth code:', req.query.code);
+    Linkedin.auth.getAccessToken(
+      res,
+      req.query.code,
+      req.query.state,
+      (error, results) => {
         if (error) {
           throw error;
         }
+        const linkedin = Linkedin.init(results.access_token);
+        linkedin.people.email((error,userEmail) => {
+          if (error) {
+            throw error;
+          }
           linkedin.people.me((error, userResults) => {
             if (error) {
               throw error;
             }
-            // We have a LinkedIn access token and the user identity now.
+          // We have a LinkedIn access token and the user identity now.
 
-            member = {
-              first_name: userResults.firstName.localized[Object.keys(userResults.firstName.localized)[0]] || "",
-              last_name: userResults.lastName.localized[Object.keys(userResults.lastName.localized)[0]] || "",
-              photoURL: "",
-              date_signedin: Date.now()
-            };
+          member = {
+            first_name: userResults.firstName.localized[Object.keys(userResults.firstName.localized)[0]] || "",
+            last_name: userResults.lastName.localized[Object.keys(userResults.lastName.localized)[0]] || "",
+            photoURL: "",
+            date_signedin: Date.now()
+          };
 
-            // Create a Firebase account and get the Custom Auth Token.
-            return createFirebaseAccount(
-              "00LI_" + userResults.id,
-              member.first_name + ' ' + member.last_name,
-              userResults.profilePicture['displayImage~'].elements[0].identifiers[0].identifier,//userResults.pictureUrl,
-              userEmail.elements[0]['handle~']['emailAddress']
-            ).then(firebaseToken => {
+          // Create a Firebase account and get the Custom Auth Token.
+          return createFirebaseAccount(
+            "00LI_" + userResults.id,
+            member.first_name + ' ' + member.last_name,
+            userResults.profilePicture['displayImage~'].elements[0].identifiers[0].identifier,//userResults.pictureUrl,
+            userEmail.elements[0]['handle~']['emailAddress']
+          ).then(firebaseToken => {
               // Serve an HTML page that signs the user in and updates the user profile.
               return res.jsonp({
                 token: firebaseToken
               });
             });
           });
-		  });
-        }
-      );
+        });
+      }
+    );
   } catch (error) {
     console.log("Error in token function, LinkedIn requests, Firebase Account update/creation", error.toString());
     return res.jsonp({
       error: error.toString
     });
   }
+  //res.setHeader('Cache-Control', 'private');  
 });
 
 /**
@@ -359,7 +382,7 @@ function createFirebaseAccount(uid, displayName, photoURL, email) {
 function sendWelcomeEmail(email, displayName) {
   const mailOptions = {
     from: `Global NL <connect@globalnl.com>`,
-    to: `globalnlnetwork@gmail.com`,
+    to: `connect@globalnl.com`,
     subject: `GlobalNL New Member Signup`
   };
 

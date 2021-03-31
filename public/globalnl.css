@@ -38,7 +38,7 @@ body {
   padding: 100px 0px 0px 0px;
 }
 
-#sign-in-button {
+#sign-in-button, #sign-in-button-loginModal {
   cursor: pointer;
   max-width: none !important;
 }
@@ -46,7 +46,7 @@ body {
 #loginPage {
   display: none;
 }
-#loginPage_text {
+#loginPage_text, #loginModal_text {
   margin-left: 20px;
   margin-right: 20px;
   line-height: 1.2rem;
@@ -72,8 +72,14 @@ body {
   }
 }
 
+@media only screen and (min-width: 450px) {
+  .card-gnl {
+  width: 364px !important;
+  }
+}
+
 @media only screen and (max-width: 768px) {
-  #sign-in-button {
+  #sign-in-button, #sign-in-button-loginModal {
     width: 234px;
     height: 32px;
   }
@@ -82,6 +88,50 @@ body {
   }
   #card-body-bio {
     padding-top: 0px;
+  }
+}
+
+/* Mobile app homepage welcome text  */
+h1.welcome-text {
+  font-size: 2rem;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+/* Responsive text size for different mobile screen sizes */
+@media only screen and (max-width: 600px) {
+  h1.welcome-text {
+    font-size: 1.5rem;
+  }
+
+  @media only screen and (max-width: 420px) {
+    h1.welcome-text {
+      font-size: 1.15rem;
+    }
+    
+    @media only screen and (max-width: 320px) {
+      h1.welcome-text {
+        font-size: 1rem;
+      }
+    }
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  h3.welcome-text {
+    font-size: 1.4rem;
+  }
+
+  @media only screen and (max-width: 420px) {
+    h3.welcome-text {
+      font-size: 1.08rem;
+    }
+    
+    @media only screen and (max-width: 320px) {
+      h3.welcome-text {
+        font-size: 1rem;
+      }
+    }
   }
 }
 
@@ -122,15 +172,14 @@ body {
 }
 
 .card-gnl {
-  width: 364px !important;
-  min-width: 364px !important;
+  min-width: 350px !important;
   min-height: 0px;
   margin: 0px;
 }
 
-.card-col {
+/* .card-col { */
   /*padding-top:15px;*/
-}
+/* } */
 
 .card-header-gnl {
   font-weight: 700;
@@ -149,6 +198,10 @@ body {
 .card-header-bio {
   padding-top: 5px;
   padding-bottom: 5px;
+}
+
+.card-profile-title {
+  padding-right: 60px;
 }
 
 .card-body-gnl {
@@ -182,6 +235,13 @@ body {
   border-top-left-radius: 4px !important;
   border-bottom-left-radius: 4px !important;
   cursor: default !important;
+}
+
+/* Mobile homepage buttons */
+.btn-mobile-home {
+  margin-bottom: 15px;
+  width: 16rem;
+  padding: 10px;
 }
 
 .linkedin_profile_card {
@@ -240,6 +300,16 @@ body {
   width: 38px;
 }
 
+/* For mobile app only navbar items which are hidden by default but are enabled for display through GoNative Custom CSS option */
+.mobile-app-only {
+  display: none;
+}
+
+.munLogoAdder {
+  position: absolute; 
+  right: 10px; 
+  top: 5px;
+}
 
 /* LinkedIn On/Off toggle button */
 

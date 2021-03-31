@@ -32,14 +32,24 @@ var fbi = firebase.firestore().collection("members");
 
 function renderWithUser(user) {
   $("#members-list").empty();
-  $("#mainPage").show();
+  $("#mainPage").show();  
+  $('#loginModal').modal("hide"); // login modal for mobile app users when they tap send message without signing in
   initLoad();
   showAdminToggle();
 }
 
-function renderWithoutUser() {
-  $("#members-list").empty();
-  $("#mainPage").hide();
+function renderWithoutUser() {  
+  // $("#members-list").empty();
+  // $("#mainPage").hide();
+  if (navigator.userAgent.indexOf('gonative') > -1) { // for the mobile app
+    $("#mainPage").show();
+    $("#mainPage").ready(function () {
+      $(".clear_button").click(); // load members when mobile app users visit index.html even without signing in
+    });
+  } else { // not mobile app
+    $("#members-list").empty();
+    $("#mainPage").hide();
+  }
 }
 
 gnl.auth.listenForStageChange(renderWithUser, renderWithoutUser, true);
@@ -124,8 +134,48 @@ function createSendAMessageForm(id, toDisplayName, fromEmailAddress) {
 $(document).ready(function() {          
   $("#LIbadge").hide();
   $("#preloader").hide();
+  if (navigator.userAgent.indexOf('gonative') > -1) { // for mobile app
+    $('.navbar-brand').attr('href', '#'); // so that tapping GlobalNL logo does not redirect anywhere
+  }
   initApp();
 });
+
+// Function to save a user's OneSignal Push Notification User ID
+// GoNative app itself will call this function after every page load of the app
+// List of info fields available: https://docs.gonative.io/push-notifications/sending-personalized-push
+function gonative_onesignal_info(info) {
+  firebase.auth().onAuthStateChanged(function(user) {
+    if (user) {
+      var memberDocRef = firebase.firestore().collection("members").doc(firebase.auth().currentUser.uid);
+
+      memberDocRef
+        .get()
+        .then(doc => {
+          if (!doc.exists) {
+            console.log("User does not exist in database");
+            gnl.auth.logout();
+          } else {
+            if (!doc.data().oneSignalUserId || doc.data().oneSignalUserId != info.oneSignalUserId) {
+              memberDocRef
+              .set({
+                oneSignalUserId: info.oneSignalUserId
+              }, { merge: true })
+              .then(function() {            
+                console.log("Successfully wrote to public database");
+              })
+              .catch(function(error) {
+                console.log(error);
+                console.log("Error writing public database properties for ", doc.id);
+              });
+            }
+          }
+        })
+        .catch(err => {
+          console.log("Error getting document", err);
+        });
+    }
+  });
+}
 
 // Callback executed on page load
 function initApp() {
@@ -137,7 +187,16 @@ function initApp() {
       ) {
         $("#preloader").show();
         scrollQueryComplete = false;
-        memberSearch();
+        if (navigator.userAgent.indexOf('gonative') > -1) {
+          firebase.auth().onAuthStateChanged(function(user) {
+            if (user)          
+              memberSearch(); // user is signed in, so search all members
+            else
+              memberSearchPublic(); // user is not signed in, so search members with privacy set to public only
+          });
+        } else {
+          memberSearch();
+        }
       }
     }
   });
@@ -173,7 +232,16 @@ function initApp() {
       searchButtonStates["industry"] = false;
       searchButtonStates["location"] = false;
       searchButtonStates["hometown"] = false;
-      memberSearch();
+      if (navigator.userAgent.indexOf('gonative') > -1) {
+        firebase.auth().onAuthStateChanged(function(user) {
+          if (user)          
+            memberSearch(); // user is signed in, so search all members
+          else
+            memberSearchPublic(); // user is not signed in, so search members with privacy set to public only
+        });
+      } else {
+        memberSearch();
+      }
     }
   });
 
@@ -190,7 +258,16 @@ function initApp() {
       searchButtonStates["industry"] = false;
       searchButtonStates["location"] = false;
       searchButtonStates["hometown"] = false;
-      memberSearch();
+      if (navigator.userAgent.indexOf('gonative') > -1) {
+        firebase.auth().onAuthStateChanged(function(user) {
+          if (user)          
+            memberSearch(); // user is signed in, so search all members
+          else
+            memberSearchPublic(); // user is not signed in, so search members with privacy set to public only
+        });
+      } else {
+        memberSearch();
+      }
     }
   });
 
@@ -207,7 +284,16 @@ function initApp() {
       searchButtonStates["location"] = false;
       searchButtonStates["hometown"] = false;
       searchButtonStates["company"] = false;
-      memberSearch();
+      if (navigator.userAgent.indexOf('gonative') > -1) {
+        firebase.auth().onAuthStateChanged(function(user) {
+          if (user)          
+            memberSearch(); // user is signed in, so search all members
+          else
+            memberSearchPublic(); // user is not signed in, so search members with privacy set to public only
+        });
+      } else {
+        memberSearch();
+      }
     }
   });
 
@@ -230,7 +316,16 @@ function initApp() {
       searchButtonStates["industry"] = false;
       searchButtonStates["hometown"] = false;
       searchButtonStates["company"] = false;
-      memberSearch();
+      if (navigator.userAgent.indexOf('gonative') > -1) {
+        firebase.auth().onAuthStateChanged(function(user) {
+          if (user)          
+            memberSearch(); // user is signed in, so search all members
+          else
+            memberSearchPublic(); // user is not signed in, so search members with privacy set to public only
+        });
+      } else {
+        memberSearch();
+      }
     }
   });
 
@@ -253,7 +348,16 @@ function initApp() {
       searchButtonStates["location"] = false;
       searchButtonStates["industry"] = false;
       searchButtonStates["company"] = false;
-      memberSearch();
+      if (navigator.userAgent.indexOf('gonative') > -1) {
+        firebase.auth().onAuthStateChanged(function(user) {
+          if (user)          
+            memberSearch(); // user is signed in, so search all members
+          else
+            memberSearchPublic(); // user is not signed in, so search members with privacy set to public only
+        });
+      } else {
+        memberSearch();
+      }
     }
   });
 
@@ -279,7 +383,16 @@ function initApp() {
     searchButtonStates["company"] = false;
     last_read_doc = 0;
     $("#members-list").empty();
-    memberSearch();
+    if (navigator.userAgent.indexOf('gonative') > -1) {
+      firebase.auth().onAuthStateChanged(function(user) {
+        if (user)          
+          memberSearch(); // user is signed in, so search all members
+        else
+          memberSearchPublic(); // user is not signed in, so search members with privacy set to public only
+      });
+    } else {
+      memberSearch();
+    }
   });
 
   return true;
@@ -615,20 +728,46 @@ function loadMembers(querySnapshot) {
       }
       // Build element and inject
       var linkSendAMessage = document.createElement("a");
-      linkSendAMessage.setAttribute("data-toggle", "modal");
-      linkSendAMessage.setAttribute("data-target", "#modalSendAMessage");
-      linkSendAMessage.href = "#";
-      linkSendAMessage.onclick = function() {
-        firebase
-          .firestore()
-          .collection("private_data")
-          .doc(firebase.auth().currentUser.uid)
-          .get()
-          .then(function (privateData) {
-            const email = privateData.data().email;
-            createSendAMessageForm(doc.id, data.display_name || `${firstName} ${lastName}`, email);
-          });
-      };
+      if (navigator.userAgent.indexOf('gonative') > -1) { // for the mobile app
+        firebase.auth().onAuthStateChanged(function(user) {
+          if (user) { // user is signed in, so set target to the send message form modal as usual
+            linkSendAMessage.setAttribute("data-toggle", "modal");
+            linkSendAMessage.setAttribute("data-target", "#modalSendAMessage");
+            linkSendAMessage.href = "#";
+            linkSendAMessage.onclick = function() {
+              firebase
+                .firestore()
+                .collection("private_data")
+                .doc(firebase.auth().currentUser.uid)
+                .get()
+                .then(function (privateData) {
+                  const email = privateData.data().email;
+                  createSendAMessageForm(doc.id, data.display_name || `${firstName} ${lastName}`, email);
+                });
+            };
+          } else {
+            // user is not signed in, so set target to the login modal instead of send message form modal
+            linkSendAMessage.setAttribute("data-toggle", "modal");
+            linkSendAMessage.setAttribute("data-target", "#loginModal");
+            linkSendAMessage.href = "#";
+          }
+        });
+      } else {
+        linkSendAMessage.setAttribute("data-toggle", "modal");
+        linkSendAMessage.setAttribute("data-target", "#modalSendAMessage");
+        linkSendAMessage.href = "#";
+        linkSendAMessage.onclick = function() {
+          firebase
+            .firestore()
+            .collection("private_data")
+            .doc(firebase.auth().currentUser.uid)
+            .get()
+            .then(function (privateData) {
+              const email = privateData.data().email;
+              createSendAMessageForm(doc.id, data.display_name || `${firstName} ${lastName}`, email);
+            });
+        };
+      }
       linkSendAMessage.innerText = "Send a message";
 
       var spanSendAMessage = document.createElement("span");
@@ -707,13 +846,13 @@ function loadMembers(querySnapshot) {
 	<div class="card-header card-header-gnl">
   <span class="fas fa-gnl-head">
   <img id="${memberFields.public_uid}_photoURL" src="${photoURL}" class="gnl-user-photo"></span>
-  <div style="width: 195px">
+  <div class="card-profile-title">
   ${firstName} ${lastName}
   <div class="card-header-headline">
   ${memberFields.headline}</div>
   </div>
   </div>
-	<div class="munLogoAdder" style="position: absolute; right: 10px; top: 5px; visibility: ${vis};"><img src="assets/MUN_Logo_Pantone_Border_Small.jpg" alt="MUN LOGO"></div>
+	<div class="munLogoAdder" style="visibility: ${vis};"><img src="assets/MUN_Logo_Pantone_Border_Small.jpg" alt="MUN LOGO"></div>
 	</div>
 	<div class="card-body card-body-gnl">
     <h5 class="card-title"><span class="fas fa-globalnl"><img id="${memberFields.public_uid}_companyLogo" style="width: 100%" src="${companyLogo}"></span>${
@@ -759,13 +898,13 @@ function loadMembers(querySnapshot) {
 	<div class="card-header card-header-gnl">
   <span class="fas fa-gnl-head">
   <img id="${memberFields.public_uid}_photoURL" src="${photoURL}" class="gnl-user-photo"></span>
-  <div style="width: 195px">
+  <div class="card-profile-title">
   ${firstName} ${lastName}
   <div class="card-header-headline">
   ${memberFields.headline}</div>
   </div>
   </div>
-	<div class="munLogoAdder" style="position: absolute; right: 10px; top: 5px; visibility: ${vis};"><img src="assets/MUN_Logo_Pantone_Border_Small.jpg" alt="MUN LOGO"></div>
+	<div class="munLogoAdder" style="visibility: ${vis};"><img src="assets/MUN_Logo_Pantone_Border_Small.jpg" alt="MUN LOGO"></div>
 	</div>
 	<div class="card-body card-body-gnl">
     <h5 class="card-title"><span class="fas fa-globalnl"><img id="${memberFields.public_uid}_companyLogo" style="width: 100%" src="${companyLogo}"></span>${
@@ -807,13 +946,13 @@ function loadMembers(querySnapshot) {
       <div class="card-header card-header-gnl">
       <span class="fas fa-gnl-head">
       <img id="${memberFields.public_uid}_photoURL" src="${photoURL}" class="gnl-user-photo"></span>
-      <div style="width: 195px">
+      <div class="card-profile-title">
       ${firstName} ${lastName}
       <div class="card-header-headline">
       ${memberFields.headline}</div>
       </div>
       </div>
-      <div class="munLogoAdder" style="position: absolute; right: 10px; top: 5px; visibility: ${vis};"><img src="assets/MUN_Logo_Pantone_Border_Small.jpg" alt="MUN LOGO"></div>
+      <div class="munLogoAdder" style="visibility: ${vis};"><img src="assets/MUN_Logo_Pantone_Border_Small.jpg" alt="MUN LOGO"></div>
       </div>
       <div class="card-body card-body-gnl">
       <h5 class="card-title"><span class="fas fa-globalnl fa-industry"></span>${
@@ -855,13 +994,13 @@ function loadMembers(querySnapshot) {
       <div class="card-header card-header-gnl">
       <span class="fas fa-gnl-head">
       <img id="${memberFields.public_uid}_photoURL" src="${photoURL}" class="gnl-user-photo"></span>
-      <div style="width: 195px">
+      <div class="card-profile-title">
       ${firstName} ${lastName}
       <div class="card-header-headline">
       ${memberFields.headline}</div>
       </div>
       </div>
-      <div class="munLogoAdder" style="position: absolute; right: 10px; top: 5px; visibility: ${vis};"><img src="assets/MUN_Logo_Pantone_Border_Small.jpg" alt="MUN LOGO"></div>
+      <div class="munLogoAdder" style="visibility: ${vis};"><img src="assets/MUN_Logo_Pantone_Border_Small.jpg" alt="MUN LOGO"></div>
       </div>
       <div class="card-body card-body-gnl">
       <h5 class="card-title"><span class="fas fa-globalnl fa-industry"></span>${
@@ -899,13 +1038,13 @@ function loadMembers(querySnapshot) {
       <div class="card-header card-header-gnl">
       <span class="fas fa-gnl-head">
       <img id="${memberFields.public_uid}_photoURL" src="${photoURL}" class="gnl-user-photo"></span>
-      <div style="width: 195px">
+      <div class="card-profile-title">
       ${firstName} ${lastName}
       <div class="card-header-headline">
       ${memberFields.headline}</div>
       </div>
       </div>
-      <div class="munLogoAdder" style="position: absolute; right: 10px; top: 5px; visibility: ${vis};"><img src="assets/MUN_Logo_Pantone_Border_Small.jpg" alt="MUN LOGO"></div>
+      <div class="munLogoAdder" style="visibility: ${vis};"><img src="assets/MUN_Logo_Pantone_Border_Small.jpg" alt="MUN LOGO"></div>
       </div>
       <div class="card-body card-body-gnl">
       <h5 class="card-title"><span class="fas fa-globalnl fa-industry"></span>${
@@ -940,13 +1079,13 @@ function loadMembers(querySnapshot) {
 	<div class="card-header card-header-gnl">
   <span class="fas fa-gnl-head">
   <img id="${memberFields.public_uid}_photoURL" src="${photoURL}" class="gnl-user-photo"></span>
-  <div style="width: 195px">
+  <div class="card-profile-title">
   ${firstName} ${lastName}
   <div class="card-header-headline">
   ${memberFields.headline}</div>
   </div>
   </div>
-	<div class="munLogoAdder" style="position: absolute; right: 10px; top: 5px; visibility: ${vis};"><img src="assets/MUN_Logo_Pantone_Border_Small.jpg" alt="MUN LOGO"></div>
+	<div class="munLogoAdder" style="visibility: ${vis};"><img src="assets/MUN_Logo_Pantone_Border_Small.jpg" alt="MUN LOGO"></div>
 	</div>
 	<div class="card-body card-body-gnl">
     <h5 class="card-title"><span class="fas fa-globalnl fa-industry"></span>${
@@ -1387,6 +1526,440 @@ function memberSearch() {
       });
   } else {
     fbi
+      .orderBy("random")
+      .limit(members_per_page)
+      .get()
+      .then(function(querySnapshot) {
+        loadMembers(querySnapshot);
+      });
+  }
+}
+
+/* Mobile App Exclusive member search when app users are not signed in (only showing members whose privacy is public in member list) */
+function memberSearchPublic() {
+  if (searchButtonStates["name"] && last_read_doc) {
+    if (formStatic["name"] == null) {
+      alert("Please enter a name to search");
+    } else if (formStatic["name"]["first"] && formStatic["name"]["last"]) {
+      console.log("First name and last name entered");
+      fbi
+        .where("privacy", "==", "public")
+        .startAfter(last_read_doc)
+        .where("last_name", "==", formStatic["name"]["last"])
+        .where("first_name", "==", formStatic["name"]["first"])
+        .limit(members_per_page)
+        .get()
+        .then(function(querySnapshot) {
+          loadMembers(querySnapshot);
+        });
+    } else if (formStatic["name"]["last"]) {
+      console.log("Last name only entered");
+      fbi        
+        .where("privacy", "==", "public")
+        .startAfter(last_read_doc)
+        .where("last_name", "==", formStatic["name"]["last"])
+        .limit(members_per_page)
+        .get()
+        .then(function(querySnapshot) {
+          loadMembers(querySnapshot);
+        });
+    } else if (formStatic["name"]["first"]) {
+      console.log("First name only entered");
+      fbi        
+        .where("privacy", "==", "public")
+        .orderBy("last_name")
+        .startAfter(last_read_doc)
+        .where("first_name", "==", formStatic["name"]["first"])
+        .limit(members_per_page)
+        .get()
+        .then(function(querySnapshot) {
+          loadMembers(querySnapshot);
+        });
+    } else {
+      console.log("Error");
+    }
+  } else if (searchButtonStates["name"]) {
+    if (formStatic["name"] == null) {
+      alert("Please enter a name to search");
+    } else if (formStatic["name"]["first"] && formStatic["name"]["last"]) {
+      console.log("First name and last name entered");
+      fbi
+        .where("privacy", "==", "public")
+        .where("last_name", "==", formStatic["name"]["last"])
+        .where("first_name", "==", formStatic["name"]["first"])
+        .limit(members_per_page)
+        .get()
+        .then(function(querySnapshot) {
+          loadMembers(querySnapshot);
+        });
+    } else if (formStatic["name"]["last"]) {
+      console.log("Last name only entered");
+      fbi
+        .where("privacy", "==", "public")
+        .where("last_name", "==", formStatic["name"]["last"])
+        .limit(members_per_page)
+        .get()
+        .then(function(querySnapshot) {
+          loadMembers(querySnapshot);
+        });
+    } else if (formStatic["name"]["first"]) {
+      console.log("First name only entered");
+      fbi      
+        .where("privacy", "==", "public")
+        .orderBy("last_name")
+        .where("first_name", "==", formStatic["name"]["first"])
+        .limit(members_per_page)
+        .get()
+        .then(function(querySnapshot) {
+          loadMembers(querySnapshot);
+        });
+    } else {
+      console.log("Error");
+    }
+  } else if (searchButtonStates["company"] && last_read_doc) {
+    if (formStatic["company"] == null) {
+      alert("Please enter a company");
+    }
+    else if (formStatic["company"]) {
+      console.log("Company entered");
+      fbi
+        .where("privacy", "==", "public")
+        .orderBy("company_lower")
+        .startAfter(last_read_doc)
+        .endAt(formStatic["company"] + "z")
+        .limit(members_per_page)
+        .get()
+        .then(function(querySnapshot) {
+          loadMembers(querySnapshot);
+        });
+    }
+    }
+    else if (searchButtonStates["company"]) {
+      if (formStatic["company"] == null) {
+        alert("Please enter a company");
+      }
+      else if (formStatic["company"]) {
+        console.log("Company entered");
+        fbi
+          .where("privacy", "==", "public")
+          .orderBy("company_lower")
+          .startAt(formStatic["company"])
+          .endAt(formStatic["company"] + "z")
+          .limit(members_per_page)
+          .get()
+          .then(function(querySnapshot) {
+            loadMembers(querySnapshot);
+          });
+      }
+    }  else if (searchButtonStates["location"] && last_read_doc) {
+    if (formStatic["location"] == null) {
+      alert("Please enter a Current Location");
+    } else if (formStatic["location"]["city"]) {
+      console.log("Town entered");
+      fbi
+        .where("privacy", "==", "public")
+        .orderBy("random")
+        .startAfter(last_read_doc)
+        .where("current_address.locality", "==", formStatic["location"]["city"])
+        .where(
+          "current_address.administrative_area_level_1",
+          "==",
+          formStatic["location"]["prov"]
+        )
+        .where(
+          "current_address.country",
+          "==",
+          formStatic["location"]["country"]
+        )
+        .limit(members_per_page)
+        .get()
+        .then(function(querySnapshot) {
+          loadMembers(querySnapshot);
+        });
+    } else if (formStatic["location"]["prov"]) {
+      console.log("Province/State entered");
+      fbi
+        .where("privacy", "==", "public")
+        .orderBy("random")
+        .startAfter(last_read_doc)
+        .where(
+          "current_address.administrative_area_level_1",
+          "==",
+          formStatic["location"]["prov"]
+        )
+        .where(
+          "current_address.country",
+          "==",
+          formStatic["location"]["country"]
+        )
+        .limit(members_per_page)
+        .get()
+        .then(function(querySnapshot) {
+          loadMembers(querySnapshot);
+        });
+    } else if (formStatic["location"]["country"]) {
+      console.log("Country entered");
+      fbi
+        .where("privacy", "==", "public")
+        .orderBy("random")
+        .startAfter(last_read_doc)
+        .where(
+          "current_address.country",
+          "==",
+          formStatic["location"]["country"]
+        )
+        .limit(members_per_page)
+        .get()
+        .then(function(querySnapshot) {
+          loadMembers(querySnapshot);
+        });
+    } else {
+      console.log("Error");
+    }
+  } else if (searchButtonStates["location"]) {
+    if (formStatic["location"] == null) {
+      alert("Please enter a Current Location 2");
+    } else if (formStatic["location"]["city"]) {
+      console.log("Town entered");
+      fbi
+        .where("privacy", "==", "public")
+        .orderBy("random")
+        .where("current_address.locality", "==", formStatic["location"]["city"])
+        .where(
+          "current_address.administrative_area_level_1",
+          "==",
+          formStatic["location"]["prov"]
+        )
+        .where(
+          "current_address.country",
+          "==",
+          formStatic["location"]["country"]
+        )
+        .limit(members_per_page)
+        .get()
+        .then(function(querySnapshot) {
+          loadMembers(querySnapshot);
+        });
+    } else if (formStatic["location"]["prov"]) {
+      console.log("Province/State entered");
+      fbi
+        .where("privacy", "==", "public")
+        .orderBy("random")
+        .where(
+          "current_address.administrative_area_level_1",
+          "==",
+          formStatic["location"]["prov"]
+        )
+        .where(
+          "current_address.country",
+          "==",
+          formStatic["location"]["country"]
+        )
+        .limit(members_per_page)
+        .get()
+        .then(function(querySnapshot) {
+          loadMembers(querySnapshot);
+        });
+    } else if (formStatic["location"]["country"]) {
+      console.log("Country entered");
+      fbi
+        .where("privacy", "==", "public")
+        .orderBy("random")
+        .where(
+          "current_address.country",
+          "==",
+          formStatic["location"]["country"]
+        )
+        .limit(members_per_page)
+        .get()
+        .then(function(querySnapshot) {
+          loadMembers(querySnapshot);
+        });
+    } else {
+      console.log("Error");
+    }
+  } else if (searchButtonStates["industry"] && last_read_doc) {
+    if (formStatic["industry"] == null) {
+      alert("Please enter an industry to search");
+    } else {
+      console.log("Industry entered");
+      fbi
+        .where("privacy", "==", "public")
+        .orderBy("random")
+        .startAfter(last_read_doc)
+        .where("industry", "array-contains", formStatic["industry"])
+        .limit(members_per_page)
+        .get()
+        .then(function(querySnapshot) {
+          loadMembers(querySnapshot);
+        });
+    }
+  } else if (searchButtonStates["industry"]) {
+    if (formStatic["industry"] == null) {
+      alert("Please enter an industry to search");
+    } else {
+      console.log("Industry entered");
+      fbi
+        .where("privacy", "==", "public")
+        .orderBy("random")
+        .where("industry", "array-contains", formStatic["industry"])
+        .limit(members_per_page)
+        .get()
+        .then(function(querySnapshot) {
+          loadMembers(querySnapshot);
+        });
+    }
+  } else if (searchButtonStates["hometown"] && last_read_doc) {
+    if (formDynamic["hometown_address"] == null) {
+      alert("Please enter a location");
+    } else if (formStatic["hometown"]["city"]) {
+      console.log("Town entered");
+      fbi
+        .where("privacy", "==", "public")
+        .orderBy("random")
+        .startAfter(last_read_doc)
+        .where(
+          "hometown_address.locality",
+          "==",
+          formStatic["hometown"]["city"]
+        )
+        .where(
+          "hometown_address.administrative_area_level_1",
+          "==",
+          formStatic["hometown"]["prov"]
+        )
+        .where(
+          "hometown_address.country",
+          "==",
+          formStatic["hometown"]["country"]
+        )
+        .limit(members_per_page)
+        .get()
+        .then(function(querySnapshot) {
+          loadMembers(querySnapshot);
+        });
+    } else if (formStatic["hometown"]["prov"]) {
+      console.log("Province/State entered");
+      fbi
+        .where("privacy", "==", "public")
+        .orderBy("random")
+        .startAfter(last_read_doc)
+        .where(
+          "hometown_address.administrative_area_level_1",
+          "==",
+          formStatic["hometown"]["prov"]
+        )
+        .where(
+          "hometown_address.country",
+          "==",
+          formStatic["hometown"]["country"]
+        )
+        .limit(members_per_page)
+        .get()
+        .then(function(querySnapshot) {
+          loadMembers(querySnapshot);
+        });
+    } else if (formStatic["hometown"]["country"]) {
+      console.log("Country entered");
+      fbi
+        .where("privacy", "==", "public")
+        .orderBy("random")
+        .startAfter(last_read_doc)
+        .where(
+          "hometown_address.country",
+          "==",
+          formStatic["hometown"]["country"]
+        )
+        .limit(members_per_page)
+        .get()
+        .then(function(querySnapshot) {
+          loadMembers(querySnapshot);
+        });
+    } else {
+      console.log("Error");
+    }
+  } else if (searchButtonStates["hometown"]) {
+    if (formStatic["hometown"] == null) {
+      alert("Please enter a location");
+    } else if (formStatic["hometown"]["city"]) {
+      console.log("Town entered");
+      fbi
+        .where("privacy", "==", "public")
+        .orderBy("random")
+        .where(
+          "hometown_address.locality",
+          "==",
+          formStatic["hometown"]["city"]
+        )
+        .where(
+          "hometown_address.administrative_area_level_1",
+          "==",
+          formStatic["hometown"]["prov"]
+        )
+        .where(
+          "hometown_address.country",
+          "==",
+          formStatic["hometown"]["country"]
+        )
+        .startAfter(last_read_doc)
+        .limit(members_per_page)
+        .get()
+        .then(function(querySnapshot) {
+          loadMembers(querySnapshot);
+        });
+    } else if (formStatic["hometown"]["prov"]) {
+      console.log("Province/State entered");
+      fbi
+        .where("privacy", "==", "public")
+        .orderBy("random")
+        .where(
+          "hometown_address.administrative_area_level_1",
+          "==",
+          formStatic["hometown"]["prov"]
+        )
+        .where(
+          "hometown_address.country",
+          "==",
+          formStatic["hometown"]["country"]
+        )
+        .startAfter(last_read_doc)
+        .limit(members_per_page)
+        .get()
+        .then(function(querySnapshot) {
+          loadMembers(querySnapshot);
+        });
+    } else if (formStatic["hometown"]["country"]) {
+      console.log("Country entered");
+      fbi
+        .where("privacy", "==", "public")
+        .orderBy("random")
+        .where(
+          "hometown_address.country",
+          "==",
+          formStatic["hometown"]["country"]
+        )
+        .startAfter(last_read_doc)
+        .limit(members_per_page)
+        .get()
+        .then(function(querySnapshot) {
+          loadMembers(querySnapshot);
+        });
+    } else {
+      console.log("Error");
+    }
+  } else if (last_read_doc){
+    fbi
+      .where("privacy", "==", "public")
+      .orderBy("random")
+      .startAfter(last_read_doc)
+      .limit(members_per_page)
+      .get()
+      .then(function(querySnapshot) {
+        loadMembers(querySnapshot);
+      });
+  } else {
+    fbi
+      .where("privacy", "==", "public")
       .orderBy("random")
       .limit(members_per_page)
       .get()

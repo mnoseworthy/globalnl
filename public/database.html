@@ -42,16 +42,25 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarCollapse">
         <ul class="navbar-nav mr-auto">
-          <li class="nav-item">
-            <a class="nav-link" href="index.html"><span class="fas fa-globalnl fa-book"></span>Member Directory</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="map.html"><span class="fas fa-globalnl fa-globe"></span>Member Map</a>
-          </li>
+			<li class="nav-item mobile-app-only">
+				<a class="nav-link" href="mobile.html"><span class="fas fa-globalnl fa-home"></span>Home <span class="sr-only">(current)</span></a>
+			</li>
+			<li class="nav-item mobile-app-only">
+				<a class="nav-link" href="#"><span class="fas fa-globalnl fa-podcast"></span>Podcast <span class="sr-only">(current)</span></a>
+			</li>			
+			<li class="nav-item mobile-app-only">
+				<a class="nav-link" href="aboutus.html"><span class="fas fa-globalnl fa-info-circle"></span>About Us <span class="sr-only">(current)</span></a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link" href="index.html"><span class="fas fa-globalnl fa-book"></span>Member Directory</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link" href="map.html"><span class="fas fa-globalnl fa-globe"></span>Member Map</a>
+			</li>
         </ul>
-    		<ul id="userNavBar" class="nav navbar-nav navbar-right">
-          <li class="nav-item"><a class="nav-link" href="#" onClick="gnl.auth.loginLinkedIn();gnl.navBar.toggle();return false;"><span class="fas fa-globalnl fa-user"></span><span>Sign in</span></a></li>
-    		</ul>
+		<ul id="userNavBar" class="nav navbar-nav navbar-right">
+			<li class="nav-item"><a class="nav-link" href="#" onClick="gnl.auth.loginLinkedIn();gnl.navBar.toggle();return false;"><span class="fas fa-globalnl fa-user"></span><span>Sign in</span></a></li>
+		</ul>
     </nav>
   </header>
 

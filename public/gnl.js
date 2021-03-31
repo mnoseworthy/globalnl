@@ -100,7 +100,11 @@ window.gnl = (function() {
         }
       } else {
         $("#userNavBar").html(defaultUserBar);
-        $("#loginPage").show();
+        if (navigator.userAgent.indexOf('gonative') > -1) { // for the mobile app
+          $("#loginPage").hide(); // hide login page since we load the member list for not signed in mobile app users
+        } else {
+          $("#loginPage").show(); 
+        }
 
         if (renderWithoutUser) {
           renderWithoutUser(user);
