@@ -344,7 +344,6 @@ function createFirebaseAccount(uid, displayName, photoURL, email) {
     }) // END Catch
       .then(() => {
         const token = admin.auth().createCustomToken(uid);
-        
         console.log("About to write member database record: ", uid);
 
         private_data.email = email || "";
@@ -378,6 +377,30 @@ function createFirebaseAccount(uid, displayName, photoURL, email) {
   return userTokenTask; //holds value of token
 }
 
+// Used to link multiple Auth Providers. Check-in with Kingsley
+var previousUser = firebase.auth().currentUser;
+firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider())
+ .then(function (result) {
+ return previousUser.link(result.credential);
+ })
+ .catch(function (error) {
+   console.log("Was not able to link the user.")
+ }); 
+
+ // See if user by same email exists in database
+ const searchExistingUserTask = db.collection('private_data').where("email", "==", userEmail).get()
+ .then((querySnapshot) => {
+   if(querySnapshot.docs.length > 0){
+     console.log("Found existing user for ", email, " ==> ", querySnapshot.docs[0].id);
+     member.email = querySnapshot.docs[0].id;
+     if(querySnapshot.docs[0].data().interests != undefined) private_data.interests = querySnapshot.docs[0].data().interests;
+     if(querySnapshot.docs[0].data().comments != undefined) private_data.comments = querySnapshot.docs[0].data().comments;	
+     return db.collection('members').doc(querySnapshot.docs[0].id).get();
+   }
+   console.log("Unable to find existing user for ", email);
+   return false
+ })
+
 // Sends a welcome email to the given user.
 function sendWelcomeEmail(email, displayName) {
   const mailOptions = {
@@ -395,6 +418,10 @@ function sendWelcomeEmail(email, displayName) {
       return console.log("New member signup email notification sent to GlobalNL: " + displayName + " (" + email + ")");
     });
 }
+
+// Checks if the user's email exists
+
+function checkUser()
 
 // Randomizes default member view
 exports.dbSet = functions.pubsub.schedule('11 * * * *')

@@ -1,9 +1,9 @@
 // Temporary place to expose shared functions until the
 // rest of the codebase has been moved into modules.
-window.gnl = (function() {
+window.gnl = (function () {
   const auth = {};
 
-  auth.loginLinkedIn = function() {
+  auth.loginLinkedIn = function () {
     window.open(
       "login.html",
       "targetWindow",
@@ -11,15 +11,15 @@ window.gnl = (function() {
     );
   };
 
-  auth.logout = function() {
+  auth.logout = function () {
     firebase
       .auth()
       .signOut()
       .then(
-        function() {
+        function () {
           console.log("Signed Out");
         },
-        function(error) {
+        function (error) {
           console.error("Sign Out Error", error);
         }
       );
@@ -71,24 +71,24 @@ window.gnl = (function() {
   </li>
   `;
 
-  auth.listenForStageChange = function(
+  auth.listenForStageChange = function (
     renderWithUser,
     renderWithoutUser,
     displayLinkedInToggle
   ) {
-    firebase.auth().onAuthStateChanged(function(user) {
+    firebase.auth().onAuthStateChanged(function (user) {
       if (user) {
         $("#userNavBar").html(
-          displayLinkedInToggle
-            ? linkedInToggleUserBar + loggedInUserBar
-            : loggedInUserBar
+          displayLinkedInToggle ?
+          linkedInToggleUserBar + loggedInUserBar :
+          loggedInUserBar
         );
         $("#loginPage").hide();
 
         // Load user information at top of page for desktop
         $("#login_name").html(user.displayName);
         $("#user_photo").attr("src", user.photoURL);
-        $("#button_logout").click(function(evt) {
+        $("#button_logout").click(function (evt) {
           // Cancel the default action
           evt.preventDefault();
           gnl.auth.logout();
@@ -103,7 +103,7 @@ window.gnl = (function() {
         if (navigator.userAgent.indexOf('gonative') > -1) { // for the mobile app
           $("#loginPage").hide(); // hide login page since we load the member list for not signed in mobile app users
         } else {
-          $("#loginPage").show(); 
+          $("#loginPage").show();
         }
 
         if (renderWithoutUser) {
@@ -115,7 +115,7 @@ window.gnl = (function() {
 
   const navBar = {};
 
-  navBar.toggle = function() {
+  navBar.toggle = function () {
     if ($(".navbar-toggler").css("display") !== "none") {
       $(".navbar-toggler").trigger("click");
     }
@@ -123,7 +123,7 @@ window.gnl = (function() {
 
   const location = {};
 
-  location.bindAutocomplete = function(
+  location.bindAutocomplete = function (
     form,
     autocompleteId,
     fieldName,
@@ -133,10 +133,11 @@ window.gnl = (function() {
     // Register our autocomplete elements, see URL for more information
     // https://developers.google.com/maps/documentation/javascript/examples/places-autocomplete-addressform
     const autocomplete = new google.maps.places.Autocomplete(
-      document.getElementById(autocompleteId),
-      { types: ["geocode"] }
+      document.getElementById(autocompleteId), {
+        types: ["geocode"]
+      }
     );
-    autocomplete.addListener("place_changed", function() {
+    autocomplete.addListener("place_changed", function () {
       try {
         // Get place object from google api
         const place = autocomplete.getPlace();
@@ -210,4 +211,89 @@ window.gnl = (function() {
 // Allows an admin to get to their own profile after editing others
 function adminUidReset() {
   sessionStorage.removeItem("uid");
+}
+import {getRedirectResult} from "firebase/auth";
+// setting up Sign-in with Google
+let provider = new firebase.auth.GoogleAuthProvider();
+
+
+function GoogleLogin() {
+  firebase.auth().signInWithPopup(provider).then(res => {
+    console.log(res.user)
+    document.getElementById('LoginScreen').style.display = "none"
+    document.getElementById('dashboard').style.display = "block"
+    showUserDetails(res.user)
+  }).catch(e => {
+    console.log(e)
+  })
+}
+
+function checkAuthState() {
+  firebase.auth().onAuthStateChanged(user => {
+    if (user) {
+      document.getElementById('LoginScreen').style.display = "none"
+      document.getElementById('dashboard').style.display = "block"
+      showUserDetails(user)
+    } else {
+
+    }
+  })
+}
+
+function LogoutUser() {
+  console.log('Logout Btn Call')
+  firebase.auth().signOut().then(() => {
+    document.getElementById('LoginScreen').style.display = "block"
+    document.getElementById('dashboard').style.display = "none"
+  }).catch(e => {
+    console.log(e)
+  })
+}
+
+// setting up Sign-in with Apple
+function toggleSignIn() {
+  if (!firebase.auth().currentUser) {
+    var provider = new firebase.auth.OAuthProvider('apple.com');
+
+    provider.addScope('email');
+    provider.addScope('name');
+
+    firebase
+      .auth()
+      .signInWithPopup(provider)
+      .then(function (result) {
+        // The signed-in user info.
+        var user = result.user;
+        // initializing a variable to hold the user's email
+        var userEmail = result.credential.email;
+        // You can also get the Apple OAuth Access and ID Tokens.
+        var accessToken = result.credential.accessToken;
+        var idToken = result.credential.idToken;
+
+        document.getElementById(
+          'quickstart-oauthtoken'
+        ).textContent = idToken;
+      })
+      .catch(function (error) {
+        // Handle Errors here.
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        // The email of the user's account used.
+        var email = error.email;
+        // The firebase.auth.AuthCredential type that was used.
+        var credential = error.credential;
+        if (
+          errorCode === 'auth/account-exists-with-different-credential'
+        ) {
+          alert(
+            'You have already signed up with a different auth provider for that email.'
+          );
+        } else {
+          console.error(error);
+        }
+      });
+  } else {
+    firebase.auth().signOut();
+  }
+  document.getElementById('quickstart-sign-in').disabled = true;
 }
