@@ -1,26 +1,42 @@
 # Task List
 List of current development required, order is not significant.
 ## Overall
-- [ ] Separate repeated code that gets used on every page into a page module or something similar to that
-       - logout callback
-       - user information at top of screen
-       - formatting functions for things like location strings
-- [ ] If time allows make some fancy loading overlay. We don't have an actual backend and all data is being loaded and parsed in the browser so this can possibly slow things down on low-end pc's. We don't want user's thinking the page has died or something.
-- [ ] Implement Linkeded API to query more data about the user
-- [ ] Use meta data about user to fill in data, e.g. geo location
-## Documentation
-- [ ] Write development guide ( How to clone, setup local server, make changes, see changes)
-- [ ] Write contribution guide ( basically just point to other github pages for this )
-## member page
-- [ ] Implement search filters
-- [ ] Reformat html as per design doc
-## profile page
-- [ ] Redo front-end as per design doc
-- [ ] Batch modified data from the front-end, validate selections, write to database, reload
-- [ ] Add auto-complete fields to DOM elements, as per warnings in console
-## Registration Page
-- [ ] Add form validation
-       - Regex for each field
-       - For location enforce that the user used google api
-       - For linked in, make a http request to the page to verifiy it exists and is on linkedin's domain
+- [x] **Update welcome email**
 
+- [x] **Automatically select testing vs production environment**
+
+- [x] **Have default view on member directory show members randomly**
+
+- [x] **Add an admin area**
+
+   - index.html ->Link on each profile card to "Edit profile" and drive to profile.html with UID as param
+   - profile.html -> Use uid param instead of firebase.auth UID. Add First Name/Last Name/LinkedIn URL/Headline/Email. Add delete               button (add copied_account = true)
+   - Function -> Only update name fields on account create
+
+- [x] **Clean up login functions to no longer need migration**
+
+- [x] **Change industry dropdown to allow multiple selections**
+
+- [x] **Retire LinkedIn badges on user profiles**
+   - Get user photo urls, headline, company data
+   - Update user cards to remove badges and add new data
+   - add users photo to navbar
+   - Remove other badge-related code (slider, LIRenderAll, etc.)
+
+- [ ] **Add GeoFire query or other proximity based search versus specific city/province**
+   - [Working test code in functions](https://github.com/firebase/geofire-js/tree/master/examples)
+   - Change hometown_location and current_location lat/lng to use GeoFire
+   - Then turn both location searches to find users by proximity to the location entered (currently if you put in "Mount Pearl" you won't 	get people from St. John's/Paradise. Even more important for smaller communities. Really needs to be who's near you vs             	    having to be precise on address fields
+    - Need to use Realtime database not Firestore for GeoFire. Hence need to design a way to keep them synced up or to query both 	        (Firestore for profile and GeoFire/Realtime for locations). Consider Functions to keep in sync
+    - Switch map.html to use GeoFire as well
+
+- [ ] **More searches**
+   - Random search to "randomly" show you people who are similar to you on some dimension
+   - Same hometown / Industry / current location / MUN grad year
+   - Show recently updated members
+   - Search by company (completed)
+
+- [ ] **Move Navbar to standalone file**
+
+- [ ] **Clean database**
+   - Things like incorrect LinkedIn profile links, capitalization, etc.

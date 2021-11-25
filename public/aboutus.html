@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta http-equiv="Content-Security-Policy" content="script-src * 'unsafe-inline'">
+		<!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+
+		<meta property="og:site_name" content="Global NL - About Us"/>
+		<meta property="og:title" content="Global NL - About Us"/>
+		<meta property="og:url" content="https://members.globalnl.com/aboutus.html"/>
+		<meta property="og:type" content="website"/>
+		<meta property="og:description" content="About Global NL"/>
+		<meta property="og:image" content="https://members.globalnl.com/assets/GlobalNL-Logo-Words-Blue-Social-Media-Preview.png"/>
+		<meta property="og:image:width" content="1200"/>
+		<meta property="og:image:height" content="600"/>
+
+		<link rel="icon" href="favicon.ico" type="image/x-icon" />
+
+		<title>Global NL - About Us</title>
+
+		<!-- Font-Awesome: -->
+		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
+
+		<!-- Bootstrap CSS -->
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.min.css">
+
+		<!-- Custom CSS -->
+		<link rel="stylesheet" href="globalnl.css">
+		<link rel="stylesheet" href="vTabs.css">
+
+		<script>
+		if(window.location.href.indexOf('globalnl-database-test') > 0 || window.location.href.indexOf('debug') > 0){
+			window.onerror = function(msg, url, linenumber) {
+				alert('GlobalNL error: '+msg+'\nURL: '+url+'\nLine Number: '+linenumber);
+				return true;
+			}
+		}
+		</script>
+
+		<script src="debug.js"></script>
+
+		<script type="text/javascript">
+			if ((navigator.userAgent.indexOf('gonative') > -1) === false)
+				window.location.replace('index.html');
+		</script>
+		
+		<style>
+		#mainPage{
+			padding-left: 1px;
+			padding-right: 6px;
+		}
+		#loginPage { background: url(assets/linkedin.svg) no-repeat -9999px -9999px; }
+		</style>
+	</head>
+
+	<body>
+	  <header>
+      <!-- Fixed navbar -->
+      <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+		<a class="navbar-brand" href="#">
+		<img src="/assets/GlobalNL-Logo-Icon-White.png" width="30" height="30" class="d-inline-block align-top" alt="">
+		Global NL
+		</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="mobile.html"><span class="fas fa-globalnl fa-home"></span>Home <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="podcast.html"><span class="fas fa-globalnl fa-podcast"></span>Podcast <span class="sr-only">(current)</span></a>
+            </li>			
+			<li class="nav-item active">
+                <a class="nav-link" href="#"><span class="fas fa-globalnl fa-info-circle"></span>About Us <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="index.html"><span class="fas fa-globalnl fa-book"></span>Member Directory <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="map.html"><span class="fas fa-globalnl fa-globe"></span>Member Map</a>
+			</li>
+          </ul>
+		  <ul id="userNavBar" class="nav navbar-nav navbar-right">
+			<li class="nav-item"><a class="nav-link" href="#" onClick="gnl.auth.loginLinkedIn();gnl.navBar.toggle();return false;"><span class="fas fa-globalnl fa-user"></span><span>Sign in</span></a></li>
+		</ul>
+
+      </nav>
+    </header>
+
+
+    <div id="aboutUsPage" class="container">
+		<div class=""> <!-- Was row -->
+				<div class="Absolute-Center is-Responsive" style="max-width: 700px;padding-top: 20px;">
+					<iframe id="iframeAboutUs" frameborder="0" style="width: 100%;height: 100%;display: none;"></iframe>
+                </div>
+		</div>
+	</div>
+
+	<!-- jQuery -->
+	<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+
+	<!-- Bootstrap -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/js/bootstrap.min.js"></script>
+
+	<!-- include firestore now -->
+	<script src="/__/firebase/5.3.0/firebase-app.js"></script>
+	<script src="/__/firebase/5.3.0/firebase-auth.js"></script>
+	<script src="/__/firebase/5.3.0/firebase-firestore.js"></script>
+	<script src="/__/firebase/init.js"></script>
+
+	<!-- Site source, handlers and interfaces first, then the page code -->
+	<script type="text/javascript" src="gnl.js"></script>
+
+	<script type="text/javascript">
+		if (navigator.userAgent.indexOf('gonative') > -1) {
+			$(document).ready(function() {    
+				$('#iframeAboutUs').attr('src','https://app.globalnl.com/w/aboutus');
+
+				$('#iframeAboutUs').on('load', function() {
+					$( "#iframeAboutUs" ).contents().find( "#sidecarNav" ).css( "display", "none" );
+					$( "#iframeAboutUs" ).contents().find( ".banner-thumbnail-wrapper" ).css( "display", "none" );				
+					$( "#iframeAboutUs" ).contents().find( ".entry-header" ).css( "display", "none" );
+					$( "#iframeAboutUs" ).contents().find( "#header" ).css( "display", "none" );
+					$( "#iframeAboutUs" ).contents().find( "#page" ).css( "padding-top", "60px" );
+					$( "#iframeAboutUs" ).contents().find( "#preFooter" ).css( "display", "none" );
+
+					var arrayTest = $( "#iframeAboutUs" ).contents().find( "a" );
+					for(var i=0;i<arrayTest.length;i++) {
+						arrayTest[i].href = arrayTest[i].href.replace('apptest.globalnl.com/', 'apptest.globalnl.com/w/');
+					}
+					for(var i=0;i<arrayTest.length;i++) {
+						arrayTest[i].href = arrayTest[i].href.replace('app.globalnl.com/', 'app.globalnl.com/w/');
+					}
+
+					$('#iframeAboutUs').show();
+
+				});
+			});
+		}
+		function renderWithUser(user) {}
+		function renderWithoutUser() {}
+		gnl.auth.listenForStageChange(renderWithUser, renderWithoutUser, false); // for signed in/out user navbar rendering
+	</script>
+
+	</body>
+</html>

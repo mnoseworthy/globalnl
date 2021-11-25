@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta http-equiv="Content-Security-Policy" content="script-src * 'unsafe-inline'">
+		<!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+
+		<meta property="og:site_name" content="Global NL - Home"/>
+		<meta property="og:title" content="Global NL - Home"/>
+		<meta property="og:url" content="https://members.globalnl.com/mobile.html"/>
+		<meta property="og:type" content="website"/>
+		<meta property="og:description" content="Connecting and Empowering People Passionate About Newfoundland & Labrador"/>
+		<meta property="og:image" content="https://members.globalnl.com/assets/GlobalNL-Logo-Words-Blue-Social-Media-Preview.png"/>
+		<meta property="og:image:width" content="1200"/>
+		<meta property="og:image:height" content="600"/>
+
+		<link rel="icon" href="favicon.ico" type="image/x-icon" />
+
+		<title>Global NL - Home</title>
+
+		<!-- Font-Awesome: -->
+		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
+
+		<!-- Bootstrap CSS -->
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.min.css">
+
+		<!-- Custom CSS -->
+		<link rel="stylesheet" href="globalnl.css">
+		<link rel="stylesheet" href="vTabs.css">
+
+		<script>
+		if(window.location.href.indexOf('globalnl-database-test') > 0 || window.location.href.indexOf('debug') > 0){
+			window.onerror = function(msg, url, linenumber) {
+				alert('GlobalNL error: '+msg+'\nURL: '+url+'\nLine Number: '+linenumber);
+				return true;
+			}
+		}
+		</script>
+
+		<script src="debug.js"></script>		
+
+		<script type="text/javascript">
+			if ((navigator.userAgent.indexOf('gonative') > -1) === false)
+				window.location.replace('index.html');
+		</script>
+
+		<style>
+		#mainPage{
+			padding-left: 1px;
+			padding-right: 6px;
+		}
+		#loginPage { background: url(assets/linkedin.svg) no-repeat -9999px -9999px; }
+		</style>
+	</head>
+
+	<body style="width: 100%;height: 100%;overflow:hidden;">
+	  <header>
+      <!-- Fixed navbar -->
+      <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+		<a class="navbar-brand" href="#">
+		<img src="/assets/GlobalNL-Logo-Icon-White.png" width="30" height="30" class="d-inline-block align-top" alt="">
+		Global NL
+		</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+                <a class="nav-link" href="#"><span class="fas fa-globalnl fa-home"></span>Home <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="podcast.html"><span class="fas fa-globalnl fa-podcast"></span>Podcast <span class="sr-only">(current)</span></a>
+            </li>			
+			<li class="nav-item">
+                <a class="nav-link" href="aboutus.html"><span class="fas fa-globalnl fa-info-circle"></span>About Us <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="index.html"><span class="fas fa-globalnl fa-book"></span>Member Directory <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="map.html"><span class="fas fa-globalnl fa-globe"></span>Member Map</a>
+			</li>
+          </ul>
+		  <ul id="userNavBar" class="nav navbar-nav navbar-right">
+			<li class="nav-item"><a class="nav-link" href="#" onClick="gnl.auth.loginLinkedIn();gnl.navBar.toggle();return false;"><span class="fas fa-globalnl fa-user"></span><span>Sign in</span></a></li>
+		</ul>
+
+      </nav>
+    </header>
+
+
+	<div id="welcomeBanner" class="container">
+		<div class=""> <!-- Was row -->
+			<div class="Absolute-Center is-Responsive" style="max-width: 700px;padding-top: 75px;">
+				<div class="text-center">
+				<img src="assets/GlobalNL-Logo-Words-Blue.png" width="300px" style="max-width: 100%;">
+				<h1 class="w-100 welcome-text">Connecting and Empowering People Passionate About Newfoundland & Labrador</h1>
+				<h3 class="w-100 welcome-text"><i>Connect</i> | <i>Mentor</i> | <i>Recognize</i></h3><br>
+				<a class="btn btn-secondary btn-mobile-home" href="index.html">View Member Directory</a><br>
+				<a class="btn btn-secondary btn-mobile-home" href="podcast.html">Listen to Unchartered Waters</a><br>
+				<a class="btn btn-secondary btn-mobile-home" href="#" onClick="gnl.auth.loginLinkedIn();return false;">Join the Crowd</a><br>
+				<a class="btn btn-secondary btn-mobile-home" href="aboutus.html">About Global NL</a>
+			</div>
+				  
+	
+			<!-- <div class="w-100 m-2"></div> -->
+		</div>
+	</div>
+
+	<!-- jQuery -->
+	<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+
+	<!-- Bootstrap -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/js/bootstrap.min.js"></script>
+
+	<!-- include firestore now -->
+	<script src="/__/firebase/5.3.0/firebase-app.js"></script>
+	<script src="/__/firebase/5.3.0/firebase-auth.js"></script>
+	<script src="/__/firebase/5.3.0/firebase-firestore.js"></script>
+	<script src="/__/firebase/init.js"></script>
+
+	<!-- Site source, handlers and interfaces first, then the page code -->
+	<script type="text/javascript" src="gnl.js"></script>
+
+	<script type="text/javascript">
+		function renderWithUser(user) {}
+		function renderWithoutUser() {}
+		gnl.auth.listenForStageChange(renderWithUser, renderWithoutUser, false); // for signed in/out user navbar rendering
+	</script>
+
+	</body>
+</html>

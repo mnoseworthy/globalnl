@@ -1,0 +1,488 @@
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+  position: relative;
+  /*margin-top: 10px;*/
+  min-height: 100%;
+}
+body {
+  /* Margin bottom by footer height */
+  margin-bottom: 50px;
+}
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  /* Set the fixed height of the footer here */
+  height: 50px;
+  line-height: 50px; /* Vertically center the text there */
+  background-color: #f5f5f5;
+}
+
+/* Login window styles
+-------------------------------------------------- */
+.Absolute-Center {
+  margin: auto;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+}
+
+.Absolute-Center.is-Responsive {
+  width: 100%;
+  height: 100%;
+  min-width: 300px;
+  max-width: 500px;
+  padding: 100px 0px 0px 0px;
+}
+
+#sign-in-button, #sign-in-button-loginModal {
+  cursor: pointer;
+  max-width: none !important;
+}
+
+#loginPage {
+  display: none;
+}
+#loginPage_text, #loginModal_text {
+  margin-left: 20px;
+  margin-right: 20px;
+  line-height: 1.2rem;
+}
+#mainPage {
+  display: none;
+  padding: 60px 10px 20px 10px;
+}
+
+/* Fix double up on navbar */
+@media only screen and (max-width: 1112px) and (min-width: 768px) {
+  #login_name_nav {
+    display: none;
+  }
+  #adminEditToggle {
+    display: none !important;
+  }
+  #display_name_label {
+    display: none;
+  }
+  #card-body-bio {
+    padding-top: 0px;
+  }
+}
+
+@media only screen and (min-width: 450px) {
+  .card-gnl {
+  width: 364px !important;
+  }
+}
+
+@media only screen and (max-width: 768px) {
+  #sign-in-button, #sign-in-button-loginModal {
+    width: 234px;
+    height: 32px;
+  }
+  #display_name_label {
+    display: none;
+  }
+  #card-body-bio {
+    padding-top: 0px;
+  }
+}
+
+/* Mobile app homepage welcome text  */
+h1.welcome-text {
+  font-size: 2rem;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+/* Responsive text size for different mobile screen sizes */
+@media only screen and (max-width: 600px) {
+  h1.welcome-text {
+    font-size: 1.5rem;
+  }
+
+  @media only screen and (max-width: 420px) {
+    h1.welcome-text {
+      font-size: 1.15rem;
+    }
+    
+    @media only screen and (max-width: 320px) {
+      h1.welcome-text {
+        font-size: 1rem;
+      }
+    }
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  h3.welcome-text {
+    font-size: 1.4rem;
+  }
+
+  @media only screen and (max-width: 420px) {
+    h3.welcome-text {
+      font-size: 1.08rem;
+    }
+    
+    @media only screen and (max-width: 320px) {
+      h3.welcome-text {
+        font-size: 1rem;
+      }
+    }
+  }
+}
+
+/* Hide the blue outline in forms */
+.form-control:focus {
+  outline: 0 !important;
+  border-color: initial;
+  box-shadow: none;
+}
+
+/* Hide the grey outline when clicked on icon boxes */
+.btn-outline-secondary:focus, .btn-outline-secondary:active {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Custom page CSS
+-------------------------------------------------- */
+/* Not required for template or sticky footer method. */
+
+/*body > .container {
+  padding: 60px 30px 0 15px;
+}*/
+
+.footer > .container {
+  padding-right: 15px;
+  padding-left: 15px;
+}
+
+.card-deck {
+  padding-top: 10px;
+  margin: 0px;
+  /*padding-left: 4px;*/
+}
+
+.card-deck .card {
+  margin: 0px;
+}
+
+.card-gnl {
+  min-width: 350px !important;
+  min-height: 0px;
+  margin: 0px;
+}
+
+/* .card-col { */
+  /*padding-top:15px;*/
+/* } */
+
+.card-header-gnl {
+  font-weight: 700;
+  font-size: 1.2rem;
+  margin-bottom: 0;
+  padding: 1rem;
+  display: flex;
+}
+
+.card-header-headline {
+  font-weight: 500;
+  font-size: 0.9rem;
+  width: 192px;
+}
+
+.card-header-bio {
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+.card-profile-title {
+  padding-right: 60px;
+}
+
+.card-body-gnl {
+  padding: 0px;
+}
+
+.card-body-bio {
+  padding-top: 1rem;
+}
+
+.card-title {
+  font-weight: 400;
+  font-size: 0.8rem;
+  margin-top: 0.9rem;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+  margin-bottom: 0px;
+}
+.card-title-undercompany {
+  margin-top: 0.5rem;
+}
+.card-title-bottom {
+  margin-bottom: 0.9rem;
+}
+
+.card-text {
+  font-style: italic;
+}
+
+.btn-gnl {
+  border-top-left-radius: 4px !important;
+  border-bottom-left-radius: 4px !important;
+  cursor: default !important;
+}
+
+/* Mobile homepage buttons */
+.btn-mobile-home {
+  margin-bottom: 15px;
+  width: 16rem;
+  padding: 10px;
+}
+
+.linkedin_profile_card {
+  margin-top: 0px;
+  margin-bottom: 0px; /* Was 6px for old LinkedIn badges */
+  margin-left: 0px;
+  margin-right: 0px;
+}
+
+.LI-badge-container {
+	width: 100% !important;
+	-webkit-box-shadow:none !important;
+	-moz-box-shadow:none !important;
+	box-shadow:none !important;	
+}
+
+.LI-profile-pic {
+	width: 70px !important;
+	height: 70px !important;
+}
+
+.fa-globalnl {
+  margin-right: 0.2rem;
+  margin-left: 0.2rem;
+  width: 1.6rem;
+  text-align: center;
+}
+
+.fa-gnl-map {
+  margin-right: 0.2rem;
+  width: 1rem;
+  text-align: center;
+}
+
+.fa-gnl-head {
+  padding-right: 10px;
+  width: 5rem;
+}
+
+.fa-gnlsearch {
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+.gnl-user-photo {
+  width: 100%;
+  border-radius: 50%;
+}
+
+.form-row {
+  padding-left: 14px;
+  padding-right: 14px;
+}
+
+.input-group-prepend {
+  width: 38px;
+}
+
+/* For mobile app only navbar items which are hidden by default but are enabled for display through GoNative Custom CSS option */
+.mobile-app-only {
+  display: none;
+}
+
+.munLogoAdder {
+  position: absolute; 
+  right: 10px; 
+  top: 5px;
+}
+
+/* LinkedIn On/Off toggle button */
+
+/* The switch - the box around the slider */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  margin-left: 0px;
+  margin-bottom: 0px;
+}
+
+/* Hide default HTML checkbox */
+.switch input {
+  display: none;
+}
+
+/* The slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.5);
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
+}
+
+.slider:hover {
+  background-color: rgba(255, 255, 255, 0.75);
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 2px;
+  bottom: 2px;
+  background-color: #007bff;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
+}
+
+input:checked + .slider {
+  background-color: rgba(255, 255, 255, 0.75);
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #fff;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(20px);
+  -ms-transform: translateX(20px);
+  transform: translateX(20px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 28px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+.input-group {
+	margin-bottom: 10px;
+}
+
+.col-form-label {
+  font-weight: bold;
+}
+
+@media (min-width: 992px) {
+  .col-form-label {
+    text-align: right;
+  }
+}
+
+.linkedinBorder {
+  background-color: yellow;
+}
+
+/* Modal background */
+.gnl-modal {
+  display: none; /* Hidden by default */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal content */
+.modal-content {
+  background-color: #fefefe;
+  margin: 15% auto;
+  padding: 15px;
+  border: 1px solid #888;
+  width: 100%;
+}
+
+/* Modal close button */
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+/* Highlighting modal close button */
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* For images in the modal */
+.modal-image {
+  width: 100%;
+}
+
+
+.adminButton {
+  display: none;
+  margin-left: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+#adminEditToggle {
+  display: none;
+}
+
+.select2-selection {
+  border-left: 0 !important;
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  border-color: rgb(222, 226, 230) !important;
+  padding-bottom: 7px !important;
+  width: 100%;
+}
+/* LI badge preview uses this class without using select2
+    just because it works for the width */
+@media (min-width: 992px) and (max-width: 1199px) {
+  .select2-container {
+    width: 302.875px !important;
+  }
+}
+.select2-container {
+  flex: 1 1 auto;
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: auto;
+}
+
+.badge-error-message {
+  text-align: center;
+}
+
+#LIbadge {
+  border-radius: 4px;
+}
+
+@media (min-width: 1200px) {
+  #LIbadge {
+    max-width: 415.796px;
+  }
+}
