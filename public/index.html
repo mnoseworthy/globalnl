@@ -98,8 +98,16 @@
 			  </p>
 			  </div>
 			  <img class="mx-auto d-block" alt="Sign in with LinkedIn" id="sign-in-button" onClick="gnl.auth.loginLinkedIn();return false;"
-			  src="assets/Sign-In-Small---Default.png" onmouseover="this.src='assets/Sign-In-Small---Hover.png'" onmouseout="this.src='assets/Sign-In-Small---Default.png'"/>
-        <div class="w-100 m-2"></div>
+			  src="assets/Sign-in-Large---Default.png" onmouseover="this.src='assets/Sign-in-Large---Active.png'" onmouseout="this.src = 'assets/Sign-in-Large---Default.png'"/>
+			  &nbsp;
+			  <img class="mx-auto d-block" id="sign-in-button" onClick="toggleSignIn()"
+			  src="assets/Apple-Button--Normal.png" onmouseover="this.src='assets/Apple-Button--Pressed.png'" onmouseout="this.src = 'assets/Apple-Button--Normal.png'"/>
+			  &nbsp;
+			  <img class="mx-auto d-block" id="sign-in-button" onClick="GoogleLogin()"
+			  src="assets/google_signin_normal.png" onmouseover="this.src='assets/google_signin--pressed.png'" onmouseout="this.src = 'assets/google_signin_normal.png'"/>
+			  &nbsp;
+			  
+			  <div class="w-100 m-2"></div>
       <div id="loginPage_text" class="text-center">
 			  <small class="font-italic text-muted">
 			  Global NL uses LinkedIn to provide a secure<br/>experience for our commmunity of members
@@ -308,8 +316,8 @@
 				 to send messages to the Global NL Members
 				</p>
 				</div>
-				<img class="mx-auto d-block" alt="Sign in with LinkedIn" id="sign-in-button-loginModal" onClick="gnl.auth.loginLinkedIn();return false;"
-				src="assets/Sign-In-Small---Default.png" onmouseover="this.src='assets/Sign-In-Small---Hover.png'" onmouseout="this.src='assets/Sign-In-Small---Default.png'"/>
+			  <img class="mx-auto d-block" alt="Sign in with LinkedIn" id="sign-in-button" onClick="gnl.auth.loginLinkedIn();return false;"
+			  src="assets/Sign-in-Large---Default.png" onmouseover="this.src='assets/Sign-in-Large---Active.png'" onmouseout="this.src = 'assets/Sign-in-Large---Default.png'"/>
 		  	<div class="w-100 m-2"></div>
 			<div id="loginModal_text" class="text-center">
 					<small class="font-italic text-muted">
@@ -342,7 +350,7 @@
 	<!-- Site source, handlers and interfaces first, then the page code -->
 	<script type="text/javascript" src="gnl.js"></script>
 	<script type="text/javascript" src="index.js"></script>
-
+  	
 	 <!-- auto complete from google maps must be called after members.js -->
 	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBMkgmsa9F7zBtPw93YhaEzXrsbQkCT9T8&libraries=places&callback=initAutocomplete" async defer></script>
 

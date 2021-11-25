@@ -44,7 +44,9 @@ admin.initializeApp({
   storageBucket: `https://${functions.config().project.name}.appspot.com`
 });
 var db = admin.firestore();
-const settings = { timestampsInSnapshots: true };
+const settings = {
+  timestampsInSnapshots: true
+};
 db.settings(settings);
 
 //const OAUTH_SCOPES = ["r_liteprofile"];
@@ -63,26 +65,29 @@ exports.sendWelcomeEmail = functions.auth.user().onCreate(user => {
   var promiseArray = [];
   promiseArray.push(sendWelcomeEmail(email, displayName));
   promiseArray.push(mailchimp.post(
-			`/lists/${mailchimpListID}/members`,
-			{
-				email_address: email,
-				status: 'subscribed',
-				merge_fields:{FNAME: displayName}
-			}
-			)
-			.then((response)=>{
-				console.log(email + ' added to Mailchimp');
-				console.log(response);
-			}));
-    return Promise.all(promiseArray)
-	.catch(err => {
-		console.error(err);
-	});
+      `/lists/${mailchimpListID}/members`, {
+        email_address: email,
+        status: 'subscribed',
+        merge_fields: {
+          FNAME: displayName
+        }
+      }
+    )
+    .then((response) => {
+      console.log(email + ' added to Mailchimp');
+      console.log(response);
+    }));
+  return Promise.all(promiseArray)
+    .catch(err => {
+      console.error(err);
+    });
 });
 
 exports.sendMessageToUser = functions.https.onCall((data, context) => {
-  const { auth } = context,
-    isAuthed = Boolean(auth),
+  const {
+    auth
+  } = context,
+  isAuthed = Boolean(auth),
     MAX_MESSAGES_PER_DAY = 25;
 
   if (!isAuthed || !data || !data.toUserId || !data.message) {
@@ -91,7 +96,10 @@ exports.sendMessageToUser = functions.https.onCall((data, context) => {
   }
 
   const fromUserId = auth.uid,
-    { toUserId, message } = data,
+    {
+      toUserId,
+      message
+    } = data,
     members = db.collection("members"),
     privateData = db.collection("private_data"),
     fromUserPrivateDataDoc = privateData.doc(fromUserId);
@@ -100,13 +108,16 @@ exports.sendMessageToUser = functions.https.onCall((data, context) => {
     const fromUserPrivateData = fromUserSnapshot.data(),
       today = new Date();
 
-    let { send_message_date, send_message_count } = fromUserPrivateData;
+    let {
+      send_message_date,
+      send_message_count
+    } = fromUserPrivateData;
 
     const previousSendDate = Boolean(send_message_date) && send_message_date.toDate(),
       sendingAnotherMessageToday = Boolean(previousSendDate) &&
-        previousSendDate.getUTCFullYear() === today.getUTCFullYear() &&
-        previousSendDate.getUTCMonth() === today.getUTCMonth() &&
-        previousSendDate.getUTCDate() === today.getUTCDate();
+      previousSendDate.getUTCFullYear() === today.getUTCFullYear() &&
+      previousSendDate.getUTCMonth() === today.getUTCMonth() &&
+      previousSendDate.getUTCDate() === today.getUTCDate();
 
     if (sendingAnotherMessageToday) {
       if (send_message_count >= MAX_MESSAGES_PER_DAY) {
@@ -120,7 +131,12 @@ exports.sendMessageToUser = functions.https.onCall((data, context) => {
       send_message_count = 1;
     }
 
-    const upateSendMessageDateAndCount = fromUserPrivateDataDoc.set({ send_message_date, send_message_count }, { merge: true }),
+    const upateSendMessageDateAndCount = fromUserPrivateDataDoc.set({
+        send_message_date,
+        send_message_count
+      }, {
+        merge: true
+      }),
       getFromUser = members.doc(fromUserId).get(),
       getToUser = members.doc(toUserId).get(),
       getToUserPrivateData = privateData.doc(toUserId).get();
@@ -169,34 +185,34 @@ function linkedInClient(requestFromApp) {
   // TODO: Configure the `linkedin.client_id` and `linkedin.client_secret` Google Cloud environment variables.
   // Determines which project is being used and sets callback url accordingly
 
-  let callbackUrl = "https://members.globalnl.com/login.html";  
+  let callbackUrl = "https://members.globalnl.com/login.html";
   if (functions.config().project.name == "globalnl-members") {
     if (requestFromApp)
       callbackUrl = `https://app.globalnl.com/login.html`;
-  }
-  else if (functions.config().project.name == "globalnl-database-test") {
+  } else if (functions.config().project.name == "globalnl-database-test") {
     if (requestFromApp) {
       callbackUrl = `https://apptest.globalnl.com/login.html`;
     } else {
       callbackUrl = `https://memberstest.globalnl.com/login.html`;
     }
-  }
-  else {
+  } else {
     console.log("project id is invalid: " + functions.config().project.name);
   }
 
- return require("node-linkedin")(
-   functions.config().linkedin.client_id,
-   functions.config().linkedin.client_secret,
-   callbackUrl);
+  return require("node-linkedin")(
+    functions.config().linkedin.client_id,
+    functions.config().linkedin.client_secret,
+    callbackUrl);
 }
 
 /**
  * Redirects the User to the LinkedIn authentication consent screen. ALso the 'state' cookie is set for later state
  * verification.
  */
-exports.redirect = functions.https.onRequest((req, res) => {  
-  const { headers } = req;
+exports.redirect = functions.https.onRequest((req, res) => {
+  const {
+    headers
+  } = req;
   const userAgent = headers["user-agent"];
   console.log(userAgent);
 
@@ -229,7 +245,9 @@ exports.redirect = functions.https.onRequest((req, res) => {
  * 'callback' query parameter.
  */
 exports.token = functions.https.onRequest((req, res) => {
-  const { headers } = req;
+  const {
+    headers
+  } = req;
   const userAgent = headers["user-agent"];
   console.log(userAgent);
 
@@ -237,7 +255,7 @@ exports.token = functions.https.onRequest((req, res) => {
 
   if (userAgent.indexOf('gonative') > -1) { // condition true if app usage is coming from the mobile application       
     Linkedin = linkedInClient(true); // callbackUrl will be set as the mobile app specific Url
-  } else { 
+  } else {
     Linkedin = linkedInClient(false); // callbackUrl will be set as the non-mobile app specific Url
   }
 
@@ -254,7 +272,7 @@ exports.token = functions.https.onRequest((req, res) => {
           throw error;
         }
         const linkedin = Linkedin.init(results.access_token);
-        linkedin.people.email((error,userEmail) => {
+        linkedin.people.email((error, userEmail) => {
           if (error) {
             throw error;
           }
@@ -262,22 +280,22 @@ exports.token = functions.https.onRequest((req, res) => {
             if (error) {
               throw error;
             }
-          // We have a LinkedIn access token and the user identity now.
+            // We have a LinkedIn access token and the user identity now.
 
-          member = {
-            first_name: userResults.firstName.localized[Object.keys(userResults.firstName.localized)[0]] || "",
-            last_name: userResults.lastName.localized[Object.keys(userResults.lastName.localized)[0]] || "",
-            photoURL: "",
-            date_signedin: Date.now()
-          };
+            member = {
+              first_name: userResults.firstName.localized[Object.keys(userResults.firstName.localized)[0]] || "",
+              last_name: userResults.lastName.localized[Object.keys(userResults.lastName.localized)[0]] || "",
+              photoURL: "",
+              date_signedin: Date.now()
+            };
 
-          // Create a Firebase account and get the Custom Auth Token.
-          return createFirebaseAccount(
-            "00LI_" + userResults.id,
-            member.first_name + ' ' + member.last_name,
-            userResults.profilePicture['displayImage~'].elements[0].identifiers[0].identifier,//userResults.pictureUrl,
-            userEmail.elements[0]['handle~']['emailAddress']
-          ).then(firebaseToken => {
+            // Create a Firebase account and get the Custom Auth Token.
+            return createFirebaseAccount(
+              "00LI_" + userResults.id,
+              member.first_name + ' ' + member.last_name,
+              userResults.profilePicture['displayImage~'].elements[0].identifiers[0].identifier, //userResults.pictureUrl,
+              userEmail.elements[0]['handle~']['emailAddress']
+            ).then(firebaseToken => {
               // Serve an HTML page that signs the user in and updates the user profile.
               return res.jsonp({
                 token: firebaseToken
@@ -331,7 +349,7 @@ function createFirebaseAccount(uid, displayName, photoURL, email) {
             email: email,
             emailVerified: true
           })
-          .catch(function(error) {
+          .catch(function (error) {
             console.log("Error in createUserTask: ", error);
           });
         return Promise.all([createUserTask]).then(
@@ -342,39 +360,43 @@ function createFirebaseAccount(uid, displayName, photoURL, email) {
       } // END IF
       throw error;
     }) // END Catch
-      .then(() => {
-        const token = admin.auth().createCustomToken(uid);
-        
-        console.log("About to write member database record: ", uid);
+    .then(() => {
+      const token = admin.auth().createCustomToken(uid);
 
-        private_data.email = email || "";
+      console.log("About to write member database record: ", uid);
 
-        console.log(private_data);
-        console.log(member);
+      private_data.email = email || "";
 
-        const privateDatabaseTask = db
-          .collection("private_data")
-          .doc(uid)
-          .set(private_data, { merge: true })
-          .catch(function(error) {
-            console.log(error);
-            console.log("Error writing private database properties for ", uid);
-          });
-        const memberDatabaseTask = db
-          .collection("members")
-          .doc(uid)
-          .set(member, { merge: true })
-          .catch(function(error) {
-            console.log(error);
-            console.log("Error writing public database properties for ", uid);
-          });
-          return Promise.all([token, memberDatabaseTask, privateDatabaseTask]).then(
-            () => {
-              // Create a Firebase custom auth token.
-              return token;
-            }
-          );
+      console.log(private_data);
+      console.log(member);
+
+      const privateDatabaseTask = db
+        .collection("private_data")
+        .doc(uid)
+        .set(private_data, {
+          merge: true
+        })
+        .catch(function (error) {
+          console.log(error);
+          console.log("Error writing private database properties for ", uid);
         });
+      const memberDatabaseTask = db
+        .collection("members")
+        .doc(uid)
+        .set(member, {
+          merge: true
+        })
+        .catch(function (error) {
+          console.log(error);
+          console.log("Error writing public database properties for ", uid);
+        });
+      return Promise.all([token, memberDatabaseTask, privateDatabaseTask]).then(
+        () => {
+          // Create a Firebase custom auth token.
+          return token;
+        }
+      );
+    });
   return userTokenTask; //holds value of token
 }
 
@@ -431,7 +453,7 @@ exports.dbSet = functions.pubsub.schedule('11 * * * *')
           // condition to reset the limit and batch when the limit is hit
           if (limit == 0) {
             // commits the batch and pushes it to the promise array
-            promiseArray.push(batch[batchNum].commit().then(function() {
+            promiseArray.push(batch[batchNum].commit().then(function () {
               console.log("Database update complete for batch # " + (batchNum + 1) + " (mid)");
             }));
             batchNum = batchNum + 1; // increases the batch number to be used as an index for the batch array
@@ -445,7 +467,7 @@ exports.dbSet = functions.pubsub.schedule('11 * * * *')
           limit = limit - 1; // decrease the limit after the batch update is created
         });
         // commits the last batch and pushes it to the promise array after all users have been interated through
-        promiseArray.push(batch[batchNum].commit().then(function() {
+        promiseArray.push(batch[batchNum].commit().then(function () {
           console.log("Database update complete for batch # " + (batchNum + 1) + " (end)");
         }));
       })
@@ -457,4 +479,38 @@ exports.dbSet = functions.pubsub.schedule('11 * * * *')
     return Promise.all(promiseArray).then(() => {
       console.log("Completing function for records between " + startLetter + " and " + endLetter);
     });
+  });
+
+exports.addUser = functions.auth.user().onCreate(user => {
+  console.log ("Step 1 complete")
+  const email = user.email;
+  const uid = user.uid;
+  console.log ("trying to access the addUser function")
+  addUser(email,uid);
 });
+
+function addUser(email, uid){
+  db.collection('private_data').doc(uid).get()
+  .then(uid => {
+    if (uid.exists) {
+      console.log("The user's UID is already in the database");
+
+    } else {
+      const query = db.collection('private_data').where('email', '==', email);
+      query.get()
+        .then((querySnapshot) => {
+          if (querySnapshot.docs.length > 0) {
+            console.log("The user's Google email already in the database " + querySnapshot.docs[0].id);
+          } else if (querySnapshot.docs.length <= 0) {
+            console.log("user's email doesn't exist")
+            db.collection('private_data').doc(uid).set({
+              email: email
+            }, {
+              merge: true
+            });
+            console.log("user is added");
+          }
+        })
+    }
+  });
+}

@@ -1,0 +1,50 @@
+
+service cloud.firestore {
+
+  match /databases/{database}/documents {
+  // True if request UID exist in the moderators collection
+  	function isModerator()
+  {
+        return exists(/databases/$(database)/documents/moderators/$(request.auth.uid)) 
+  }
+  // Check user
+  function checkAuthorization(usr) {
+   return usr.split('/')[0] == request.auth.uid;
+	}
+
+  
+    match /members/{member}
+    {
+				// Only allow read if user is authenticated or, for mobile app, member privacy is public  
+        allow read:  if request.auth != null || resource.data.privacy == 'public';
+        allow create: if !exists(/databases/$(database)/documents/members/$(request.auth.uid))
+        									&& request.auth != null
+                      || isModerator();
+        allow update: if ( request.auth.uid == member ) 
+        							|| isModerator();  
+        allow delete: if ( request.auth.uid == member ) 
+        							|| isModerator();
+    }
+    match /private_data/{member}
+    {
+    		// Can be read if is moderator, the current user's data, or attempting to read the shared field
+    		allow read: 	if isModerator() 
+        							|| ( member == request.auth.uid )
+                      || ((request.data.keys().size() == 1) 
+                      	 && ('shared' in request.data.keys()));
+        allow create: if !exists(/databases/$(database)/documents/private_data/$(request.auth.uid)) 
+        								 && request.auth != null
+                      || isModerator();
+        allow update: if isModerator() 
+        							|| ( request.auth.uid == member );
+        allow delete: if ( request.auth.uid == member ) 
+        							|| isModerator();
+       
+    }
+    match /moderators/{member}
+    {
+    	allow read: if isModerator();
+    }
+
+  }
+}

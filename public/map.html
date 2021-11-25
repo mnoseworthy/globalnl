@@ -111,8 +111,15 @@
 			   to continue to the Global NL Members Portal
 			  </p>  
 			  </div>
-			  <img class="mx-auto d-block" alt="Sign in with LinkedIn" id="sign-in-button" onClick="gnl.auth.loginLinkedIn();return false;" 
-			  src="assets/Sign-In-Small---Default.png" onmouseover="this.src='assets/Sign-In-Small---Hover.png'" onmouseout="this.src='assets/Sign-In-Small---Default.png'"/>
+			  <img class="mx-auto d-block" alt="Sign in with LinkedIn" id="sign-in-button" onClick="gnl.auth.loginLinkedIn();return false;"
+			  src="assets/Sign-in-Large---Default.png" onmouseover="this.src='assets/Sign-in-Large---Active.png'" onmouseout="this.src = 'assets/Sign-in-Large---Default.png'"/>
+			  &nbsp;
+			  <img class="mx-auto d-block" id="sign-in-button" onClick="toggleSignIn()"
+			  src="assets/Apple-Button--Normal.png" onmouseover="this.src='assets/Apple-Button--Pressed.png'" onmouseout="this.src = 'assets/Apple-Button--Normal.png'"/>
+			  &nbsp;
+			  <img class="mx-auto d-block" id="sign-in-button" onClick="GoogleLogin()"
+			  src="assets/google_signin_normal.png" onmouseover="this.src='assets/google_signin--pressed.png'" onmouseout="this.src = 'assets/google_signin_normal.png'"/>
+			  &nbsp;
         <div class="w-100 m-2"></div>
       <div id="loginPage_text" class="text-center">
 			  <small class="font-italic text-muted">
